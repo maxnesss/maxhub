@@ -20,9 +20,10 @@ describe("lib/apps", () => {
   });
 
   it("filters unknown values from app-code arrays", () => {
-    expect(parseAppCodes(["PROJECTS", "BAD", "TASKS"])).toEqual([
+    expect(parseAppCodes(["PROJECTS", "BAD", "TASKS", "BAMBOO"])).toEqual([
       "PROJECTS",
       "TASKS",
+      "BAMBOO",
     ]);
   });
 
@@ -33,5 +34,6 @@ describe("lib/apps", () => {
     }
 
     expect(APP_DEFINITIONS.PROJECTS.href).toBe("/apps/projects");
+    expect(APP_DEFINITIONS.BAMBOO.href).toBe("/apps/bamboo");
   });
 });

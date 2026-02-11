@@ -15,6 +15,7 @@ enum AppCode {
   PROJECTS
   TASKS
   CALENDAR
+  BAMBOO
 }
 
 enum ProjectPriority {
@@ -34,6 +35,80 @@ model User {
   appPermissions UserAppPermission[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+}
+
+model BambooNameIdea {
+  id             String   @id @default(cuid())
+  name           String
+  normalizedName String   @unique
+  category       String
+  isCustom       Boolean  @default(false)
+  shortlisted    Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([category])
+  @@index([shortlisted])
+}
+
+model BambooInventoryIdea {
+  id             String   @id @default(cuid())
+  name           String
+  normalizedName String   @unique
+  notes          String
+  targetPriceBand String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model BambooShopLocation {
+  id             String   @id @default(cuid())
+  name           String
+  normalizedName String   @unique
+  notes          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model BambooShopRentalPlace {
+  id        String   @id @default(cuid())
+  foundAt   DateTime
+  price     String
+  location  String
+  link      String
+  notes     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([foundAt])
+}
+
+model BambooShopWebsite {
+  id        String   @id @default(cuid())
+  name      String
+  url       String   @unique
+  notes     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BambooShopConcept {
+  id               String   @id @default("default")
+  concept          String
+  targetSize       String
+  targetPriceRange String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model BambooShopBudgetItem {
+  id          String   @id @default(cuid())
+  category    String
+  monthlyCost String
+  oneTimeCost String
+  notes       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Project {

@@ -1,4 +1,4 @@
-export const APP_CODES = ["PROJECTS", "TASKS", "CALENDAR"] as const;
+export const APP_CODES = ["PROJECTS", "TASKS", "CALENDAR", "BAMBOO"] as const;
 
 export type AppCode = (typeof APP_CODES)[number];
 
@@ -21,6 +21,11 @@ export const APP_DEFINITIONS: Record<AppCode, AppDefinition> = {
   CALENDAR: {
     label: "Calendar",
     description: "View timelines, key dates, and upcoming milestones.",
+  },
+  BAMBOO: {
+    label: "Bamboo",
+    description: "Interactive business plan with live sections and milestones.",
+    href: "/apps/bamboo",
   },
 };
 
