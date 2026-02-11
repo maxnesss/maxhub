@@ -17,6 +17,12 @@ enum AppCode {
   CALENDAR
 }
 
+enum ProjectPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 model User {
   id           String    @id @default(cuid())
   email        String    @unique
@@ -34,6 +40,7 @@ model Project {
   slug        String   @unique
   title       String
   description String?
+  priority    ProjectPriority @default(MEDIUM)
   notes       String   @default("")
   ownerId     String
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { PROJECT_PRIORITIES } from "@/lib/project-priority";
+
 export const slugSchema = z
   .string()
   .trim()
@@ -14,6 +16,7 @@ export const projectSchema = z.object({
   title: z.string().trim().min(2).max(120),
   slug: slugSchema,
   description: z.union([z.string().trim().max(280), z.literal("")]).optional(),
+  priority: z.enum(PROJECT_PRIORITIES),
   notes: z.string().optional(),
 });
 

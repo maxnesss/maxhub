@@ -2,13 +2,17 @@ export const APP_CODES = ["PROJECTS", "TASKS", "CALENDAR"] as const;
 
 export type AppCode = (typeof APP_CODES)[number];
 
-export const APP_DEFINITIONS: Record<
-  AppCode,
-  { label: string; description: string }
-> = {
+export type AppDefinition = {
+  label: string;
+  description: string;
+  href?: string;
+};
+
+export const APP_DEFINITIONS: Record<AppCode, AppDefinition> = {
   PROJECTS: {
     label: "Projects",
     description: "Track tasks, releases, and deadlines in one feed.",
+    href: "/apps/projects",
   },
   TASKS: {
     label: "Tasks",

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { APP_CODES, APP_DEFINITIONS } from "@/lib/apps";
 import { canReadApp, requireUserContext } from "@/lib/authz";
 import { TopNav } from "@/components/layout/TopNav";
@@ -10,6 +12,7 @@ export default async function AppsPage() {
       code: appCode,
       name: APP_DEFINITIONS[appCode].label,
       details: APP_DEFINITIONS[appCode].description,
+      href: APP_DEFINITIONS[appCode].href,
     }),
   );
 
@@ -21,24 +24,38 @@ export default async function AppsPage() {
         <p className="text-xs font-semibold tracking-[0.16em] text-[#647494] uppercase">Apps</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">App catalog</h1>
         <p className="mt-4 max-w-2xl text-(--text-muted)">
-          You only see apps where you have read access. Edit access is managed in
-          Admin.
+          Pick a module tile to open your workspace. New modules will appear here
+          as your hub grows.
         </p>
       </section>
 
       {visibleApps.length > 0 ? (
-        <section className="mt-6 grid gap-4 md:grid-cols-3">
+        <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {visibleApps.map((app) => (
-            <article
-              key={app.code}
-              className="rounded-2xl border border-(--line) bg-white p-6"
-            >
-              <span className="rounded-md bg-[#edf2ff] px-2 py-1 text-xs font-semibold tracking-[0.14em] text-[#40528b] uppercase">
-                {user.role === "ADMIN" ? "Admin Access" : "Read Access"}
-              </span>
-              <h2 className="mt-4 text-xl font-semibold text-[#162947]">{app.name}</h2>
-              <p className="mt-2 text-sm leading-6 text-(--text-muted)">{app.details}</p>
-            </article>
+            app.href ? (
+              <Link
+                key={app.code}
+                href={app.href}
+                className="group block rounded-2xl border border-(--line) bg-white p-6 transition hover:-translate-y-0.5 hover:border-[#cfdbf2] hover:bg-[#fcfdff]"
+              >
+                <h2 className="text-xl font-semibold text-[#162947]">{app.name}</h2>
+                <p className="mt-2 text-sm leading-6 text-(--text-muted)">{app.details}</p>
+                <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
+                  Open app
+                </p>
+              </Link>
+            ) : (
+              <article
+                key={app.code}
+                className="rounded-2xl border border-(--line) bg-white p-6"
+              >
+                <h2 className="text-xl font-semibold text-[#162947]">{app.name}</h2>
+                <p className="mt-2 text-sm leading-6 text-(--text-muted)">{app.details}</p>
+                <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#7e8dac] uppercase">
+                  Coming soon
+                </p>
+              </article>
+            )
           ))}
         </section>
       ) : (
