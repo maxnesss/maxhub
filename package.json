@@ -26,7 +26,7 @@
     "create:user": "node --env-file=.env create-user.mjs"
   },
   "engines": {
-    "node": "^20.19 || ^22.12 || >=24"
+    "node": "22.x"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
