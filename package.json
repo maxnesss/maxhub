@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "check:tailwind:canonical": "node scripts/tailwind-canonicalize.mjs --check",
+    "fix:tailwind:canonical": "node scripts/tailwind-canonicalize.mjs --write",
+    "lint:tailwind": "eslint . --max-warnings=0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
@@ -38,6 +41,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "eslint-plugin-tailwindcss": "^4.0.0-beta.0",
     "prisma": "^7.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"

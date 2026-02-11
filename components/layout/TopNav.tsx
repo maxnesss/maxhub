@@ -11,14 +11,14 @@ export async function TopNav({ current }: TopNavProps) {
   const email = session?.user?.email;
 
   return (
-    <nav className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--line)] bg-white/90 px-5 py-4 shadow-[0_14px_36px_-28px_rgba(19,33,58,0.45)] backdrop-blur-sm">
+    <nav className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-(--line) bg-white/90 px-5 py-4 shadow-[0_14px_36px_-28px_rgba(19,33,58,0.45)] backdrop-blur-sm">
       <Link href="/" className="group flex items-center gap-3">
         <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#d4ddf0] bg-white text-sm font-semibold text-[#20304c] shadow-[0_10px_22px_-16px_rgba(32,48,76,0.45)]">
           MH
         </span>
         <span className="inline-flex items-center gap-2 font-semibold tracking-tight text-[#1a2943]">
           MaxHub
-          <span className="h-2 w-2 rounded-full bg-[var(--accent-cyan)] transition group-hover:bg-[var(--accent-blue)]" />
+          <span className="h-2 w-2 rounded-full bg-(--accent-cyan) transition group-hover:bg-(--accent-blue)" />
         </span>
       </Link>
 
@@ -43,7 +43,7 @@ export async function TopNav({ current }: TopNavProps) {
                 : "border-[#dce4f3] bg-[#f9fbff] hover:bg-[#f3f7ff]"
             }`}
           >
-            <span className="h-2 w-2 rounded-full bg-[var(--accent-blue)]" />
+            <span className="h-2 w-2 rounded-full bg-(--accent-blue)" />
             {email}
           </Link>
         ) : (

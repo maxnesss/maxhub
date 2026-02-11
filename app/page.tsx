@@ -30,16 +30,16 @@ export default async function Home() {
       <main className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-8">
         <TopNav current="home" />
 
-        <section className="animate-fade-up mt-10 grid gap-6 rounded-3xl border border-[var(--line)] bg-[var(--surface-1)] p-8 shadow-[0_20px_45px_-34px_rgba(19,33,58,0.55)] md:grid-cols-[1.2fr_0.8fr] md:p-10">
+        <section className="animate-fade-up mt-10 grid gap-6 rounded-3xl border border-(--line) bg-(--surface-1) p-8 shadow-[0_20px_45px_-34px_rgba(19,33,58,0.55)] md:grid-cols-[1.2fr_0.8fr] md:p-10">
           <div>
-            <p className="inline-flex rounded-full bg-[#eef2ff] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#40538a]">
+            <p className="inline-flex rounded-full bg-[#eef2ff] px-3 py-1 text-xs font-semibold tracking-[0.16em] text-[#40538a] uppercase">
               Personal Hub
             </p>
 
             <h1 className="mt-5 max-w-xl text-4xl font-semibold tracking-tight text-[#12223c] sm:text-5xl">
               Welcome to MaxHub
             </h1>
-            <p className="mt-4 max-w-lg text-lg leading-8 text-[var(--text-muted)]">
+            <p className="mt-4 max-w-lg text-lg leading-8 text-(--text-muted)">
               {isSignedIn
                 ? "A clean space to manage your apps. You are signed in."
                 : "A clean space to manage your apps. Please log in to continue."}
@@ -64,8 +64,8 @@ export default async function Home() {
           </div>
 
           <aside className="relative rounded-2xl border border-[#dfe7f5] bg-[#fbfdff] p-5">
-            <div className="absolute -right-4 -top-4 h-16 w-16 rounded-2xl bg-[#edf7ff] animate-soft-float" />
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#5c6f92]">
+            <div className="animate-soft-float absolute -top-4 -right-4 h-16 w-16 rounded-2xl bg-[#edf7ff]" />
+            <p className="text-xs font-semibold tracking-[0.14em] text-[#5c6f92] uppercase">
               Overview
             </p>
             <ul className="mt-4 space-y-3 text-sm text-[#51607a]">
@@ -80,14 +80,14 @@ export default async function Home() {
           {highlights.map((item, index) => (
             <article
               key={item.title}
-              className="animate-fade-up rounded-2xl border border-[var(--line)] bg-white p-6"
+              className="animate-fade-up rounded-2xl border border-(--line) bg-white p-6"
               style={{ animationDelay: `${0.08 * (index + 1)}s` }}
             >
               <span className={`rounded-md px-2 py-1 text-xs font-semibold ${item.color}`}>
                 Detail
               </span>
               <h2 className="mt-4 text-lg font-semibold text-[#182a47]">{item.title}</h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">{item.description}</p>
+              <p className="mt-2 text-sm leading-6 text-(--text-muted)">{item.description}</p>
             </article>
           ))}
         </section>
