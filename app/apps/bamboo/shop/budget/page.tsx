@@ -4,6 +4,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { canEditApp, requireAppRead } from "@/lib/authz";
+import { formatCzkAmount, getBudgetTotals, parseCzkAmount } from "@/lib/bamboo-budget";
 import { prisma } from "@/prisma";
 
 import {
@@ -33,6 +34,7 @@ export default async function BambooShopBudgetPage({
   const budgetItems = await prisma.bambooShopBudgetItem.findMany({
     orderBy: [{ createdAt: "asc" }, { category: "asc" }],
   });
+  const budgetTotals = getBudgetTotals(budgetItems);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
@@ -103,16 +105,51 @@ export default async function BambooShopBudgetPage({
         </article>
       </section>
 
+      <section className="mt-6 grid gap-4 md:grid-cols-3">
+        <article className="rounded-2xl border border-(--line) bg-white p-5">
+          <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
+            Monthly total
+          </p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight text-[#162947]">
+            {formatCzkAmount(budgetTotals.monthly)}
+          </p>
+        </article>
+        <article className="rounded-2xl border border-(--line) bg-white p-5">
+          <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
+            One-time total
+          </p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight text-[#162947]">
+            {formatCzkAmount(budgetTotals.oneTime)}
+          </p>
+        </article>
+        <article className="rounded-2xl border border-(--line) bg-[#f8fbff] p-5">
+          <p className="text-xs font-semibold tracking-[0.12em] text-[#5f7093] uppercase">
+            Estimated setup boost
+          </p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight text-[#162947]">
+            +{formatCzkAmount(budgetTotals.oneTime)}
+          </p>
+          <p className="mt-1 text-xs text-[#5f7093]">Automatically reflected on Bamboo main page.</p>
+        </article>
+      </section>
+
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
           Budget lines
         </h2>
 
+        <div className="mt-4 hidden grid-cols-[1fr_0.7fr_0.7fr_1.6fr_auto] gap-2 rounded-lg border border-[#e3eaf7] bg-[#f7faff] px-3 py-2 text-xs font-semibold tracking-[0.1em] text-[#61708e] uppercase md:grid">
+          <p>Category</p>
+          <p>Monthly (CZK)</p>
+          <p>One-time (CZK)</p>
+          <p>Notes</p>
+          <p>Actions</p>
+        </div>
         <div className="mt-4 space-y-2">
           {budgetItems.map((item) => (
             <div key={item.id} className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-3">
               {canEdit ? (
-                <form action={updateShopBudgetItemAction} className="grid gap-2 md:grid-cols-[0.8fr_0.7fr_0.7fr_1.6fr_auto_auto] md:items-start">
+                <form action={updateShopBudgetItemAction} className="grid gap-2 md:grid-cols-[1fr_0.7fr_0.7fr_1.6fr_auto_auto] md:items-start">
                   <input type="hidden" name="id" value={item.id} />
                   <input
                     type="text"
@@ -123,19 +160,21 @@ export default async function BambooShopBudgetPage({
                     className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
                   />
                   <input
-                    type="text"
-                    name="monthlyCost"
-                    defaultValue={item.monthlyCost}
+                    type="number"
+                    name="monthlyCostCzk"
+                    defaultValue={parseCzkAmount(item.monthlyCost)}
                     required
-                    maxLength={120}
+                    min={0}
+                    step={1}
                     className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
                   />
                   <input
-                    type="text"
-                    name="oneTimeCost"
-                    defaultValue={item.oneTimeCost}
+                    type="number"
+                    name="oneTimeCostCzk"
+                    defaultValue={parseCzkAmount(item.oneTimeCost)}
                     required
-                    maxLength={120}
+                    min={0}
+                    step={1}
                     className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
                   />
                   <textarea
@@ -160,10 +199,10 @@ export default async function BambooShopBudgetPage({
                   </button>
                 </form>
               ) : (
-                <div className="grid gap-2 md:grid-cols-[0.8fr_0.7fr_0.7fr_1.6fr]">
+                <div className="grid gap-2 md:grid-cols-[1fr_0.7fr_0.7fr_1.6fr]">
                   <p className="text-sm font-semibold text-[#1a2b49]">{item.category}</p>
-                  <p className="text-sm text-[#1a2b49]">{item.monthlyCost}</p>
-                  <p className="text-sm text-[#1a2b49]">{item.oneTimeCost}</p>
+                  <p className="text-sm text-[#1a2b49]">{formatCzkAmount(parseCzkAmount(item.monthlyCost))}</p>
+                  <p className="text-sm text-[#1a2b49]">{formatCzkAmount(parseCzkAmount(item.oneTimeCost))}</p>
                   <p className="text-sm text-(--text-muted)">{item.notes}</p>
                 </div>
               )}
@@ -172,7 +211,7 @@ export default async function BambooShopBudgetPage({
         </div>
 
         {canEdit ? (
-          <form action={addShopBudgetItemAction} className="mt-4 grid gap-2 md:grid-cols-[0.8fr_0.7fr_0.7fr_1.6fr_auto] md:items-start">
+          <form action={addShopBudgetItemAction} className="mt-4 grid gap-2 md:grid-cols-[1fr_0.7fr_0.7fr_1.6fr_auto] md:items-start">
             <input
               type="text"
               name="category"
@@ -182,19 +221,21 @@ export default async function BambooShopBudgetPage({
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <input
-              type="text"
-              name="monthlyCost"
+              type="number"
+              name="monthlyCostCzk"
               required
-              maxLength={120}
-              placeholder="Monthly"
+              min={0}
+              step={1}
+              placeholder="0"
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <input
-              type="text"
-              name="oneTimeCost"
+              type="number"
+              name="oneTimeCostCzk"
               required
-              maxLength={120}
-              placeholder="One-time"
+              min={0}
+              step={1}
+              placeholder="0"
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <textarea

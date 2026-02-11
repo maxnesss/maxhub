@@ -1,0 +1,12 @@
+model Project {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  title       String
+  description String?
+  priority    ProjectPriority @default(MEDIUM)
+  notes       String          @default("")
+  ownerId     String
+  owner       User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}

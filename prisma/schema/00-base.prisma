@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum AppCode {
+  PROJECTS
+  TASKS
+  CALENDAR
+  BAMBOO
+}
+
+enum ProjectPriority {
+  LOW
+  MEDIUM
+  HIGH
+}

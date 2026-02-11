@@ -7,10 +7,17 @@ import { z } from "zod";
 import { requireAppEdit } from "@/lib/authz";
 import { prisma } from "@/prisma";
 
+const amountSchema = z
+  .string()
+  .trim()
+  .regex(/^\d+$/)
+  .transform((value) => Number.parseInt(value, 10))
+  .pipe(z.number().int().min(0).max(1_000_000_000));
+
 const budgetSchema = z.object({
   category: z.string().trim().min(2).max(120),
-  monthlyCost: z.string().trim().min(1).max(120),
-  oneTimeCost: z.string().trim().min(1).max(120),
+  monthlyCostCzk: amountSchema,
+  oneTimeCostCzk: amountSchema,
   notes: z.string().trim().min(0).max(1200),
 });
 
@@ -24,6 +31,8 @@ const deleteSchema = z.object({
 
 function done(saved: string) {
   revalidatePath("/apps/bamboo/shop/budget");
+  revalidatePath("/apps/bamboo/shop");
+  revalidatePath("/apps/bamboo");
   redirect(`/apps/bamboo/shop/budget?saved=${saved}`);
 }
 
@@ -36,8 +45,8 @@ export async function addShopBudgetItemAction(formData: FormData) {
 
   const parsed = budgetSchema.safeParse({
     category: formData.get("category"),
-    monthlyCost: formData.get("monthlyCost"),
-    oneTimeCost: formData.get("oneTimeCost"),
+    monthlyCostCzk: formData.get("monthlyCostCzk"),
+    oneTimeCostCzk: formData.get("oneTimeCostCzk"),
     notes: formData.get("notes") || "",
   });
 
@@ -46,7 +55,12 @@ export async function addShopBudgetItemAction(formData: FormData) {
   }
 
   await prisma.bambooShopBudgetItem.create({
-    data: parsed.data,
+    data: {
+      category: parsed.data.category,
+      monthlyCost: String(parsed.data.monthlyCostCzk),
+      oneTimeCost: String(parsed.data.oneTimeCostCzk),
+      notes: parsed.data.notes,
+    },
   });
 
   done("added");
@@ -58,8 +72,8 @@ export async function updateShopBudgetItemAction(formData: FormData) {
   const parsed = updateBudgetSchema.safeParse({
     id: formData.get("id"),
     category: formData.get("category"),
-    monthlyCost: formData.get("monthlyCost"),
-    oneTimeCost: formData.get("oneTimeCost"),
+    monthlyCostCzk: formData.get("monthlyCostCzk"),
+    oneTimeCostCzk: formData.get("oneTimeCostCzk"),
     notes: formData.get("notes") || "",
   });
 
@@ -71,8 +85,8 @@ export async function updateShopBudgetItemAction(formData: FormData) {
     where: { id: parsed.data.id },
     data: {
       category: parsed.data.category,
-      monthlyCost: parsed.data.monthlyCost,
-      oneTimeCost: parsed.data.oneTimeCost,
+      monthlyCost: String(parsed.data.monthlyCostCzk),
+      oneTimeCost: String(parsed.data.oneTimeCostCzk),
       notes: parsed.data.notes,
     },
   });

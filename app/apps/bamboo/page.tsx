@@ -3,6 +3,7 @@ import Link from "next/link";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
+import { getBudgetTotals, getEstimatedSetupCostLabel } from "@/lib/bamboo-budget";
 import {
   BAMBOO_GENERAL_TILES,
   BAMBOO_INVENTORY_TILES,
@@ -10,9 +11,24 @@ import {
   BAMBOO_SHOP_TILES,
   BAMBOO_SETUP_COMPANY_TILES,
 } from "@/lib/bamboo-content";
+import { prisma } from "@/prisma";
 
 export default async function BambooPage() {
   await requireAppRead("BAMBOO");
+
+  const budgetItems = await prisma.bambooShopBudgetItem.findMany({
+    select: {
+      monthlyCost: true,
+      oneTimeCost: true,
+    },
+  });
+
+  const budgetTotals = getBudgetTotals(budgetItems);
+  const overviewStats = BAMBOO_OVERVIEW_STATS.map((stat) =>
+    stat.label === "Estimated setup cost"
+      ? { ...stat, value: getEstimatedSetupCostLabel(budgetTotals.oneTime) }
+      : stat,
+  );
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
@@ -35,7 +51,7 @@ export default async function BambooPage() {
       </section>
 
       <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {BAMBOO_OVERVIEW_STATS.map((stat) => (
+        {overviewStats.map((stat) => (
           <article key={stat.label} className="rounded-2xl border border-(--line) bg-white p-5">
             <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
               {stat.label}

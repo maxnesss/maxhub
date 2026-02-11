@@ -9,7 +9,7 @@ import { prisma } from "@/prisma";
 import { saveShopConceptAction } from "./actions";
 
 type ShopConceptPageProps = {
-  searchParams: Promise<{ saved?: string; error?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string; edit?: string }>;
 };
 
 const DEFAULT_CONCEPT = {
@@ -24,7 +24,8 @@ export default async function BambooShopConceptPage({
 }: ShopConceptPageProps) {
   const user = await requireAppRead("BAMBOO");
   const canEdit = canEditApp(user, "BAMBOO");
-  const { saved, error } = await searchParams;
+  const { saved, error, edit } = await searchParams;
+  const isEditMode = canEdit && edit === "1";
 
   const concept = await prisma.bambooShopConcept.findUnique({
     where: { id: "default" },
@@ -61,16 +62,34 @@ export default async function BambooShopConceptPage({
             </p>
           </div>
 
-          <Link
-            href="/apps/bamboo/shop"
-            className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
-          >
-            Back to shop
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            {canEdit && !isEditMode ? (
+              <Link
+                href="/apps/bamboo/shop/concept?edit=1"
+                className="inline-flex rounded-xl border border-[#d9e2f3] bg-[#f8faff] px-4 py-2 text-sm font-semibold text-[#34548d] hover:bg-[#edf3ff]"
+              >
+                Edit
+              </Link>
+            ) : null}
+            {isEditMode ? (
+              <Link
+                href="/apps/bamboo/shop/concept"
+                className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+              >
+                Cancel
+              </Link>
+            ) : null}
+            <Link
+              href="/apps/bamboo/shop"
+              className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+            >
+              Back to shop
+            </Link>
+          </div>
         </div>
       </section>
 
-      {canEdit ? (
+      {isEditMode ? (
         <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
             Editable concept settings

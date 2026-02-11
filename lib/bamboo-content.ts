@@ -96,10 +96,28 @@ export const BAMBOO_INVENTORY_TILES: BambooTile[] = [
 
 export const BAMBOO_SHOP_TILES: BambooTile[] = [
   {
-    title: "Shop",
+    title: "Shop overview",
     href: "/apps/bamboo/shop",
-    description: "Storefront strategy, channels, operations, and launch readiness.",
+    description: "Storefront strategy, channels, operations, and launch readiness summary.",
     badge: "Commerce",
+  },
+  {
+    title: "Location",
+    href: "/apps/bamboo/shop/location",
+    description: "Location strategy, candidate areas, and rental listing tracker.",
+    badge: "Location",
+  },
+  {
+    title: "Concept",
+    href: "/apps/bamboo/shop/concept",
+    description: "Target size, target price range, and store concept narrative.",
+    badge: "Concept",
+  },
+  {
+    title: "Budget",
+    href: "/apps/bamboo/shop/budget",
+    description: "Detailed budget lines with one-time and monthly cost planning.",
+    badge: "Budget",
   },
 ];
 
