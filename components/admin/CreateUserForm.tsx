@@ -35,7 +35,12 @@ export function CreateUserForm() {
   }, [state.success]);
 
   return (
-    <form ref={formRef} action={formAction} className="space-y-4">
+    <form
+      ref={formRef}
+      action={formAction}
+      autoComplete="off"
+      className="space-y-4"
+    >
       <div className="grid gap-4 md:grid-cols-2">
         <label className="space-y-1">
           <span className="text-sm font-medium text-[#132441]">Email</span>
@@ -43,20 +48,27 @@ export function CreateUserForm() {
             type="email"
             name="email"
             required
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             className="w-full rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             placeholder="user@example.com"
           />
         </label>
 
         <label className="space-y-1">
-          <span className="text-sm font-medium text-[#132441]">Password</span>
+          <span className="text-sm font-medium text-[#132441]">
+            Password (Initial password: Maxhub1234)
+          </span>
           <input
             type="password"
             name="password"
             required
             minLength={8}
+            autoComplete="new-password"
+            defaultValue="Maxhub1234"
             className="w-full rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-            placeholder="Minimum 8 characters"
           />
         </label>
 
