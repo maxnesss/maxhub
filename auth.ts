@@ -5,12 +5,19 @@ import { z } from "zod";
 
 import { prisma } from "@/prisma";
 
+const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+const authBaseUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL;
+
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 });
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: authSecret,
+  basePath: "/api/auth",
+  trustHost: true,
+  ...(authBaseUrl ? { url: authBaseUrl } : {}),
   session: {
     strategy: "jwt",
   },

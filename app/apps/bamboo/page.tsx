@@ -3,7 +3,11 @@ import Link from "next/link";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
-import { getBudgetTotals, getEstimatedSetupCostLabel } from "@/lib/bamboo-budget";
+import {
+  getBudgetTotals,
+  getEstimatedSetupCostLabel,
+  getRecommendedCapitalLabel,
+} from "@/lib/bamboo-budget";
 import {
   BAMBOO_GENERAL_TILES,
   BAMBOO_INVENTORY_TILES,
@@ -24,10 +28,17 @@ export default async function BambooPage() {
   });
 
   const budgetTotals = getBudgetTotals(budgetItems);
+  const estimatedSetupCostLabel = getEstimatedSetupCostLabel(budgetTotals.oneTime);
+  const recommendedCapitalLabel = getRecommendedCapitalLabel(
+    budgetTotals.oneTime,
+    budgetTotals.monthly,
+  );
   const overviewStats = BAMBOO_OVERVIEW_STATS.map((stat) =>
     stat.label === "Estimated setup cost"
-      ? { ...stat, value: getEstimatedSetupCostLabel(budgetTotals.oneTime) }
-      : stat,
+      ? { ...stat, value: estimatedSetupCostLabel }
+      : stat.label === "Recommended capital"
+        ? { ...stat, value: recommendedCapitalLabel }
+        : stat,
   );
 
   return (
