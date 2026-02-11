@@ -40,6 +40,7 @@ beforeAll(async () => {
     id: testOwnerId,
     email: TEST_EMAIL,
     name: "Integration Test User",
+    nickname: null,
     role: "ADMIN",
     appPermissions: [],
   });

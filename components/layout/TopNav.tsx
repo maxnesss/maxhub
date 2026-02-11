@@ -9,18 +9,23 @@ type TopNavProps = {
 
 export async function TopNav({ current }: TopNavProps) {
   const session = await auth();
-  const email = session?.user?.email;
 
-  const role = session?.user?.id
+  const user = session?.user?.id
     ? (
         await prisma.user.findUnique({
           where: { id: session.user.id },
-          select: { role: true },
+          select: {
+            role: true,
+            email: true,
+            name: true,
+            nickname: true,
+          },
         })
-      )?.role
+      )
     : undefined;
 
-  const isAdmin = role === "ADMIN";
+  const isAdmin = user?.role === "ADMIN";
+  const profileIdentity = user?.nickname || user?.name || user?.email;
 
   return (
     <nav className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-(--line) bg-white/90 px-5 py-4 shadow-[0_14px_36px_-28px_rgba(19,33,58,0.45)] backdrop-blur-sm">
@@ -59,7 +64,7 @@ export async function TopNav({ current }: TopNavProps) {
           </Link>
         ) : null}
 
-        {email ? (
+        {profileIdentity ? (
           <Link
             href="/profile"
             className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm text-[#50607f] ${
@@ -69,7 +74,7 @@ export async function TopNav({ current }: TopNavProps) {
             }`}
           >
             <span className="h-2 w-2 rounded-full bg-(--accent-blue)" />
-            {email}
+            {profileIdentity}
           </Link>
         ) : (
           <Link

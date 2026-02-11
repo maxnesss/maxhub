@@ -10,6 +10,7 @@ export type UserContext = {
   id: string;
   email: string;
   name: string | null;
+  nickname: string | null;
   role: "ADMIN" | "USER";
   appPermissions: { app: AppCode; canRead: boolean; canEdit: boolean }[];
 };
@@ -44,6 +45,7 @@ export async function getCurrentUserContext(): Promise<UserContext | null> {
       id: true,
       email: true,
       name: true,
+      nickname: true,
       role: true,
       appPermissions: {
         select: {
@@ -71,6 +73,7 @@ export async function getCurrentUserContext(): Promise<UserContext | null> {
     id: user.id,
     email: user.email,
     name: user.name,
+    nickname: user.nickname,
     role: user.role,
     appPermissions: normalizedPermissions,
   };

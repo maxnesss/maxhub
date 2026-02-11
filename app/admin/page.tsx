@@ -20,13 +20,22 @@ export default async function AdminPage() {
           Manage user roles and per-app read/edit permissions.
         </p>
 
-        <div className="mt-8">
+        <div className="mt-8 space-y-3">
           <Link
             href="/admin/users"
             className="inline-flex rounded-xl border border-[#d9e2f3] px-5 py-3 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
           >
             Open users permissions
           </Link>
+
+          <div>
+            <Link
+              href="/admin/users/new"
+              className="inline-flex rounded-xl border border-[#d9e2f3] px-5 py-3 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+            >
+              Create user
+            </Link>
+          </div>
         </div>
       </section>
     </main>
