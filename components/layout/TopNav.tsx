@@ -1,14 +1,26 @@
 import Link from "next/link";
 
 import { auth } from "@/auth";
+import { prisma } from "@/prisma";
 
 type TopNavProps = {
-  current?: "home" | "apps" | "profile";
+  current?: "home" | "apps" | "profile" | "admin";
 };
 
 export async function TopNav({ current }: TopNavProps) {
   const session = await auth();
   const email = session?.user?.email;
+
+  const role = session?.user?.id
+    ? (
+        await prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { role: true },
+        })
+      )?.role
+    : undefined;
+
+  const isAdmin = role === "ADMIN";
 
   return (
     <nav className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-(--line) bg-white/90 px-5 py-4 shadow-[0_14px_36px_-28px_rgba(19,33,58,0.45)] backdrop-blur-sm">
@@ -33,6 +45,19 @@ export async function TopNav({ current }: TopNavProps) {
         >
           Apps
         </Link>
+
+        {isAdmin ? (
+          <Link
+            href="/admin"
+            className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+              current === "admin"
+                ? "bg-[#eef2ff] text-[#2c3f70]"
+                : "text-[#55627e] hover:bg-[#f3f6fd]"
+            }`}
+          >
+            Admin
+          </Link>
+        ) : null}
 
         {email ? (
           <Link

@@ -2,16 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 
-import { auth } from "@/auth";
+import { requireAppEdit } from "@/lib/authz";
 import type { NewProjectInput, ProjectEditInput } from "@/lib/validations/project";
 import { projectEditSchema, projectSchema } from "@/lib/validations/project";
 import { prisma } from "@/prisma";
 
 export async function createProjectAction(input: NewProjectInput) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
+  const user = await requireAppEdit("PROJECTS");
 
   const data = projectSchema.parse(input);
 
@@ -21,7 +18,7 @@ export async function createProjectAction(input: NewProjectInput) {
       slug: data.slug,
       description: data.description || null,
       notes: data.notes || "",
-      ownerId: session.user.id,
+      ownerId: user.id,
     },
   });
 
@@ -30,17 +27,14 @@ export async function createProjectAction(input: NewProjectInput) {
 }
 
 export async function updateProjectAction(input: ProjectEditInput) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
+  const user = await requireAppEdit("PROJECTS");
 
   const data = projectEditSchema.parse(input);
 
   const existing = await prisma.project.findFirst({
     where: {
       id: data.id,
-      ownerId: session.user.id,
+      ownerId: user.id,
     },
     select: { id: true },
   });

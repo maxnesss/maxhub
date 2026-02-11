@@ -3,10 +3,28 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import pg from "pg";
 
-const [, , rawEmail, rawPassword, ...nameParts] = process.argv;
+const args = process.argv.slice(2);
+const roleArgIndex = args.findIndex((arg) => arg.startsWith("--role="));
+
+let role = "USER";
+if (roleArgIndex >= 0) {
+  const parsedRole = args[roleArgIndex].split("=")[1]?.toUpperCase();
+  if (parsedRole === "ADMIN" || parsedRole === "USER") {
+    role = parsedRole;
+  } else {
+    console.error("Role must be USER or ADMIN.");
+    process.exit(1);
+  }
+
+  args.splice(roleArgIndex, 1);
+}
+
+const [rawEmail, rawPassword, ...nameParts] = args;
 
 if (!rawEmail || !rawPassword) {
-  console.error("Usage: npm run create:user -- <email> <password> [name]");
+  console.error(
+    "Usage: npm run create:user -- <email> <password> [name] [--role=ADMIN]",
+  );
   process.exit(1);
 }
 
@@ -32,11 +50,13 @@ try {
     update: {
       name,
       passwordHash,
+      role,
     },
     create: {
       email,
       name,
       passwordHash,
+      role,
     },
   });
 

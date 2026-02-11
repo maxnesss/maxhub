@@ -6,12 +6,25 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+enum AppCode {
+  PROJECTS
+  TASKS
+  CALENDAR
+}
+
 model User {
   id           String    @id @default(cuid())
   email        String    @unique
   name         String?
+  role         Role      @default(USER)
   passwordHash String
   projects     Project[]
+  appPermissions UserAppPermission[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -26,4 +39,18 @@ model Project {
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model UserAppPermission {
+  id        String   @id @default(cuid())
+  userId    String
+  app       AppCode
+  canRead   Boolean  @default(false)
+  canEdit   Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, app])
+  @@index([app])
 }

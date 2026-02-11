@@ -1,24 +1,18 @@
+import { APP_CODES, APP_DEFINITIONS } from "@/lib/apps";
+import { canReadApp, requireUserContext } from "@/lib/authz";
 import { TopNav } from "@/components/layout/TopNav";
 
-const appCards = [
-  {
-    name: "Project board",
-    status: "Planned",
-    details: "Track tasks, releases, and deadlines in one feed.",
-  },
-  {
-    name: "Knowledge vault",
-    status: "Planned",
-    details: "Collect notes, docs, and references for each app.",
-  },
-  {
-    name: "Automation lab",
-    status: "Planned",
-    details: "Run scripts and workflows from a single interface.",
-  },
-];
+export default async function AppsPage() {
+  const user = await requireUserContext();
 
-export default function AppsPage() {
+  const visibleApps = APP_CODES.filter((appCode) => canReadApp(user, appCode)).map(
+    (appCode) => ({
+      code: appCode,
+      name: APP_DEFINITIONS[appCode].label,
+      details: APP_DEFINITIONS[appCode].description,
+    }),
+  );
+
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
       <TopNav current="apps" />
@@ -27,22 +21,34 @@ export default function AppsPage() {
         <p className="text-xs font-semibold tracking-[0.16em] text-[#647494] uppercase">Apps</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">App catalog</h1>
         <p className="mt-4 max-w-2xl text-(--text-muted)">
-          This is the home for the modules you add to MaxHub. Keep it simple and
-          grow by adding one useful app at a time.
+          You only see apps where you have read access. Edit access is managed in
+          Admin.
         </p>
       </section>
 
-      <section className="mt-6 grid gap-4 md:grid-cols-3">
-        {appCards.map((app) => (
-          <article key={app.name} className="rounded-2xl border border-(--line) bg-white p-6">
-            <span className="rounded-md bg-[#edf2ff] px-2 py-1 text-xs font-semibold tracking-[0.14em] text-[#40528b] uppercase">
-              {app.status}
-            </span>
-            <h2 className="mt-4 text-xl font-semibold text-[#162947]">{app.name}</h2>
-            <p className="mt-2 text-sm leading-6 text-(--text-muted)">{app.details}</p>
-          </article>
-        ))}
-      </section>
+      {visibleApps.length > 0 ? (
+        <section className="mt-6 grid gap-4 md:grid-cols-3">
+          {visibleApps.map((app) => (
+            <article
+              key={app.code}
+              className="rounded-2xl border border-(--line) bg-white p-6"
+            >
+              <span className="rounded-md bg-[#edf2ff] px-2 py-1 text-xs font-semibold tracking-[0.14em] text-[#40528b] uppercase">
+                {user.role === "ADMIN" ? "Admin Access" : "Read Access"}
+              </span>
+              <h2 className="mt-4 text-xl font-semibold text-[#162947]">{app.name}</h2>
+              <p className="mt-2 text-sm leading-6 text-(--text-muted)">{app.details}</p>
+            </article>
+          ))}
+        </section>
+      ) : (
+        <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
+          <p className="text-sm text-(--text-muted)">
+            No app access has been assigned yet. Contact an admin to grant read
+            permissions.
+          </p>
+        </section>
+      )}
     </main>
   );
 }
