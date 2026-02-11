@@ -67,11 +67,11 @@ function normalizeUrl(value: string) {
   return `https://${trimmed}`;
 }
 
-function fail(message: string) {
+function fail(message: string): never {
   redirect(`${LOCATION_REDIRECT_BASE}?error=${message}`);
 }
 
-function ok(message: string) {
+function ok(message: string): never {
   revalidatePath(LOCATION_REDIRECT_BASE);
   redirect(`${LOCATION_REDIRECT_BASE}?saved=${message}`);
 }
@@ -87,13 +87,14 @@ export async function addShopLocationAction(formData: FormData) {
   if (!parsed.success) {
     fail("invalid");
   }
+  const data = parsed.data;
 
   try {
     await prisma.bambooShopLocation.create({
       data: {
-        name: parsed.data.name,
-        normalizedName: normalize(parsed.data.name),
-        notes: parsed.data.notes,
+        name: data.name,
+        normalizedName: normalize(data.name),
+        notes: data.notes,
       },
     });
   } catch (error) {
@@ -122,14 +123,15 @@ export async function updateShopLocationAction(formData: FormData) {
   if (!parsed.success) {
     fail("invalid");
   }
+  const data = parsed.data;
 
   try {
     await prisma.bambooShopLocation.update({
-      where: { id: parsed.data.id },
+      where: { id: data.id },
       data: {
-        name: parsed.data.name,
-        normalizedName: normalize(parsed.data.name),
-        notes: parsed.data.notes,
+        name: data.name,
+        normalizedName: normalize(data.name),
+        notes: data.notes,
       },
     });
   } catch (error) {
@@ -156,9 +158,10 @@ export async function deleteShopLocationAction(formData: FormData) {
   if (!parsed.success) {
     fail("invalid");
   }
+  const data = parsed.data;
 
   await prisma.bambooShopLocation.delete({
-    where: { id: parsed.data.id },
+    where: { id: data.id },
   });
 
   ok("location-removed");
@@ -178,14 +181,15 @@ export async function addShopRentalPlaceAction(formData: FormData) {
   if (!parsed.success) {
     fail("invalid");
   }
+  const data = parsed.data;
 
   await prisma.bambooShopRentalPlace.create({
     data: {
-      foundAt: toDateOrFail(parsed.data.foundAt),
-      price: parsed.data.price,
-      location: parsed.data.location,
-      link: normalizeUrl(parsed.data.link),
-      notes: parsed.data.notes,
+      foundAt: toDateOrFail(data.foundAt),
+      price: data.price,
+      location: data.location,
+      link: normalizeUrl(data.link),
+      notes: data.notes,
     },
   });
 
@@ -207,15 +211,16 @@ export async function updateShopRentalPlaceAction(formData: FormData) {
   if (!parsed.success) {
     fail("invalid");
   }
+  const data = parsed.data;
 
   await prisma.bambooShopRentalPlace.update({
-    where: { id: parsed.data.id },
+    where: { id: data.id },
     data: {
-      foundAt: toDateOrFail(parsed.data.foundAt),
-      price: parsed.data.price,
-      location: parsed.data.location,
-      link: normalizeUrl(parsed.data.link),
-      notes: parsed.data.notes,
+      foundAt: toDateOrFail(data.foundAt),
+      price: data.price,
+      location: data.location,
+      link: normalizeUrl(data.link),
+      notes: data.notes,
     },
   });
 
@@ -232,9 +237,10 @@ export async function deleteShopRentalPlaceAction(formData: FormData) {
   if (!parsed.success) {
     fail("invalid");
   }
+  const data = parsed.data;
 
   await prisma.bambooShopRentalPlace.delete({
-    where: { id: parsed.data.id },
+    where: { id: data.id },
   });
 
   ok("place-removed");
@@ -252,13 +258,14 @@ export async function addShopWebsiteAction(formData: FormData) {
   if (!parsed.success) {
     fail("invalid");
   }
+  const data = parsed.data;
 
   try {
     await prisma.bambooShopWebsite.create({
       data: {
-        name: parsed.data.name,
-        url: normalizeUrl(parsed.data.url),
-        notes: parsed.data.notes,
+        name: data.name,
+        url: normalizeUrl(data.url),
+        notes: data.notes,
       },
     });
   } catch (error) {
@@ -288,14 +295,15 @@ export async function updateShopWebsiteAction(formData: FormData) {
   if (!parsed.success) {
     fail("invalid");
   }
+  const data = parsed.data;
 
   try {
     await prisma.bambooShopWebsite.update({
-      where: { id: parsed.data.id },
+      where: { id: data.id },
       data: {
-        name: parsed.data.name,
-        url: normalizeUrl(parsed.data.url),
-        notes: parsed.data.notes,
+        name: data.name,
+        url: normalizeUrl(data.url),
+        notes: data.notes,
       },
     });
   } catch (error) {
@@ -322,9 +330,10 @@ export async function deleteShopWebsiteAction(formData: FormData) {
   if (!parsed.success) {
     fail("invalid");
   }
+  const data = parsed.data;
 
   await prisma.bambooShopWebsite.delete({
-    where: { id: parsed.data.id },
+    where: { id: data.id },
   });
 
   ok("website-removed");

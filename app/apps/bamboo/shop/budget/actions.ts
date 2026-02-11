@@ -29,14 +29,14 @@ const deleteSchema = z.object({
   id: z.string().trim().min(1),
 });
 
-function done(saved: string) {
+function done(saved: string): never {
   revalidatePath("/apps/bamboo/shop/budget");
   revalidatePath("/apps/bamboo/shop");
   revalidatePath("/apps/bamboo");
   redirect(`/apps/bamboo/shop/budget?saved=${saved}`);
 }
 
-function invalid() {
+function invalid(): never {
   redirect("/apps/bamboo/shop/budget?error=invalid");
 }
 
@@ -53,13 +53,14 @@ export async function addShopBudgetItemAction(formData: FormData) {
   if (!parsed.success) {
     invalid();
   }
+  const data = parsed.data;
 
   await prisma.bambooShopBudgetItem.create({
     data: {
-      category: parsed.data.category,
-      monthlyCost: String(parsed.data.monthlyCostCzk),
-      oneTimeCost: String(parsed.data.oneTimeCostCzk),
-      notes: parsed.data.notes,
+      category: data.category,
+      monthlyCost: String(data.monthlyCostCzk),
+      oneTimeCost: String(data.oneTimeCostCzk),
+      notes: data.notes,
     },
   });
 
@@ -80,14 +81,15 @@ export async function updateShopBudgetItemAction(formData: FormData) {
   if (!parsed.success) {
     invalid();
   }
+  const data = parsed.data;
 
   await prisma.bambooShopBudgetItem.update({
-    where: { id: parsed.data.id },
+    where: { id: data.id },
     data: {
-      category: parsed.data.category,
-      monthlyCost: String(parsed.data.monthlyCostCzk),
-      oneTimeCost: String(parsed.data.oneTimeCostCzk),
-      notes: parsed.data.notes,
+      category: data.category,
+      monthlyCost: String(data.monthlyCostCzk),
+      oneTimeCost: String(data.oneTimeCostCzk),
+      notes: data.notes,
     },
   });
 
@@ -104,9 +106,10 @@ export async function deleteShopBudgetItemAction(formData: FormData) {
   if (!parsed.success) {
     invalid();
   }
+  const data = parsed.data;
 
   await prisma.bambooShopBudgetItem.delete({
-    where: { id: parsed.data.id },
+    where: { id: data.id },
   });
 
   done("deleted");
