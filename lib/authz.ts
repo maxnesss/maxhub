@@ -3,7 +3,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
-import { APP_CODES, type AppCode } from "@/lib/apps";
+import { APP_CODES, APP_DEFINITIONS, type AppCode } from "@/lib/apps";
 import { prisma } from "@/prisma";
 
 export type UserContext = {
@@ -106,7 +106,7 @@ export async function requireAppRead(app: AppCode) {
 export async function requireAppEdit(app: AppCode) {
   const user = await requireUserContext();
   if (!canEditApp(user, app)) {
-    throw new Error("Forbidden");
+    redirect(APP_DEFINITIONS[app].href ?? "/apps");
   }
 
   return user;

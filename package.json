@@ -7,6 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:unit": "vitest run tests/unit",
+    "test:unit:watch": "vitest tests/unit",
+    "test:integration": "node --env-file=.env ./node_modules/vitest/vitest.mjs run tests/integration",
+    "test:e2e": "node --env-file=.env ./node_modules/playwright/cli.js test",
+    "test:e2e:ui": "node --env-file=.env ./node_modules/playwright/cli.js test --ui",
     "check:tailwind:canonical": "node scripts/tailwind-canonicalize.mjs --check",
     "fix:tailwind:canonical": "node scripts/tailwind-canonicalize.mjs --write",
     "lint:tailwind": "eslint . --max-warnings=0",
@@ -34,6 +39,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.16.0",
@@ -44,6 +50,7 @@
     "eslint-plugin-tailwindcss": "^4.0.0-beta.0",
     "prisma": "^7.3.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.18"
   }
 }
