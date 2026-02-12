@@ -42,6 +42,7 @@ beforeAll(async () => {
     name: "Integration Test User",
     nickname: null,
     role: "ADMIN",
+    favoriteApps: [],
     appPermissions: [],
   });
 });

@@ -14,7 +14,7 @@ import {
 } from "./actions";
 
 type ShopBudgetPageProps = {
-  searchParams: Promise<{ saved?: string; error?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string; edit?: string }>;
 };
 
 const BUDGET_PRINCIPLES = [
@@ -29,7 +29,8 @@ export default async function BambooShopBudgetPage({
 }: ShopBudgetPageProps) {
   const user = await requireAppRead("BAMBOO");
   const canEdit = canEditApp(user, "BAMBOO");
-  const { saved, error } = await searchParams;
+  const { saved, error, edit } = await searchParams;
+  const editId = edit && edit.trim().length > 0 ? edit : null;
 
   const budgetItems = await prisma.bambooShopBudgetItem.findMany({
     orderBy: [{ createdAt: "asc" }, { category: "asc" }],
@@ -148,7 +149,7 @@ export default async function BambooShopBudgetPage({
         <div className="mt-4 space-y-2">
           {budgetItems.map((item) => (
             <div key={item.id} className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-3">
-              {canEdit ? (
+              {canEdit && editId === item.id ? (
                 <form action={updateShopBudgetItemAction} className="grid gap-2 md:grid-cols-[1fr_0.7fr_0.7fr_1.6fr_auto_auto] md:items-start">
                   <input type="hidden" name="id" value={item.id} />
                   <input
@@ -190,20 +191,38 @@ export default async function BambooShopBudgetPage({
                   >
                     Save
                   </button>
-                  <button
-                    type="submit"
-                    formAction={deleteShopBudgetItemAction}
-                    className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
+                  <Link
+                    href="/apps/bamboo/shop/budget"
+                    className="inline-flex items-center justify-center rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                   >
-                    Remove
-                  </button>
+                    Cancel
+                  </Link>
                 </form>
               ) : (
-                <div className="grid gap-2 md:grid-cols-[1fr_0.7fr_0.7fr_1.6fr]">
+                <div className="grid gap-2 md:grid-cols-[1fr_0.7fr_0.7fr_1.6fr_auto] md:items-start">
                   <p className="text-sm font-semibold text-[#1a2b49]">{item.category}</p>
                   <p className="text-sm text-[#1a2b49]">{formatCzkAmount(parseCzkAmount(item.monthlyCost))}</p>
                   <p className="text-sm text-[#1a2b49]">{formatCzkAmount(parseCzkAmount(item.oneTimeCost))}</p>
                   <p className="text-sm text-(--text-muted)">{item.notes}</p>
+                  {canEdit ? (
+                    <div className="flex flex-wrap gap-2">
+                      <Link
+                        href={`/apps/bamboo/shop/budget?edit=${item.id}`}
+                        className="inline-flex items-center justify-center rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+                      >
+                        Edit
+                      </Link>
+                      <form action={deleteShopBudgetItemAction}>
+                        <input type="hidden" name="id" value={item.id} />
+                        <button
+                          type="submit"
+                          className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
+                        >
+                          Remove
+                        </button>
+                      </form>
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>

@@ -4,6 +4,7 @@ const BASE_SETUP_COST_MIN_CZK = 10_000;
 const BASE_SETUP_COST_MAX_CZK = 15_000;
 const CAPITAL_OPERATING_MONTHS = 3;
 const CAPITAL_BUFFER_RATIO = 0.25;
+const PERIODICAL_INVENTORY_MONTH_WINDOW = 3;
 
 export function parseCzkAmount(value: string) {
   const digitsOnly = value.replace(/[^\d]/g, "");
@@ -46,11 +47,15 @@ export function getRecommendedCapitalLabel(
   extraOneTimeCostCzk: number,
   monthlyExpenseCzk: number,
   periodicalInventoryEveryThreeMonthsCzk = 0,
+  operatingMonths = CAPITAL_OPERATING_MONTHS,
+  reserveRatio = CAPITAL_BUFFER_RATIO,
 ) {
   const { recommendedMin, recommendedMax } = getRecommendedCapitalBreakdown(
     extraOneTimeCostCzk,
     monthlyExpenseCzk,
     periodicalInventoryEveryThreeMonthsCzk,
+    operatingMonths,
+    reserveRatio,
   );
 
   return `${formatCzkAmount(recommendedMin)} - ${formatCzkAmount(recommendedMax)}`;
@@ -60,14 +65,19 @@ export function getRecommendedCapitalBreakdown(
   extraOneTimeCostCzk: number,
   monthlyExpenseCzk: number,
   periodicalInventoryEveryThreeMonthsCzk = 0,
+  operatingMonths = CAPITAL_OPERATING_MONTHS,
+  reserveRatio = CAPITAL_BUFFER_RATIO,
 ) {
   const { min: setupMin, max: setupMax } = getEstimatedSetupCostRange(extraOneTimeCostCzk);
-  const threeMonthsExpenses =
-    monthlyExpenseCzk * CAPITAL_OPERATING_MONTHS + periodicalInventoryEveryThreeMonthsCzk;
-  const subtotalMin = setupMin + threeMonthsExpenses;
-  const subtotalMax = setupMax + threeMonthsExpenses;
-  const reserveMin = Math.round(subtotalMin * CAPITAL_BUFFER_RATIO);
-  const reserveMax = Math.round(subtotalMax * CAPITAL_BUFFER_RATIO);
+  const periodicalInventoryScaled = Math.round(
+    (periodicalInventoryEveryThreeMonthsCzk * operatingMonths) /
+      PERIODICAL_INVENTORY_MONTH_WINDOW,
+  );
+  const operatingExpenses = monthlyExpenseCzk * operatingMonths + periodicalInventoryScaled;
+  const subtotalMin = setupMin + operatingExpenses;
+  const subtotalMax = setupMax + operatingExpenses;
+  const reserveMin = Math.round(subtotalMin * reserveRatio);
+  const reserveMax = Math.round(subtotalMax * reserveRatio);
   const recommendedMin = subtotalMin + reserveMin;
   const recommendedMax = subtotalMax + reserveMax;
 
@@ -76,9 +86,11 @@ export function getRecommendedCapitalBreakdown(
     setupMax,
     monthlyExpense: monthlyExpenseCzk,
     periodicalInventoryEveryThreeMonths: periodicalInventoryEveryThreeMonthsCzk,
-    operatingMonths: CAPITAL_OPERATING_MONTHS,
-    threeMonthsExpenses,
-    reserveRatio: CAPITAL_BUFFER_RATIO,
+    periodicalInventoryScaled,
+    operatingMonths,
+    operatingExpenses,
+    threeMonthsExpenses: operatingExpenses,
+    reserveRatio,
     reserveMin,
     reserveMax,
     recommendedMin,

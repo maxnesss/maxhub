@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { auth } from "@/auth";
+import { APP_DEFINITIONS, type AppCode } from "@/lib/apps";
 import { prisma } from "@/prisma";
 
 type TopNavProps = {
@@ -19,6 +20,13 @@ export async function TopNav({ current }: TopNavProps) {
             email: true,
             name: true,
             nickname: true,
+            favoriteApps: true,
+            appPermissions: {
+              select: {
+                app: true,
+                canRead: true,
+              },
+            },
           },
         })
       )
@@ -26,6 +34,20 @@ export async function TopNav({ current }: TopNavProps) {
 
   const isAdmin = user?.role === "ADMIN";
   const profileIdentity = user?.nickname || user?.name || user?.email;
+  const allowedApps = new Set(
+    user?.appPermissions
+      .filter((permission) => permission.canRead)
+      .map((permission) => permission.app as AppCode) ?? [],
+  );
+  const favoriteLinks = (user?.favoriteApps ?? [])
+    .map((appCode) => appCode as AppCode)
+    .filter((appCode) => isAdmin || allowedApps.has(appCode))
+    .map((appCode) => ({
+      code: appCode,
+      label: APP_DEFINITIONS[appCode].label,
+      href: APP_DEFINITIONS[appCode].href,
+    }))
+    .filter((app) => Boolean(app.href));
 
   return (
     <nav className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-(--line) bg-white/90 px-5 py-4 shadow-[0_14px_36px_-28px_rgba(19,33,58,0.45)] backdrop-blur-sm">
@@ -50,6 +72,16 @@ export async function TopNav({ current }: TopNavProps) {
         >
           Apps
         </Link>
+
+        {favoriteLinks.map((app) => (
+          <Link
+            key={app.code}
+            href={app.href!}
+            className="rounded-lg px-4 py-2 text-sm font-semibold text-[#55627e] hover:bg-[#f3f6fd]"
+          >
+            {app.label}
+          </Link>
+        ))}
 
         {isAdmin ? (
           <Link

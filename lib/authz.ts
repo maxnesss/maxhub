@@ -12,6 +12,7 @@ export type UserContext = {
   name: string | null;
   nickname: string | null;
   role: "ADMIN" | "USER";
+  favoriteApps: AppCode[];
   appPermissions: { app: AppCode; canRead: boolean; canEdit: boolean }[];
 };
 
@@ -47,6 +48,7 @@ export async function getCurrentUserContext(): Promise<UserContext | null> {
       name: true,
       nickname: true,
       role: true,
+      favoriteApps: true,
       appPermissions: {
         select: {
           app: true,
@@ -75,6 +77,9 @@ export async function getCurrentUserContext(): Promise<UserContext | null> {
     name: user.name,
     nickname: user.nickname,
     role: user.role,
+    favoriteApps: user.favoriteApps
+      .filter((app) => APP_CODES.includes(app as AppCode))
+      .map((app) => app as AppCode),
     appPermissions: normalizedPermissions,
   };
 }

@@ -41,16 +41,22 @@ export const BAMBOO_GENERAL_TILES: BambooTile[] = [
     badge: "Core",
   },
   {
+    title: "Project Charter",
+    href: "/apps/bamboo/project-charter",
+    description: "Single source of truth for vision, scope, launch criteria, and risks.",
+    badge: "Strategy",
+  },
+  {
     title: "Tasks",
     href: "/apps/bamboo/tasks",
     description: "Shared execution board with category filters and ownership.",
     badge: "Action",
   },
   {
-    title: "Timeline",
+    title: "Phase overview",
     href: "/apps/bamboo/timeline",
-    description: "Week-by-week launch sequence across all Bamboo categories.",
-    badge: "Timeline",
+    description: "Four-phase launch sequence across all Bamboo categories.",
+    badge: "Phases",
   },
   {
     title: "Finance setup",
@@ -153,11 +159,21 @@ export const BAMBOO_SETUP_COMPANY_TILES: BambooTile[] = [
   },
 ];
 
+export const BAMBOO_DOCUMENT_TILES: BambooTile[] = [
+  {
+    title: "Documents",
+    href: "/apps/bamboo/documents",
+    description: "Shared file library for contracts, plans, and supporting docs.",
+    badge: "Files",
+  },
+];
+
 export const BAMBOO_TILES: BambooTile[] = [
   ...BAMBOO_GENERAL_TILES,
   ...BAMBOO_INVENTORY_TILES,
   ...BAMBOO_SETUP_COMPANY_TILES,
   ...BAMBOO_SHOP_TILES,
+  ...BAMBOO_DOCUMENT_TILES,
 ];
 
 export const BAMBOO_COMPANY_SETUP_STEPS: BambooChecklistStep[] = [

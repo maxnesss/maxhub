@@ -1,5 +1,6 @@
 import {
   BambooTaskCategory,
+  BambooTaskPhase,
   BambooTaskPriority,
   BambooTaskStatus,
 } from "@prisma/client";
@@ -11,6 +12,13 @@ export const BAMBOO_TASK_CATEGORY_OPTIONS = [
   BambooTaskCategory.SHOP,
   BambooTaskCategory.FINANCE,
   BambooTaskCategory.BRAND,
+] as const;
+
+export const BAMBOO_TASK_PHASE_OPTIONS = [
+  BambooTaskPhase.PHASE_1_PREPARATION,
+  BambooTaskPhase.PHASE_2_SETUP,
+  BambooTaskPhase.PHASE_3_HOT_PRE_START,
+  BambooTaskPhase.PHASE_4_START,
 ] as const;
 
 export const BAMBOO_TASK_STATUS_OPTIONS = [
@@ -32,6 +40,31 @@ export const BAMBOO_TASK_CATEGORY_LABELS: Record<BambooTaskCategory, string> = {
   SHOP: "Shop",
   FINANCE: "Finance",
   BRAND: "Name and brand",
+};
+
+export const BAMBOO_TASK_PHASE_LABELS: Record<BambooTaskPhase, string> = {
+  PHASE_1_PREPARATION: "Phase 1 - Preparation",
+  PHASE_2_SETUP: "Phase 2 - Setup",
+  PHASE_3_HOT_PRE_START: "Phase 3 - Hot Pre-start",
+  PHASE_4_START: "Phase 4 - Start",
+};
+
+export const BAMBOO_TASK_PHASE_DESCRIPTIONS: Record<BambooTaskPhase, string> = {
+  PHASE_1_PREPARATION:
+    "Brainstorms, location exploration, inventory preparation, and samples.",
+  PHASE_2_SETUP:
+    "Company registration, legal/compliance completion, and inventory ordering.",
+  PHASE_3_HOT_PRE_START:
+    "Inventory already in Czech storage, shop rent/customization, and POS readiness.",
+  PHASE_4_START:
+    "Launch execution and immediate post-start operational stabilization.",
+};
+
+export const BAMBOO_TASK_PHASE_STYLES: Record<BambooTaskPhase, string> = {
+  PHASE_1_PREPARATION: "border-[#dbe8ff] bg-[#f3f7ff] text-[#2f4c82]",
+  PHASE_2_SETUP: "border-[#d8f2de] bg-[#effcf2] text-[#266741]",
+  PHASE_3_HOT_PRE_START: "border-[#ffe0bf] bg-[#fff5e8] text-[#8a5617]",
+  PHASE_4_START: "border-[#f8d0d8] bg-[#fff1f5] text-[#8f2d4a]",
 };
 
 export const BAMBOO_TASK_STATUS_LABELS: Record<BambooTaskStatus, string> = {
@@ -68,6 +101,16 @@ export function parseBambooTaskCategory(value: string | undefined) {
     : null;
 }
 
+export function parseBambooTaskPhase(value: string | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  return BAMBOO_TASK_PHASE_OPTIONS.includes(value as BambooTaskPhase)
+    ? (value as BambooTaskPhase)
+    : null;
+}
+
 export function parseBambooTaskStatus(value: string | undefined) {
   if (!value) {
     return null;
@@ -89,13 +132,20 @@ export function parseBambooTaskPriority(value: string | undefined) {
 }
 
 export function bambooTaskFilterHref(
-  filters: { category?: BambooTaskCategory | null; status?: BambooTaskStatus | null },
+  filters: {
+    category?: BambooTaskCategory | null;
+    phase?: BambooTaskPhase | null;
+    status?: BambooTaskStatus | null;
+  },
   basePath = "/apps/bamboo/tasks",
 ) {
   const params = new URLSearchParams();
 
   if (filters.category) {
     params.set("category", filters.category);
+  }
+  if (filters.phase) {
+    params.set("phase", filters.phase);
   }
   if (filters.status) {
     params.set("status", filters.status);

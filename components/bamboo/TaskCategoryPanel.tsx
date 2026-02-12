@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { BambooTaskPriority, BambooTaskStatus } from "@prisma/client";
+import { BambooTaskPhase, BambooTaskPriority, BambooTaskStatus } from "@prisma/client";
 
 import {
+  BAMBOO_TASK_PHASE_LABELS,
   BAMBOO_TASK_PRIORITY_LABELS,
   BAMBOO_TASK_PRIORITY_STYLES,
   BAMBOO_TASK_STATUS_LABELS,
@@ -11,7 +12,7 @@ import {
 type TaskCategoryPanelItem = {
   id: string;
   title: string;
-  timelineWeek: number;
+  phase: BambooTaskPhase;
   status: BambooTaskStatus;
   priority: BambooTaskPriority;
   owner: string;
@@ -51,7 +52,7 @@ export function TaskCategoryPanel({
             >
               <p className="text-sm font-semibold text-[#1a2b49]">{task.title}</p>
               <p className="mt-1 text-xs text-[#5b6c8d]">
-                Week {task.timelineWeek} • Owner: {task.owner}
+                {BAMBOO_TASK_PHASE_LABELS[task.phase]} • Owner: {task.owner}
               </p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span

@@ -1,12 +1,18 @@
 import Link from "next/link";
 import { BambooTaskStatus } from "@prisma/client";
 
+import { updateBambooTaskStatusAction } from "../tasks/actions";
+
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { canEditApp, requireAppRead } from "@/lib/authz";
 import {
   BAMBOO_TASK_CATEGORY_LABELS,
+  BAMBOO_TASK_PHASE_DESCRIPTIONS,
+  BAMBOO_TASK_PHASE_LABELS,
+  BAMBOO_TASK_PHASE_OPTIONS,
+  BAMBOO_TASK_PHASE_STYLES,
   BAMBOO_TASK_PRIORITY_LABELS,
   BAMBOO_TASK_PRIORITY_STYLES,
   BAMBOO_TASK_STATUS_LABELS,
@@ -14,8 +20,6 @@ import {
   getNextBambooTaskStatus,
 } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
-
-import { updateBambooTaskStatusAction } from "../tasks/actions";
 
 type BambooTimelinePageProps = {
   searchParams: Promise<{ saved?: string; error?: string }>;
@@ -40,17 +44,16 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
   const { saved, error } = await searchParams;
 
   const tasks = await prisma.bambooTask.findMany({
-    orderBy: [{ timelineWeek: "asc" }, { priority: "desc" }, { createdAt: "asc" }],
+    orderBy: [{ phase: "asc" }, { priority: "desc" }, { createdAt: "asc" }],
   });
 
-  const tasksByWeek = new Map<number, typeof tasks>();
+  const tasksByPhase = new Map<typeof BAMBOO_TASK_PHASE_OPTIONS[number], typeof tasks>();
   for (const task of tasks) {
-    const list = tasksByWeek.get(task.timelineWeek) ?? [];
+    const list = tasksByPhase.get(task.phase) ?? [];
     list.push(task);
-    tasksByWeek.set(task.timelineWeek, list);
+    tasksByPhase.set(task.phase, list);
   }
 
-  const weeks = [...tasksByWeek.keys()].sort((a, b) => a - b);
   const doneCount = tasks.filter((task) => task.status === BambooTaskStatus.DONE).length;
   const inProgressCount = tasks.filter(
     (task) => task.status === BambooTaskStatus.IN_PROGRESS,
@@ -69,15 +72,14 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Timeline" },
+            { label: "Phase overview" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Bamboo timeline
+          Bamboo phase overview
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Weekly execution plan across all categories. Keep this view as the
-          launch-critical sequence from week 1 to opening.
+          Launch execution grouped by four business phases from preparation to start.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <span className="inline-flex rounded-xl border border-[#d9e2f3] bg-[#f8faff] px-4 py-2 text-sm font-semibold text-[#4e5e7a]">
@@ -98,27 +100,56 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
         </div>
       </section>
 
-      <section className="mt-6 space-y-4">
-        {weeks.length > 0 ? (
-          weeks.map((week) => {
-            const weekTasks = tasksByWeek.get(week) ?? [];
-            return (
-              <article key={week} className="rounded-2xl border border-(--line) bg-white p-6">
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-                    Week {week}
-                  </h2>
-                  <span className="rounded-lg border border-[#d9e2f3] bg-[#f8faff] px-3 py-1 text-xs font-semibold text-[#4e5e7a]">
-                    {weekTasks.length} task{weekTasks.length === 1 ? "" : "s"}
-                  </span>
-                </div>
+      <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
+        <h2 className="text-lg font-semibold tracking-tight text-[#162947]">
+          Phase definition
+        </h2>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {BAMBOO_TASK_PHASE_OPTIONS.map((phase) => (
+            <article
+              key={phase}
+              className={`rounded-xl border p-4 ${BAMBOO_TASK_PHASE_STYLES[phase]}`}
+            >
+              <p className="text-sm font-semibold">
+                {BAMBOO_TASK_PHASE_LABELS[phase]}
+              </p>
+              <p className="mt-1 text-sm opacity-85">
+                {BAMBOO_TASK_PHASE_DESCRIPTIONS[phase]}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
 
-                <div className="mt-4 space-y-3">
-                  {weekTasks.map((task) => {
+      <section className="mt-6 space-y-4">
+        {BAMBOO_TASK_PHASE_OPTIONS.map((phase) => {
+          const phaseTasks = tasksByPhase.get(phase) ?? [];
+          return (
+            <article key={phase} className="rounded-2xl border border-(--line) bg-white p-6">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2
+                    className={`inline-flex rounded-lg border px-3 py-1 text-2xl font-semibold tracking-tight ${BAMBOO_TASK_PHASE_STYLES[phase]}`}
+                  >
+                    {BAMBOO_TASK_PHASE_LABELS[phase]}
+                  </h2>
+                  <p className="mt-1 text-sm text-(--text-muted)">
+                    {BAMBOO_TASK_PHASE_DESCRIPTIONS[phase]}
+                  </p>
+                </div>
+                <span className="rounded-lg border border-[#d9e2f3] bg-[#f8faff] px-3 py-1 text-xs font-semibold text-[#4e5e7a]">
+                  {phaseTasks.length} task{phaseTasks.length === 1 ? "" : "s"}
+                </span>
+              </div>
+
+              <div className="mt-4 space-y-3">
+                {phaseTasks.length > 0 ? (
+                  phaseTasks.map((task) => {
                     const nextStatus = getNextBambooTaskStatus(task.status);
                     const hasDescription = Boolean(
                       task.description && task.description.trim().length > 0,
                     );
+
                     return (
                       <div
                         key={task.id}
@@ -171,18 +202,16 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
                         </div>
                       </div>
                     );
-                  })}
-                </div>
-              </article>
-            );
-          })
-        ) : (
-          <article className="rounded-2xl border border-(--line) bg-white p-6">
-            <p className="text-sm text-(--text-muted)">
-              No tasks yet. Open task board and create the first one.
-            </p>
-          </article>
-        )}
+                  })
+                ) : (
+                  <p className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4 text-sm text-(--text-muted)">
+                    No tasks in this phase yet.
+                  </p>
+                )}
+              </div>
+            </article>
+          );
+        })}
       </section>
     </main>
   );

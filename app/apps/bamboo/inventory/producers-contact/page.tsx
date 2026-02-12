@@ -15,6 +15,7 @@ import {
   deleteProducerContactAction,
   updateProducerContactAction,
 } from "./actions";
+import { AddProducerModal } from "./AddProducerModal";
 
 const QUALIFICATION_CHECKLIST = [
   "Supplier identity and registration verified",
@@ -25,6 +26,89 @@ const QUALIFICATION_CHECKLIST = [
   "Compliance and material certificates reviewed",
   "References or trade history validated",
 ];
+
+const ENGLISH_PRODUCER_TEMPLATE = `Hello [Supplier Name],
+
+My name is [Your Name], and I am contacting you on behalf of Bamboo, a retail project based in Prague, Czech Republic.
+
+We are looking for a long-term manufacturing partner for bamboo home and lifestyle products. Please share the details below:
+
+1) Company profile:
+- Company legal name
+- Factory location
+- Main export markets
+
+2) Product scope:
+- Which bamboo product categories do you produce?
+- Can you share your catalog and MOQ per item?
+
+3) Pricing and terms:
+- Unit price by MOQ tier
+- Sample cost and sample lead time
+- Production lead time after order confirmation
+- Payment terms
+
+4) Compliance and quality:
+- Do you have FSC / BSCI / ISO or other relevant certifications?
+- Can you provide quality control process details?
+- What is your defect/replacement policy?
+
+5) Logistics:
+- Which Incoterms do you offer (EXW / FOB / CIF / DDP)?
+- Preferred shipping ports and packing standards
+
+6) Branding:
+- Can you support custom packaging / private label?
+- Minimum quantity for custom branding
+
+Thank you. We are currently selecting shortlisted partners and will proceed with sample evaluation.
+
+Best regards,
+[Your Name]
+[Company / Project]
+[Contact]`;
+
+const MANDARIN_PRODUCER_TEMPLATE = `您好 [供应商名称]，
+
+我是 [您的姓名]，代表位于捷克布拉格的 Bamboo 项目与您联系。
+
+我们正在寻找长期合作的竹制家居与生活用品制造商。请协助提供以下信息：
+
+1）公司信息：
+- 公司全称
+- 工厂所在地
+- 主要出口市场
+
+2）产品范围：
+- 贵司可生产哪些竹制产品类别？
+- 请提供产品目录以及每个产品的最小起订量（MOQ）
+
+3）价格与交期：
+- 不同 MOQ 档位的单价
+- 样品费用与样品交期
+- 订单确认后的生产交期
+- 付款条件
+
+4）合规与质量：
+- 是否具备 FSC / BSCI / ISO 等相关认证？
+- 请说明贵司的质量控制流程
+- 如出现质量问题，返工/补发政策如何？
+
+5）物流与贸易条款：
+- 可提供哪些贸易术语（EXW / FOB / CIF / DDP）？
+- 常用出运港口及包装标准
+
+6）品牌与定制：
+- 是否支持定制包装 / 贴牌（Private Label）？
+- 定制品牌的最小起订量是多少？
+
+感谢您的支持。我们目前正在筛选合作工厂，后续将进入样品评估阶段。
+
+此致
+敬礼
+[您的姓名]
+[公司/项目名称]
+[联系方式]`;
 
 type BambooProducersContactPageProps = {
   searchParams: Promise<{ saved?: string; error?: string; edit?: string }>;
@@ -119,7 +203,18 @@ export default async function BambooProducersContactPage({
         </div>
       </section>
 
+      
+
       <section className="mt-6 overflow-hidden rounded-2xl border border-(--line) bg-white">
+        {canEdit ? (
+          <div className="flex items-center justify-between gap-3 border-b border-[#edf2fb] px-4 py-3">
+            <h2 className="text-lg font-semibold tracking-tight text-[#162947]">
+              Producer list
+            </h2>
+            <AddProducerModal action={addProducerContactAction} />
+          </div>
+        ) : null}
+
         <div className="grid grid-cols-[0.7fr_0.9fr_0.8fr_1.2fr_0.7fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
           <span>Name</span>
           <span>Contact</span>
@@ -221,58 +316,40 @@ export default async function BambooProducersContactPage({
             );
           })
         ) : (
-          <div className="border-t border-[#edf2fb] px-4 py-4 text-sm text-(--text-muted)">
+          <div className="px-4 py-4 text-sm text-(--text-muted)">
             No producers yet.
           </div>
         )}
       </section>
+      <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
+        <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
+          Producer outreach template
+        </h2>
+        <p className="mt-2 text-sm text-(--text-muted)">
+          Ready-to-use supplier inquiry message with all required qualification
+          questions. First in English, then in Mandarin.
+        </p>
 
-      {canEdit ? (
-        <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
-          <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
-            Add producer
-          </h2>
-          <form action={addProducerContactAction} className="mt-4 grid gap-3 md:grid-cols-3">
-            <input
-              type="text"
-              name="name"
-              required
-              maxLength={120}
-              placeholder="Producer name"
-              className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-            />
-            <input
-              type="text"
-              name="contact"
-              required
-              maxLength={240}
-              placeholder="Contact"
-              className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-            />
-            <input
-              type="text"
-              name="sortiment"
-              required
-              maxLength={240}
-              placeholder="Sortiment"
-              className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-            />
-            <textarea
-              name="notes"
-              rows={3}
-              maxLength={1000}
-              placeholder="Notes"
-              className="md:col-span-3 rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-            />
-            <button
-              type="submit"
-              className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
-            >
-              Add producer
-            </button>
-          </form>
-        </section>
-      ) : null}
+        <div className="mt-4 grid gap-4 xl:grid-cols-2">
+          <article className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
+            <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
+              English
+            </p>
+            <pre className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#314567]">
+              {ENGLISH_PRODUCER_TEMPLATE}
+            </pre>
+          </article>
+
+          <article className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
+            <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
+              Mandarin
+            </p>
+            <pre className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#314567]">
+              {MANDARIN_PRODUCER_TEMPLATE}
+            </pre>
+          </article>
+        </div>
+      </section>
     </main>
   );
 }

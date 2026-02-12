@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { BambooTaskStatus } from "@prisma/client";
 
+import { createBambooTaskAction, updateBambooTaskStatusAction } from "./actions";
+import { CreateBambooTaskModal } from "./CreateBambooTaskModal";
+
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
@@ -8,6 +11,9 @@ import { canEditApp, requireAppRead } from "@/lib/authz";
 import {
   BAMBOO_TASK_CATEGORY_LABELS,
   BAMBOO_TASK_CATEGORY_OPTIONS,
+  BAMBOO_TASK_PHASE_LABELS,
+  BAMBOO_TASK_PHASE_OPTIONS,
+  BAMBOO_TASK_PHASE_STYLES,
   BAMBOO_TASK_PRIORITY_LABELS,
   BAMBOO_TASK_PRIORITY_OPTIONS,
   BAMBOO_TASK_PRIORITY_STYLES,
@@ -17,16 +23,15 @@ import {
   bambooTaskFilterHref,
   getNextBambooTaskStatus,
   parseBambooTaskCategory,
+  parseBambooTaskPhase,
   parseBambooTaskStatus,
 } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
 
-import { createBambooTaskAction, updateBambooTaskStatusAction } from "./actions";
-import { CreateBambooTaskModal } from "./CreateBambooTaskModal";
-
 type BambooTasksPageProps = {
   searchParams: Promise<{
     category?: string;
+    phase?: string;
     status?: string;
     saved?: string;
     error?: string;
@@ -49,23 +54,30 @@ function getStatusTransitionLabel(status: BambooTaskStatus) {
 export default async function BambooTasksPage({ searchParams }: BambooTasksPageProps) {
   const user = await requireAppRead("BAMBOO");
   const canEdit = canEditApp(user, "BAMBOO");
-  const { category, status, saved, error } = await searchParams;
+  const { category, phase, status, saved, error } = await searchParams;
 
   const categoryFilter = parseBambooTaskCategory(category);
+  const phaseFilter = parseBambooTaskPhase(phase);
   const statusFilter = parseBambooTaskStatus(status);
 
   const where = {
     ...(categoryFilter ? { category: categoryFilter } : {}),
+    ...(phaseFilter ? { phase: phaseFilter } : {}),
     ...(statusFilter ? { status: statusFilter } : {}),
   };
 
-  const [tasks, openByCategory] = await Promise.all([
+  const [tasks, openByCategory, openByPhase] = await Promise.all([
     prisma.bambooTask.findMany({
       where,
-      orderBy: [{ timelineWeek: "asc" }, { priority: "desc" }, { createdAt: "asc" }],
+      orderBy: [{ phase: "asc" }, { priority: "desc" }, { createdAt: "asc" }],
     }),
     prisma.bambooTask.groupBy({
       by: ["category"],
+      where: { status: { not: BambooTaskStatus.DONE } },
+      _count: { _all: true },
+    }),
+    prisma.bambooTask.groupBy({
+      by: ["phase"],
       where: { status: { not: BambooTaskStatus.DONE } },
       _count: { _all: true },
     }),
@@ -74,15 +86,23 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
   const openCountByCategory = new Map(
     openByCategory.map((row) => [row.category, row._count._all]),
   );
+  const openCountByPhase = new Map(openByPhase.map((row) => [row.phase, row._count._all]));
   const totalOpen = [...openCountByCategory.values()].reduce((sum, count) => sum + count, 0);
   const currentFilterHref = bambooTaskFilterHref({
     category: categoryFilter,
+    phase: phaseFilter,
     status: statusFilter,
   });
+
   const createTaskDefaultCategory = categoryFilter ?? BAMBOO_TASK_CATEGORY_OPTIONS[0];
+  const createTaskDefaultPhase = phaseFilter ?? BAMBOO_TASK_PHASE_OPTIONS[0];
   const createTaskCategoryOptions = BAMBOO_TASK_CATEGORY_OPTIONS.map((item) => ({
     value: item,
     label: BAMBOO_TASK_CATEGORY_LABELS[item],
+  }));
+  const createTaskPhaseOptions = BAMBOO_TASK_PHASE_OPTIONS.map((item) => ({
+    value: item,
+    label: BAMBOO_TASK_PHASE_LABELS[item],
   }));
   const createTaskPriorityOptions = BAMBOO_TASK_PRIORITY_OPTIONS.map((item) => ({
     value: item,
@@ -110,7 +130,7 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
           Shared execution layer across all Bamboo categories. Filter by section,
-          track status, and place work on a weekly timeline.
+          track status, and place work into launch phases.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -118,14 +138,16 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
             href="/apps/bamboo/timeline"
             className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
           >
-            Open timeline
+            Open phase overview
           </Link>
           {canEdit ? (
             <CreateBambooTaskModal
               action={createBambooTaskAction}
               categoryOptions={createTaskCategoryOptions}
+              phaseOptions={createTaskPhaseOptions}
               priorityOptions={createTaskPriorityOptions}
               defaultCategory={createTaskDefaultCategory}
+              defaultPhase={createTaskDefaultPhase}
             />
           ) : null}
           <span className="inline-flex rounded-xl border border-[#d9e2f3] bg-[#f8faff] px-4 py-2 text-sm font-semibold text-[#4e5e7a]">
@@ -135,10 +157,41 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
       </section>
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
-        <h2 className="text-lg font-semibold tracking-tight text-[#162947]">Filter by category</h2>
+        <h2 className="text-lg font-semibold tracking-tight text-[#162947]">Filter by phase</h2>
         <div className="mt-3 flex flex-wrap gap-2">
           <Link
-            href={bambooTaskFilterHref({ status: statusFilter })}
+            href={bambooTaskFilterHref({ category: categoryFilter, status: statusFilter })}
+            className={`inline-flex rounded-lg border px-3 py-2 text-xs font-semibold tracking-[0.08em] uppercase ${
+              !phaseFilter
+                ? "border-[#c8d8f5] bg-[#eef4ff] text-[#334e7f]"
+                : "border-[#d9e2f3] bg-white text-[#4e5e7a] hover:bg-[#f8faff]"
+            }`}
+          >
+            All ({totalOpen})
+          </Link>
+          {BAMBOO_TASK_PHASE_OPTIONS.map((item) => (
+            <Link
+              key={item}
+              href={bambooTaskFilterHref({
+                category: categoryFilter,
+                phase: item,
+                status: statusFilter,
+              })}
+              className={`inline-flex rounded-lg border px-3 py-2 text-xs font-semibold tracking-[0.08em] uppercase ${
+                phaseFilter === item
+                  ? "border-[#c8d8f5] bg-[#eef4ff] text-[#334e7f]"
+                  : "border-[#d9e2f3] bg-white text-[#4e5e7a] hover:bg-[#f8faff]"
+              }`}
+            >
+              {BAMBOO_TASK_PHASE_LABELS[item]} ({openCountByPhase.get(item) ?? 0})
+            </Link>
+          ))}
+        </div>
+
+        <h2 className="mt-6 text-lg font-semibold tracking-tight text-[#162947]">Filter by category</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link
+            href={bambooTaskFilterHref({ phase: phaseFilter, status: statusFilter })}
             className={`inline-flex rounded-lg border px-3 py-2 text-xs font-semibold tracking-[0.08em] uppercase ${
               !categoryFilter
                 ? "border-[#c8d8f5] bg-[#eef4ff] text-[#334e7f]"
@@ -150,7 +203,7 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
           {BAMBOO_TASK_CATEGORY_OPTIONS.map((item) => (
             <Link
               key={item}
-              href={bambooTaskFilterHref({ category: item, status: statusFilter })}
+              href={bambooTaskFilterHref({ phase: phaseFilter, category: item, status: statusFilter })}
               className={`inline-flex rounded-lg border px-3 py-2 text-xs font-semibold tracking-[0.08em] uppercase ${
                 categoryFilter === item
                   ? "border-[#c8d8f5] bg-[#eef4ff] text-[#334e7f]"
@@ -165,7 +218,7 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
         <h2 className="mt-6 text-lg font-semibold tracking-tight text-[#162947]">Filter by status</h2>
         <div className="mt-3 flex flex-wrap gap-2">
           <Link
-            href={bambooTaskFilterHref({ category: categoryFilter })}
+            href={bambooTaskFilterHref({ category: categoryFilter, phase: phaseFilter })}
             className={`inline-flex rounded-lg border px-3 py-2 text-xs font-semibold tracking-[0.08em] uppercase ${
               !statusFilter
                 ? "border-[#c8d8f5] bg-[#eef4ff] text-[#334e7f]"
@@ -177,7 +230,7 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
           {BAMBOO_TASK_STATUS_OPTIONS.map((item) => (
             <Link
               key={item}
-              href={bambooTaskFilterHref({ category: categoryFilter, status: item })}
+              href={bambooTaskFilterHref({ category: categoryFilter, phase: phaseFilter, status: item })}
               className={`inline-flex rounded-lg border px-3 py-2 text-xs font-semibold tracking-[0.08em] uppercase ${
                 statusFilter === item
                   ? "border-[#c8d8f5] bg-[#eef4ff] text-[#334e7f]"
@@ -191,10 +244,10 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
       </section>
 
       <section className="mt-6 overflow-hidden rounded-2xl border border-(--line) bg-white">
-        <div className="grid grid-cols-[1.5fr_0.9fr_0.5fr_0.7fr_0.6fr_0.8fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
+        <div className="grid grid-cols-[1.5fr_0.8fr_1fr_0.7fr_0.6fr_0.8fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
           <span>Task</span>
           <span>Category</span>
-          <span>Week</span>
+          <span>Phase</span>
           <span>Owner</span>
           <span>Priority</span>
           <span>Status</span>
@@ -208,7 +261,7 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
             return (
               <div
                 key={task.id}
-                className="grid grid-cols-[1.5fr_0.9fr_0.5fr_0.7fr_0.6fr_0.8fr] items-start gap-2 border-t border-[#edf2fb] px-4 py-3"
+                className="grid grid-cols-[1.5fr_0.8fr_1fr_0.7fr_0.6fr_0.8fr] items-start gap-2 border-t border-[#edf2fb] px-4 py-3"
               >
                 <div>
                   <p className="text-sm font-semibold text-[#1a2b49]">{task.title}</p>
@@ -222,7 +275,11 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
                 <p className="text-sm text-(--text-muted)">
                   {BAMBOO_TASK_CATEGORY_LABELS[task.category]}
                 </p>
-                <p className="text-sm font-semibold text-[#1a2b49]">W{task.timelineWeek}</p>
+                <span
+                  className={`inline-flex w-fit rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_PHASE_STYLES[task.phase]}`}
+                >
+                  {BAMBOO_TASK_PHASE_LABELS[task.phase]}
+                </span>
                 <p className="text-sm text-(--text-muted)">{task.owner}</p>
                 <span
                   className={`inline-flex w-fit rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_PRIORITY_STYLES[task.priority]}`}

@@ -1,6 +1,6 @@
 "use server";
 
-import { BambooTaskCategory, BambooTaskStatus } from "@prisma/client";
+import { BambooTaskCategory, BambooTaskPhase, BambooTaskStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -8,6 +8,7 @@ import { z } from "zod";
 import { requireAppEdit } from "@/lib/authz";
 import {
   parseBambooTaskCategory,
+  parseBambooTaskPhase,
   parseBambooTaskPriority,
   parseBambooTaskStatus,
 } from "@/lib/bamboo-tasks";
@@ -17,8 +18,8 @@ const createTaskSchema = z.object({
   title: z.string().trim().min(2).max(180),
   description: z.string().trim().max(2000).optional(),
   category: z.nativeEnum(BambooTaskCategory),
+  phase: z.nativeEnum(BambooTaskPhase),
   subCategory: z.string().trim().max(120).optional(),
-  timelineWeek: z.coerce.number().int().min(1).max(52),
   owner: z.string().trim().min(2).max(80),
 });
 
@@ -61,9 +62,10 @@ export async function createBambooTaskAction(formData: FormData) {
   await requireAppEdit("BAMBOO");
 
   const category = parseBambooTaskCategory(String(formData.get("category") ?? ""));
+  const phase = parseBambooTaskPhase(String(formData.get("phase") ?? ""));
   const priority = parseBambooTaskPriority(String(formData.get("priority") ?? ""));
 
-  if (!category || !priority) {
+  if (!category || !phase || !priority) {
     redirect("/apps/bamboo/tasks?error=invalid");
   }
 
@@ -71,8 +73,8 @@ export async function createBambooTaskAction(formData: FormData) {
     title: formData.get("title"),
     description: formData.get("description"),
     category,
+    phase,
     subCategory: formData.get("subCategory"),
-    timelineWeek: formData.get("timelineWeek"),
     owner: formData.get("owner"),
   });
 
@@ -87,8 +89,8 @@ export async function createBambooTaskAction(formData: FormData) {
       title: data.title,
       description: normalizeOptional(data.description),
       category: data.category,
+      phase: data.phase,
       subCategory: normalizeOptional(data.subCategory),
-      timelineWeek: data.timelineWeek,
       owner: data.owner,
       priority,
       status: BambooTaskStatus.TODO,

@@ -19,7 +19,7 @@ import {
 } from "./actions";
 
 type ShopLocationPageProps = {
-  searchParams: Promise<{ saved?: string; error?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string; editLocation?: string }>;
 };
 
 function formatDateInput(date: Date) {
@@ -31,7 +31,7 @@ export default async function BambooShopLocationPage({
 }: ShopLocationPageProps) {
   const user = await requireAppRead("BAMBOO");
   const canEdit = canEditApp(user, "BAMBOO");
-  const { saved, error } = await searchParams;
+  const { saved, error, editLocation } = await searchParams;
 
   const [locations, rentalPlaces, websites] = await Promise.all([
     prisma.bambooShopLocation.findMany({ orderBy: [{ createdAt: "asc" }, { name: "asc" }] }),
@@ -84,48 +84,76 @@ export default async function BambooShopLocationPage({
         </p>
 
         <div className="mt-4 space-y-2">
-          {locations.map((item) => (
-            <div key={item.id} className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-3">
-              {canEdit ? (
-                <form action={updateShopLocationAction} className="grid gap-2 md:grid-cols-[0.8fr_1.8fr_auto_auto] md:items-start">
-                  <input type="hidden" name="id" value={item.id} />
-                  <input
-                    type="text"
-                    name="name"
-                    defaultValue={item.name}
-                    required
-                    maxLength={120}
-                    className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-                  />
-                  <textarea
-                    name="notes"
-                    defaultValue={item.notes}
-                    rows={2}
-                    maxLength={1200}
-                    className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-                  />
-                  <button
-                    type="submit"
-                    className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
-                  >
-                    Save
-                  </button>
-                  <button
-                    type="submit"
-                    formAction={deleteShopLocationAction}
-                    className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
-                  >
-                    Remove
-                  </button>
-                </form>
-              ) : (
-                <>
-                  <p className="text-sm font-semibold text-[#1a2b49]">{item.name}</p>
-                  <p className="mt-1 text-sm text-(--text-muted)">{item.notes}</p>
-                </>
-              )}
-            </div>
-          ))}
+          {locations.map((item) => {
+            const isEditing = canEdit && editLocation === item.id;
+
+            return (
+              <div key={item.id} className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-3">
+                {isEditing ? (
+                  <form action={updateShopLocationAction} className="grid gap-2 md:grid-cols-[0.8fr_1.8fr_auto] md:items-start">
+                    <input type="hidden" name="id" value={item.id} />
+                    <input
+                      type="text"
+                      name="name"
+                      defaultValue={item.name}
+                      required
+                      maxLength={120}
+                      className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
+                    />
+                    <textarea
+                      name="notes"
+                      defaultValue={item.notes}
+                      rows={2}
+                      maxLength={1200}
+                      className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
+                    />
+                    <div className="flex flex-col gap-2">
+                      <button
+                        type="submit"
+                        className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+                      >
+                        Save
+                      </button>
+                      <Link
+                        href="/apps/bamboo/shop/location"
+                        className="inline-flex justify-center rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+                      >
+                        Cancel
+                      </Link>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="grid gap-2 md:grid-cols-[0.8fr_1.8fr_auto] md:items-start">
+                    <p className="text-sm font-semibold text-[#1a2b49]">{item.name}</p>
+                    <p className="text-sm text-(--text-muted)">{item.notes}</p>
+                    <div className="flex gap-2">
+                      {canEdit ? (
+                        <>
+                          <Link
+                            href={`/apps/bamboo/shop/location?editLocation=${item.id}`}
+                            className="inline-flex rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+                          >
+                            Edit
+                          </Link>
+                          <form action={deleteShopLocationAction}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <button
+                              type="submit"
+                              className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
+                            >
+                              Remove
+                            </button>
+                          </form>
+                        </>
+                      ) : (
+                        <span className="text-xs text-(--text-muted)">Read only</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {canEdit ? (

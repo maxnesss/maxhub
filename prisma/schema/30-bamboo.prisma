@@ -13,6 +13,13 @@ enum BambooTaskStatus {
   DONE
 }
 
+enum BambooTaskPhase {
+  PHASE_1_PREPARATION
+  PHASE_2_SETUP
+  PHASE_3_HOT_PRE_START
+  PHASE_4_START
+}
+
 enum BambooTaskPriority {
   LOW
   MEDIUM
@@ -24,16 +31,29 @@ model BambooTask {
   title        String
   description  String?
   category     BambooTaskCategory
+  phase        BambooTaskPhase     @default(PHASE_1_PREPARATION)
   subCategory  String?
-  timelineWeek Int
   owner        String
   priority     BambooTaskPriority @default(MEDIUM)
   status       BambooTaskStatus   @default(TODO)
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
 
-  @@index([category, status, timelineWeek])
-  @@index([timelineWeek])
+  @@index([category, status, phase])
+  @@index([phase])
+}
+
+model BambooProjectCharter {
+  id              String   @id @default("default")
+  vision          String
+  targetCustomer  String
+  scopeIn         String
+  scopeOut        String
+  budgetGuardrail String
+  launchCriteria  String
+  keyRisks        String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model BambooNameIdea {
@@ -96,6 +116,18 @@ model BambooInventoryImage {
   createdAt   DateTime @default(now())
 }
 
+model BambooDocument {
+  id          String   @id @default(cuid())
+  objectKey   String   @unique
+  fileName    String
+  contentType String
+  sizeBytes   Int
+  uploadedBy  String
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model BambooShopLocation {
   id             String   @id @default(cuid())
   name           String
@@ -144,4 +176,12 @@ model BambooShopBudgetItem {
   notes       String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model BambooCapitalScenario {
+  id              String   @id @default("default")
+  operatingMonths Int      @default(3)
+  reservePercent  Int      @default(25)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

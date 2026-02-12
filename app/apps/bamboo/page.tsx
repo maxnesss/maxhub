@@ -11,6 +11,7 @@ import {
   getRecommendedCapitalLabel,
 } from "@/lib/bamboo-budget";
 import {
+  BAMBOO_DOCUMENT_TILES,
   BAMBOO_GENERAL_TILES,
   BAMBOO_INVENTORY_TILES,
   BAMBOO_OVERVIEW_STATS,
@@ -20,6 +21,7 @@ import {
 import {
   BAMBOO_TASK_CATEGORY_LABELS,
   BAMBOO_TASK_CATEGORY_OPTIONS,
+  BAMBOO_TASK_PHASE_LABELS,
   bambooTaskFilterHref,
 } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
@@ -32,7 +34,8 @@ const OVERVIEW_STAT_LINKS: Record<string, string> = {
 export default async function BambooPage() {
   await requireAppRead("BAMBOO");
 
-  const [budgetItems, inventoryBudget, nextTasks, openByCategory] = await Promise.all([
+  const [budgetItems, inventoryBudget, nextTasks, openByCategory, capitalScenario] =
+    await Promise.all([
     prisma.bambooShopBudgetItem.findMany({
       select: {
         monthlyCost: true,
@@ -56,19 +59,26 @@ export default async function BambooPage() {
     }),
     prisma.bambooTask.findMany({
       where: { status: { not: BambooTaskStatus.DONE } },
-      orderBy: [{ timelineWeek: "asc" }, { priority: "desc" }, { createdAt: "asc" }],
+      orderBy: [{ phase: "asc" }, { priority: "desc" }, { createdAt: "asc" }],
       take: 6,
       select: {
         id: true,
         title: true,
         category: true,
-        timelineWeek: true,
+        phase: true,
       },
     }),
     prisma.bambooTask.groupBy({
       by: ["category"],
       where: { status: { not: BambooTaskStatus.DONE } },
       _count: { _all: true },
+    }),
+    prisma.bambooCapitalScenario.findUnique({
+      where: { id: "default" },
+      select: {
+        operatingMonths: true,
+        reservePercent: true,
+      },
     }),
   ]);
 
@@ -81,6 +91,8 @@ export default async function BambooPage() {
     budgetTotals.oneTime + inventoryBudgetTotals.initialTotal,
     budgetTotals.monthly,
     inventoryBudgetTotals.periodicalTotal,
+    capitalScenario?.operatingMonths ?? 3,
+    (capitalScenario?.reservePercent ?? 25) / 100,
   );
   const overviewStats = BAMBOO_OVERVIEW_STATS.map((stat) =>
     stat.label === "Estimated setup cost"
@@ -147,7 +159,7 @@ export default async function BambooPage() {
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-            Tasks and timeline
+            Tasks and phases
           </h2>
           <div className="flex flex-wrap gap-2">
             <Link
@@ -160,7 +172,7 @@ export default async function BambooPage() {
               href="/apps/bamboo/timeline"
               className="inline-flex rounded-lg border border-[#d9e2f3] px-3 py-2 text-xs font-semibold tracking-[0.1em] text-[#4e5e7a] uppercase hover:bg-[#f8faff]"
             >
-              Open timeline
+              Open phase overview
             </Link>
           </div>
         </div>
@@ -190,7 +202,7 @@ export default async function BambooPage() {
                 key={task.id}
                 className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"
               >
-                Week {task.timelineWeek} • {task.title} ({BAMBOO_TASK_CATEGORY_LABELS[task.category]})
+                {BAMBOO_TASK_PHASE_LABELS[task.phase]} • {task.title} ({BAMBOO_TASK_CATEGORY_LABELS[task.category]})
               </div>
             ))
           ) : (
@@ -283,6 +295,32 @@ export default async function BambooPage() {
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {BAMBOO_SHOP_TILES.map((tile) => (
+            <Link
+              key={tile.href}
+              href={tile.href}
+              className="group block rounded-2xl border border-(--line) bg-white p-6 transition hover:-translate-y-0.5 hover:border-[#cfdbf2] hover:bg-[#fcfdff]"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-xl font-semibold text-[#162947]">{tile.title}</h2>
+                <span className="rounded-full border border-[#d8e2f4] bg-[#f8faff] px-3 py-1 text-xs font-semibold text-[#5a6b8f]">
+                  {tile.badge}
+                </span>
+              </div>
+              <p className="mt-2 text-sm leading-6 text-(--text-muted)">{tile.description}</p>
+              <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
+                Open section
+              </p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <p className="text-xs font-semibold tracking-[0.14em] text-[#647494] uppercase">
+          Documents
+        </p>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {BAMBOO_DOCUMENT_TILES.map((tile) => (
             <Link
               key={tile.href}
               href={tile.href}

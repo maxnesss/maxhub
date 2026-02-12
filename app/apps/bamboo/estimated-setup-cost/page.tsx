@@ -46,7 +46,6 @@ export default async function BambooEstimatedSetupCostPage() {
   const nonZeroInventoryInitialLines = inventoryBudgetTotals.initialLines.filter(
     (line) => line.amount > 0,
   );
-  const baseSetupRange = getEstimatedSetupCostRange(0);
   const totalOneTimeContributors = totals.oneTime + inventoryBudgetTotals.initialTotal;
   const currentSetupRange = getEstimatedSetupCostRange(totalOneTimeContributors);
 
@@ -71,17 +70,7 @@ export default async function BambooEstimatedSetupCostPage() {
         </p>
       </section>
 
-      <section className="mt-6 grid gap-4 md:grid-cols-3">
-        <article className="rounded-2xl border border-(--line) bg-white p-5">
-          <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-            Base setup cost
-          </p>
-          <p className="mt-2 text-xl font-semibold tracking-tight text-[#162947]">
-            {formatCzkAmount(baseSetupRange.min)} - {formatCzkAmount(baseSetupRange.max)}
-          </p>
-          <p className="mt-1 text-xs text-[#5f7093]">From company finance requirements.</p>
-        </article>
-
+      <section className="mt-6 grid gap-4 md:grid-cols-2">
         <article className="rounded-2xl border border-(--line) bg-white p-5">
           <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
             One-time budget total

@@ -33,6 +33,9 @@ function done(saved: string): never {
   revalidatePath("/apps/bamboo/shop/budget");
   revalidatePath("/apps/bamboo/shop");
   revalidatePath("/apps/bamboo");
+  revalidatePath("/apps/bamboo/overview");
+  revalidatePath("/apps/bamboo/estimated-setup-cost");
+  revalidatePath("/apps/bamboo/recommended-capital");
   redirect(`/apps/bamboo/shop/budget?saved=${saved}`);
 }
 

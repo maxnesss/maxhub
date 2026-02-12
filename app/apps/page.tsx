@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { toggleFavoriteAppAction } from "@/app/apps/actions";
 import { APP_CODES, APP_DEFINITIONS } from "@/lib/apps";
 import { canReadApp, requireUserContext } from "@/lib/authz";
 import { TopNav } from "@/components/layout/TopNav";
@@ -13,6 +14,7 @@ export default async function AppsPage() {
       name: APP_DEFINITIONS[appCode].label,
       details: APP_DEFINITIONS[appCode].description,
       href: APP_DEFINITIONS[appCode].href,
+      isFavorite: user.favoriteApps.includes(appCode),
     }),
   );
 
@@ -33,21 +35,57 @@ export default async function AppsPage() {
         <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {visibleApps.map((app) => (
             app.href ? (
-              <Link
+              <article
                 key={app.code}
-                href={app.href}
-                className="group block rounded-2xl border border-(--line) bg-white p-6 transition hover:-translate-y-0.5 hover:border-[#cfdbf2] hover:bg-[#fcfdff]"
+                className="relative rounded-2xl border border-(--line) bg-white p-6 transition hover:-translate-y-0.5 hover:border-[#cfdbf2] hover:bg-[#fcfdff]"
               >
-                <h2 className="text-xl font-semibold text-[#162947]">{app.name}</h2>
-                <p className="mt-2 text-sm leading-6 text-(--text-muted)">{app.details}</p>
-                <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
-                  Open app
-                </p>
-              </Link>
+                <form action={toggleFavoriteAppAction} className="absolute top-4 right-4 z-10">
+                  <input type="hidden" name="appCode" value={app.code} />
+                  <button
+                    type="submit"
+                    className={`inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition ${
+                      app.isFavorite
+                        ? "border-[#f4db86] bg-[#fff7d4]"
+                        : "border-[#d7e0f2] bg-white hover:bg-[#f6f9ff]"
+                    }`}
+                    aria-label={
+                      app.isFavorite
+                        ? `Remove ${app.name} from favorites`
+                        : `Add ${app.name} to favorites`
+                    }
+                    title={
+                      app.isFavorite
+                        ? "Remove from favorites"
+                        : "Add to favorites"
+                    }
+                  >
+                    <svg
+                      viewBox="0 0 20 20"
+                      className={`h-4 w-4 ${
+                        app.isFavorite ? "text-[#f4be2a]" : "text-[#c1cbe0]"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M10 1.7l2.56 5.18 5.72.83-4.14 4.04.98 5.7L10 14.78 4.88 17.45l.98-5.7L1.72 7.7l5.72-.83L10 1.7z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </button>
+                </form>
+
+                <Link href={app.href} className="group block">
+                  <h2 className="text-xl font-semibold text-[#162947]">{app.name}</h2>
+                  <p className="mt-2 text-sm leading-6 text-(--text-muted)">{app.details}</p>
+                  <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
+                    Open app
+                  </p>
+                </Link>
+              </article>
             ) : (
               <article
                 key={app.code}
-                className="rounded-2xl border border-(--line) bg-white p-6"
+                className="relative rounded-2xl border border-(--line) bg-white p-6"
               >
                 <h2 className="text-xl font-semibold text-[#162947]">{app.name}</h2>
                 <p className="mt-2 text-sm leading-6 text-(--text-muted)">{app.details}</p>

@@ -10,15 +10,19 @@ type TaskOption = {
 type CreateBambooTaskModalProps = {
   action: (formData: FormData) => void | Promise<void>;
   categoryOptions: TaskOption[];
+  phaseOptions: TaskOption[];
   priorityOptions: TaskOption[];
   defaultCategory: string;
+  defaultPhase: string;
 };
 
 export function CreateBambooTaskModal({
   action,
   categoryOptions,
+  phaseOptions,
   priorityOptions,
   defaultCategory,
+  defaultPhase,
 }: CreateBambooTaskModalProps) {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
 
@@ -79,6 +83,18 @@ export function CreateBambooTaskModal({
               ))}
             </select>
             <select
+              name="phase"
+              required
+              defaultValue={defaultPhase}
+              className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
+            >
+              {phaseOptions.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+            <select
               name="priority"
               required
               defaultValue="MEDIUM"
@@ -95,15 +111,6 @@ export function CreateBambooTaskModal({
               name="subCategory"
               maxLength={120}
               placeholder="Subcategory (optional)"
-              className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-            />
-            <input
-              type="number"
-              name="timelineWeek"
-              min={1}
-              max={52}
-              defaultValue={4}
-              required
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <textarea

@@ -5,6 +5,7 @@ model User {
   nickname       String?
   role           Role                @default(USER)
   passwordHash   String
+  favoriteApps   AppCode[]           @default([])
   projects       Project[]
   appPermissions UserAppPermission[]
   createdAt      DateTime            @default(now())
