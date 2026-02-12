@@ -24,19 +24,21 @@ const highlights = [
 ];
 
 type HomePageProps = {
-  searchParams: Promise<{ r2?: string; buckets?: string; message?: string }>;
+  searchParams: Promise<{ r2?: string; buckets?: string; bucket?: string; message?: string }>;
 };
 
 export default async function Home({ searchParams }: HomePageProps) {
   const session = await auth();
   const isSignedIn = Boolean(session?.user);
-  const { r2, buckets, message } = await searchParams;
+  const { r2, buckets, bucket, message } = await searchParams;
 
   const r2Toast =
     r2 === "ok"
       ? {
           tone: "success" as const,
-          message: `R2 connection OK (${buckets ?? "0"} bucket(s) visible).`,
+          message: bucket
+            ? `R2 connection OK (bucket: ${bucket}).`
+            : `R2 connection OK (${buckets ?? "0"} bucket(s) visible).`,
         }
       : r2 === "missing-env"
         ? {
@@ -44,6 +46,12 @@ export default async function Home({ searchParams }: HomePageProps) {
             message:
               "R2 env vars missing. Set R2_ENDPOINT, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY.",
           }
+        : r2 === "access-denied"
+          ? {
+              tone: "error" as const,
+              message:
+                "R2 key cannot list buckets. Set R2_BUCKET for bucket-level check or use a key with ListBuckets permission.",
+            }
         : r2 === "error"
           ? {
               tone: "error" as const,
