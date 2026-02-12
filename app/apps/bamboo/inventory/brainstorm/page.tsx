@@ -4,6 +4,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { canEditApp, requireAppRead } from "@/lib/authz";
+import { getSignedImageUrl } from "@/lib/r2-images";
 import { prisma } from "@/prisma";
 
 import {
@@ -11,6 +12,10 @@ import {
   deleteInventoryIdeaAction,
   updateInventoryIdeaAction,
 } from "./actions";
+import {
+  deleteInventoryImageAction,
+  uploadInventoryImageAction,
+} from "./image-actions";
 
 type BambooInventoryBrainstormPageProps = {
   searchParams: Promise<{ saved?: string; error?: string; edit?: string }>;
@@ -26,17 +31,47 @@ export default async function BambooInventoryBrainstormPage({
   const ideas = await prisma.bambooInventoryIdea.findMany({
     orderBy: [{ createdAt: "asc" }, { name: "asc" }],
   });
+  const imageRecords = await prisma.bambooInventoryImage.findMany({
+    orderBy: [{ createdAt: "desc" }],
+  });
+  const galleryItems = await Promise.all(
+    imageRecords.map(async (image) => {
+      try {
+        const url = await getSignedImageUrl(image.objectKey);
+        return { ...image, url };
+      } catch {
+        return { ...image, url: null };
+      }
+    }),
+  );
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
       {saved === "added" ? <Toast message="Inventory idea added." /> : null}
       {saved === "updated" ? <Toast message="Inventory idea updated." /> : null}
       {saved === "deleted" ? <Toast message="Inventory idea removed." /> : null}
+      {saved === "image-added" ? <Toast message="Image uploaded." /> : null}
+      {saved === "image-deleted" ? <Toast message="Image removed." /> : null}
       {error === "invalid" ? (
         <Toast message="Invalid input." tone="error" />
       ) : null}
       {error === "duplicate" ? (
         <Toast message="Idea name already exists." tone="error" />
+      ) : null}
+      {error === "image-invalid" ? (
+        <Toast
+          message="Invalid image. Use JPG, PNG, WEBP, GIF, or AVIF up to 5 MB."
+          tone="error"
+        />
+      ) : null}
+      {error === "image-config" ? (
+        <Toast
+          message="R2 image storage is not configured. Set R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET."
+          tone="error"
+        />
+      ) : null}
+      {error === "image-upload" ? (
+        <Toast message="Image upload failed." tone="error" />
       ) : null}
 
       <TopNav current="apps" />
@@ -155,6 +190,81 @@ export default async function BambooInventoryBrainstormPage({
           <div className="border-t border-[#edf2fb] px-4 py-4 text-sm text-(--text-muted)">
             No ideas yet.
           </div>
+        )}
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
+              Image gallery
+            </h2>
+            <p className="mt-2 text-sm text-(--text-muted)">
+              Upload inspiration images for products and packaging ideas.
+            </p>
+          </div>
+
+          {canEdit ? (
+            <form action={uploadInventoryImageAction} className="flex flex-wrap items-center gap-2">
+              <input
+                type="file"
+                name="image"
+                accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                required
+                className="max-w-[240px] rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
+              />
+              <button
+                type="submit"
+                className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+              >
+                Upload
+              </button>
+            </form>
+          ) : null}
+        </div>
+
+        {galleryItems.length > 0 ? (
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {galleryItems.map((image) => (
+              <article
+                key={image.id}
+                className="overflow-hidden rounded-xl border border-[#e3eaf7] bg-[#fbfdff]"
+              >
+                {image.url ? (
+                  <img
+                    src={image.url}
+                    alt={image.fileName}
+                    className="h-48 w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-48 w-full items-center justify-center bg-[#f3f7ff] text-sm text-[#61708e]">
+                    Unable to load preview
+                  </div>
+                )}
+                <div className="space-y-2 p-3">
+                  <p className="truncate text-sm font-semibold text-[#1a2b49]">
+                    {image.fileName}
+                  </p>
+                  <p className="text-xs text-(--text-muted)">
+                    {(image.sizeBytes / 1024 / 1024).toFixed(2)} MB • {image.contentType}
+                  </p>
+                  {canEdit ? (
+                    <form action={deleteInventoryImageAction}>
+                      <input type="hidden" name="id" value={image.id} />
+                      <button
+                        type="submit"
+                        className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
+                      >
+                        Remove
+                      </button>
+                    </form>
+                  ) : null}
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-(--text-muted)">No images uploaded yet.</p>
         )}
       </section>
 

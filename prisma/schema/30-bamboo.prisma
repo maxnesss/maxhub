@@ -49,6 +49,15 @@ model BambooInventoryBudget {
   updatedAt                 DateTime @updatedAt
 }
 
+model BambooInventoryImage {
+  id          String   @id @default(cuid())
+  objectKey   String   @unique
+  fileName    String
+  contentType String
+  sizeBytes   Int
+  createdAt   DateTime @default(now())
+}
+
 model BambooShopLocation {
   id             String   @id @default(cuid())
   name           String
