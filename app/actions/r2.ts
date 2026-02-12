@@ -41,35 +41,39 @@ export async function checkR2ConnectionAction() {
     },
   });
 
+  let redirectParams: Record<string, string>;
+
   try {
     // Preferred for Cloudflare R2: many keys are bucket-scoped and cannot call ListBuckets.
     if (bucket) {
       await s3.send(new HeadBucketCommand({ Bucket: bucket }));
-      redirectWithParams({
+      redirectParams = {
         r2: "ok",
         bucket,
-      });
+      };
+    } else {
+      const response = await s3.send(new ListBucketsCommand({}));
+      redirectParams = {
+        r2: "ok",
+        buckets: String(response.Buckets?.length ?? 0),
+      };
     }
-
-    const response = await s3.send(new ListBucketsCommand({}));
-    redirectWithParams({
-      r2: "ok",
-      buckets: String(response.Buckets?.length ?? 0),
-    });
   } catch (error) {
     if (
       error instanceof S3ServiceException &&
       error.name === "AccessDenied" &&
       !bucket
     ) {
-      redirectWithParams({
+      redirectParams = {
         r2: "access-denied",
-      });
+      };
+    } else {
+      redirectParams = {
+        r2: "error",
+        message: resolveErrorMessage(error).slice(0, 180),
+      };
     }
-
-    redirectWithParams({
-      r2: "error",
-      message: resolveErrorMessage(error).slice(0, 180),
-    });
   }
+
+  redirectWithParams(redirectParams);
 }
