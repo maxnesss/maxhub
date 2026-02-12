@@ -1,9 +1,13 @@
 import Link from "next/link";
+import { BambooTaskCategory, BambooTaskStatus } from "@prisma/client";
 
+import { TaskCategoryPanel } from "@/components/bamboo/TaskCategoryPanel";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
 import { BAMBOO_INVENTORY_EXTRA_IDEAS } from "@/lib/bamboo-content";
+import { bambooTaskFilterHref } from "@/lib/bamboo-tasks";
+import { prisma } from "@/prisma";
 
 const INVENTORY_MODULES = [
   {
@@ -30,6 +34,22 @@ const INVENTORY_MODULES = [
 
 export default async function BambooInventoryPage() {
   await requireAppRead("BAMBOO");
+  const categoryTasks = await prisma.bambooTask.findMany({
+    where: {
+      category: BambooTaskCategory.INVENTORY,
+      status: { not: BambooTaskStatus.DONE },
+    },
+    orderBy: [{ timelineWeek: "asc" }, { priority: "desc" }, { createdAt: "asc" }],
+    take: 5,
+    select: {
+      id: true,
+      title: true,
+      timelineWeek: true,
+      status: true,
+      priority: true,
+      owner: true,
+    },
+  });
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
@@ -82,6 +102,13 @@ export default async function BambooInventoryPage() {
           ))}
         </ul>
       </section>
+
+      <TaskCategoryPanel
+        title="Inventory tasks"
+        tasks={categoryTasks}
+        href={bambooTaskFilterHref({ category: BambooTaskCategory.INVENTORY })}
+        emptyLabel="No open inventory tasks right now."
+      />
     </main>
   );
 }

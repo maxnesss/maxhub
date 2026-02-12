@@ -21,13 +21,6 @@ export type BambooBrandSetupGroup = {
   steps: string[];
 };
 
-export type BambooTask = {
-  task: string;
-  phase: string;
-  owner: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
-};
-
 export type BambooInventoryItem = {
   category: string;
   notes: string;
@@ -50,8 +43,14 @@ export const BAMBOO_GENERAL_TILES: BambooTile[] = [
   {
     title: "Tasks",
     href: "/apps/bamboo/tasks",
-    description: "General cross-workstream action list and delivery sequence.",
+    description: "Shared execution board with category filters and ownership.",
     badge: "Action",
+  },
+  {
+    title: "Timeline",
+    href: "/apps/bamboo/timeline",
+    description: "Week-by-week launch sequence across all Bamboo categories.",
+    badge: "Timeline",
   },
   {
     title: "Finance setup",
@@ -325,66 +324,9 @@ export const BAMBOO_SHORTLIST = [
   "Bamboolab s.r.o.",
 ];
 
-export const BAMBOO_TASKS: BambooTask[] = [
-  {
-    task: "Validate final company name in Commercial Register",
-    phase: "Week 1",
-    owner: "Founder",
-    status: "TODO",
-  },
-  {
-    task: "Prepare founder + managing director data for notary",
-    phase: "Week 1",
-    owner: "Founder",
-    status: "TODO",
-  },
-  {
-    task: "Draft Deed of Foundation and address consent",
-    phase: "Week 1",
-    owner: "Legal",
-    status: "TODO",
-  },
-  {
-    task: "Complete notary appointment and registration",
-    phase: "Week 1",
-    owner: "Founder",
-    status: "TODO",
-  },
-  {
-    task: "Open business account and deposit capital",
-    phase: "Week 1-2",
-    owner: "Finance",
-    status: "TODO",
-  },
-  {
-    task: "Submit trade license application",
-    phase: "Week 2",
-    owner: "Legal",
-    status: "TODO",
-  },
-  {
-    task: "Register mandatory taxes",
-    phase: "Week 2",
-    owner: "Finance",
-    status: "TODO",
-  },
-  {
-    task: "Select accounting solution and reporting process",
-    phase: "Week 2",
-    owner: "Finance",
-    status: "TODO",
-  },
-  {
-    task: "Select top 3 brand names and run trademark check",
-    phase: "Week 2",
-    owner: "Brand",
-    status: "TODO",
-  },
-];
-
 export const BAMBOO_OVERVIEW_STATS = [
   { label: "Target legal form", value: "s.r.o. (Czech Republic)" },
-  { label: "Estimated setup time", value: "1-2 weeks" },
+  { label: "Estimated setup time", value: "6-10 weeks" },
   { label: "Estimated setup cost", value: "10,000-15,000 CZK" },
   { label: "Recommended capital", value: "10,000 CZK" },
 ];

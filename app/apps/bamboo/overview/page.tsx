@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BambooTaskStatus } from "@prisma/client";
 
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
@@ -9,14 +10,26 @@ import {
   BAMBOO_SHOP_TILES,
   BAMBOO_SETUP_COMPANY_TILES,
   BAMBOO_SHORTLIST,
-  BAMBOO_TASKS,
 } from "@/lib/bamboo-content";
 import { requireAppRead } from "@/lib/authz";
+import { BAMBOO_TASK_CATEGORY_LABELS } from "@/lib/bamboo-tasks";
+import { prisma } from "@/prisma";
 
 export default async function BambooOverviewPage() {
   await requireAppRead("BAMBOO");
 
-  const nextTasks = BAMBOO_TASKS.slice(0, 4);
+  const nextTasks = await prisma.bambooTask.findMany({
+    where: { status: { not: BambooTaskStatus.DONE } },
+    orderBy: [{ timelineWeek: "asc" }, { priority: "desc" }, { createdAt: "asc" }],
+    take: 4,
+    select: {
+      id: true,
+      title: true,
+      timelineWeek: true,
+      owner: true,
+      category: true,
+    },
+  });
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
@@ -54,14 +67,20 @@ export default async function BambooOverviewPage() {
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">Next actions</h2>
           <ul className="mt-4 space-y-3">
-            {nextTasks.map((task) => (
-              <li key={task.task} className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
-                <p className="text-sm font-semibold text-[#1a2b49]">{task.task}</p>
-                <p className="mt-1 text-xs text-(--text-muted)">
-                  {task.phase} • Owner: {task.owner}
-                </p>
+            {nextTasks.length > 0 ? (
+              nextTasks.map((task) => (
+                <li key={task.id} className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
+                  <p className="text-sm font-semibold text-[#1a2b49]">{task.title}</p>
+                  <p className="mt-1 text-xs text-(--text-muted)">
+                    Week {task.timelineWeek} • {BAMBOO_TASK_CATEGORY_LABELS[task.category]} • Owner: {task.owner}
+                  </p>
+                </li>
+              ))
+            ) : (
+              <li className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4 text-sm text-(--text-muted)">
+                No open tasks yet.
               </li>
-            ))}
+            )}
           </ul>
         </article>
 
@@ -86,6 +105,12 @@ export default async function BambooOverviewPage() {
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
           Open tasks
+        </Link>
+        <Link
+          href="/apps/bamboo/timeline"
+          className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+        >
+          Open timeline
         </Link>
         <Link
           href="/apps/bamboo/company-setup"

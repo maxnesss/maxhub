@@ -1,3 +1,41 @@
+enum BambooTaskCategory {
+  GENERAL
+  SETUP_COMPANY
+  INVENTORY
+  SHOP
+  FINANCE
+  BRAND
+}
+
+enum BambooTaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum BambooTaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model BambooTask {
+  id           String             @id @default(cuid())
+  title        String
+  description  String?
+  category     BambooTaskCategory
+  subCategory  String?
+  timelineWeek Int
+  owner        String
+  priority     BambooTaskPriority @default(MEDIUM)
+  status       BambooTaskStatus   @default(TODO)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([category, status, timelineWeek])
+  @@index([timelineWeek])
+}
+
 model BambooNameIdea {
   id             String   @id @default(cuid())
   name           String

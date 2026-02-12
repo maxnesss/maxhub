@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BambooTaskStatus } from "@prisma/client";
 
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
@@ -16,6 +17,11 @@ import {
   BAMBOO_SHOP_TILES,
   BAMBOO_SETUP_COMPANY_TILES,
 } from "@/lib/bamboo-content";
+import {
+  BAMBOO_TASK_CATEGORY_LABELS,
+  BAMBOO_TASK_CATEGORY_OPTIONS,
+  bambooTaskFilterHref,
+} from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
 
 const OVERVIEW_STAT_LINKS: Record<string, string> = {
@@ -26,7 +32,7 @@ const OVERVIEW_STAT_LINKS: Record<string, string> = {
 export default async function BambooPage() {
   await requireAppRead("BAMBOO");
 
-  const [budgetItems, inventoryBudget] = await Promise.all([
+  const [budgetItems, inventoryBudget, nextTasks, openByCategory] = await Promise.all([
     prisma.bambooShopBudgetItem.findMany({
       select: {
         monthlyCost: true,
@@ -48,6 +54,22 @@ export default async function BambooPage() {
         periodicalLabelling: true,
       },
     }),
+    prisma.bambooTask.findMany({
+      where: { status: { not: BambooTaskStatus.DONE } },
+      orderBy: [{ timelineWeek: "asc" }, { priority: "desc" }, { createdAt: "asc" }],
+      take: 6,
+      select: {
+        id: true,
+        title: true,
+        category: true,
+        timelineWeek: true,
+      },
+    }),
+    prisma.bambooTask.groupBy({
+      by: ["category"],
+      where: { status: { not: BambooTaskStatus.DONE } },
+      _count: { _all: true },
+    }),
   ]);
 
   const budgetTotals = getBudgetTotals(budgetItems);
@@ -66,6 +88,9 @@ export default async function BambooPage() {
       : stat.label === "Recommended capital"
         ? { ...stat, value: recommendedCapitalLabel }
         : stat,
+  );
+  const openCountByCategory = new Map(
+    openByCategory.map((row) => [row.category, row._count._all]),
   );
 
   return (
@@ -117,6 +142,61 @@ export default async function BambooPage() {
             </article>
           )
         ))}
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
+            Tasks and timeline
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/apps/bamboo/tasks"
+              className="inline-flex rounded-lg border border-[#d9e2f3] px-3 py-2 text-xs font-semibold tracking-[0.1em] text-[#4e5e7a] uppercase hover:bg-[#f8faff]"
+            >
+              Open board
+            </Link>
+            <Link
+              href="/apps/bamboo/timeline"
+              className="inline-flex rounded-lg border border-[#d9e2f3] px-3 py-2 text-xs font-semibold tracking-[0.1em] text-[#4e5e7a] uppercase hover:bg-[#f8faff]"
+            >
+              Open timeline
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {BAMBOO_TASK_CATEGORY_OPTIONS.map((category) => (
+            <Link
+              key={category}
+              href={bambooTaskFilterHref({ category })}
+              className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-3"
+            >
+              <p className="text-xs font-semibold tracking-[0.1em] text-[#5b6c8d] uppercase">
+                {BAMBOO_TASK_CATEGORY_LABELS[category]}
+              </p>
+              <p className="mt-1 text-xl font-semibold text-[#1a2b49]">
+                {openCountByCategory.get(category) ?? 0}
+              </p>
+              <p className="mt-1 text-xs text-(--text-muted)">open tasks</p>
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {nextTasks.length > 0 ? (
+            nextTasks.map((task) => (
+              <div
+                key={task.id}
+                className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"
+              >
+                Week {task.timelineWeek} • {task.title} ({BAMBOO_TASK_CATEGORY_LABELS[task.category]})
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-(--text-muted)">No open tasks yet.</p>
+          )}
+        </div>
       </section>
 
       <section className="mt-6">

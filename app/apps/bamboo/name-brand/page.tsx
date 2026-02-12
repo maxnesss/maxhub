@@ -1,3 +1,6 @@
+import { BambooTaskCategory, BambooTaskStatus } from "@prisma/client";
+
+import { TaskCategoryPanel } from "@/components/bamboo/TaskCategoryPanel";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
@@ -6,6 +9,7 @@ import {
   BAMBOO_BRAND_SETUP_GROUPS,
   BAMBOO_NAME_GROUPS,
 } from "@/lib/bamboo-content";
+import { bambooTaskFilterHref } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
 
 import { addCustomNameAction, setNameShortlistAction } from "./actions";
@@ -26,9 +30,27 @@ export default async function BambooNameBrandPage({
   await requireAppRead("BAMBOO");
   const { saved, error } = await searchParams;
 
-  const persisted = await prisma.bambooNameIdea.findMany({
-    orderBy: [{ category: "asc" }, { name: "asc" }],
-  });
+  const [persisted, categoryTasks] = await Promise.all([
+    prisma.bambooNameIdea.findMany({
+      orderBy: [{ category: "asc" }, { name: "asc" }],
+    }),
+    prisma.bambooTask.findMany({
+      where: {
+        category: BambooTaskCategory.BRAND,
+        status: { not: BambooTaskStatus.DONE },
+      },
+      orderBy: [{ timelineWeek: "asc" }, { priority: "desc" }, { createdAt: "asc" }],
+      take: 5,
+      select: {
+        id: true,
+        title: true,
+        timelineWeek: true,
+        status: true,
+        priority: true,
+        owner: true,
+      },
+    }),
+  ]);
 
   const persistedByName = new Map(
     persisted.map((item) => [item.normalizedName, item]),
@@ -206,6 +228,13 @@ export default async function BambooNameBrandPage({
           )}
         </ul>
       </section>
+
+      <TaskCategoryPanel
+        title="Name and brand tasks"
+        tasks={categoryTasks}
+        href={bambooTaskFilterHref({ category: BambooTaskCategory.BRAND })}
+        emptyLabel="No open name-and-brand tasks right now."
+      />
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">

@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { BambooTaskCategory, BambooTaskStatus } from "@prisma/client";
 
+import { TaskCategoryPanel } from "@/components/bamboo/TaskCategoryPanel";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
+import { bambooTaskFilterHref } from "@/lib/bamboo-tasks";
+import { prisma } from "@/prisma";
 
 const SHOP_MODULES = [
   {
@@ -27,6 +31,22 @@ const SHOP_MODULES = [
 
 export default async function BambooShopPage() {
   await requireAppRead("BAMBOO");
+  const categoryTasks = await prisma.bambooTask.findMany({
+    where: {
+      category: BambooTaskCategory.SHOP,
+      status: { not: BambooTaskStatus.DONE },
+    },
+    orderBy: [{ timelineWeek: "asc" }, { priority: "desc" }, { createdAt: "asc" }],
+    take: 5,
+    select: {
+      id: true,
+      title: true,
+      timelineWeek: true,
+      status: true,
+      priority: true,
+      owner: true,
+    },
+  });
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
@@ -64,6 +84,13 @@ export default async function BambooShopPage() {
           </Link>
         ))}
       </section>
+
+      <TaskCategoryPanel
+        title="Shop tasks"
+        tasks={categoryTasks}
+        href={bambooTaskFilterHref({ category: BambooTaskCategory.SHOP })}
+        emptyLabel="No open shop tasks right now."
+      />
     </main>
   );
 }
