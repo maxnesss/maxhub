@@ -6,6 +6,7 @@ import { requireAppRead } from "@/lib/authz";
 import {
   getBudgetTotals,
   getEstimatedSetupCostLabel,
+  getInventoryBudgetBreakdown,
   getRecommendedCapitalLabel,
 } from "@/lib/bamboo-budget";
 import {
@@ -17,21 +18,47 @@ import {
 } from "@/lib/bamboo-content";
 import { prisma } from "@/prisma";
 
+const OVERVIEW_STAT_LINKS: Record<string, string> = {
+  "estimated setup cost": "/apps/bamboo/estimated-setup-cost",
+  "recommended capital": "/apps/bamboo/recommended-capital",
+};
+
 export default async function BambooPage() {
   await requireAppRead("BAMBOO");
 
-  const budgetItems = await prisma.bambooShopBudgetItem.findMany({
-    select: {
-      monthlyCost: true,
-      oneTimeCost: true,
-    },
-  });
+  const [budgetItems, inventoryBudget] = await Promise.all([
+    prisma.bambooShopBudgetItem.findMany({
+      select: {
+        monthlyCost: true,
+        oneTimeCost: true,
+      },
+    }),
+    prisma.bambooInventoryBudget.findUnique({
+      where: { id: "default" },
+      select: {
+        initialInventoryBuy: true,
+        initialTransportation: true,
+        initialTaxesImportFees: true,
+        initialTransportToShop: true,
+        initialLabelling: true,
+        periodicalInventoryBuy: true,
+        periodicalTransportation: true,
+        periodicalTaxesImportFees: true,
+        periodicalTransportToShop: true,
+        periodicalLabelling: true,
+      },
+    }),
+  ]);
 
   const budgetTotals = getBudgetTotals(budgetItems);
-  const estimatedSetupCostLabel = getEstimatedSetupCostLabel(budgetTotals.oneTime);
+  const inventoryBudgetTotals = getInventoryBudgetBreakdown(inventoryBudget);
+  const estimatedSetupCostLabel = getEstimatedSetupCostLabel(
+    budgetTotals.oneTime + inventoryBudgetTotals.initialTotal,
+  );
   const recommendedCapitalLabel = getRecommendedCapitalLabel(
-    budgetTotals.oneTime,
+    budgetTotals.oneTime + inventoryBudgetTotals.initialTotal,
     budgetTotals.monthly,
+    inventoryBudgetTotals.periodicalTotal,
   );
   const overviewStats = BAMBOO_OVERVIEW_STATS.map((stat) =>
     stat.label === "Estimated setup cost"
@@ -63,12 +90,32 @@ export default async function BambooPage() {
 
       <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {overviewStats.map((stat) => (
-          <article key={stat.label} className="rounded-2xl border border-(--line) bg-white p-5">
-            <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-              {stat.label}
-            </p>
-            <p className="mt-2 text-xl font-semibold tracking-tight text-[#162947]">{stat.value}</p>
-          </article>
+          OVERVIEW_STAT_LINKS[stat.label.toLocaleLowerCase()] ? (
+            <Link
+              key={stat.label}
+              href={OVERVIEW_STAT_LINKS[stat.label.toLocaleLowerCase()]}
+              className="group block rounded-2xl border border-(--line) bg-white p-5 transition hover:-translate-y-0.5 hover:border-[#cfdbf2] hover:bg-[#fcfdff]"
+            >
+              <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
+                {stat.label}
+              </p>
+              <p className="mt-2 text-xl font-semibold tracking-tight text-[#162947]">
+                {stat.value}
+              </p>
+              <p className="mt-3 text-xs font-semibold tracking-[0.12em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
+                Open details
+              </p>
+            </Link>
+          ) : (
+            <article key={stat.label} className="rounded-2xl border border-(--line) bg-white p-5">
+              <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
+                {stat.label}
+              </p>
+              <p className="mt-2 text-xl font-semibold tracking-tight text-[#162947]">
+                {stat.value}
+              </p>
+            </article>
+          )
         ))}
       </section>
 

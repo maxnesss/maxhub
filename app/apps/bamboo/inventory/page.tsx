@@ -7,6 +7,11 @@ import { BAMBOO_INVENTORY_EXTRA_IDEAS } from "@/lib/bamboo-content";
 
 const INVENTORY_MODULES = [
   {
+    title: "Budget",
+    href: "/apps/bamboo/inventory/budget",
+    description: "Initial and periodical inventory estimates integrated to capital overviews.",
+  },
+  {
     title: "Inventory brainstorm",
     href: "/apps/bamboo/inventory/brainstorm",
     description: "Initial product categories, price bands, and launch candidates.",

@@ -75,6 +75,12 @@ export const BAMBOO_INVENTORY_TILES: BambooTile[] = [
     badge: "Supply",
   },
   {
+    title: "Inventory budget",
+    href: "/apps/bamboo/inventory/budget",
+    description: "Editable initial and periodical inventory cost estimates.",
+    badge: "Budget",
+  },
+  {
     title: "Inventory brainstorm",
     href: "/apps/bamboo/inventory/brainstorm",
     description: "Candidate product categories and launch price ranges.",

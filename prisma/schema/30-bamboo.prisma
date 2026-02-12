@@ -22,6 +22,33 @@ model BambooInventoryIdea {
   updatedAt       DateTime @updatedAt
 }
 
+model BambooProducerContact {
+  id             String   @id @default(cuid())
+  name           String
+  normalizedName String   @unique
+  contact        String
+  sortiment      String
+  notes          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model BambooInventoryBudget {
+  id                        String   @id @default("default")
+  initialInventoryBuy       Int      @default(0)
+  initialTransportation     Int      @default(0)
+  initialTaxesImportFees    Int      @default(0)
+  initialTransportToShop    Int      @default(0)
+  initialLabelling          Int      @default(0)
+  periodicalInventoryBuy    Int      @default(0)
+  periodicalTransportation  Int      @default(0)
+  periodicalTaxesImportFees Int      @default(0)
+  periodicalTransportToShop Int      @default(0)
+  periodicalLabelling       Int      @default(0)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+}
+
 model BambooShopLocation {
   id             String   @id @default(cuid())
   name           String

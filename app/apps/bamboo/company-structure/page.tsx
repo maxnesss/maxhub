@@ -36,6 +36,33 @@ export default async function BambooCompanyStructurePage() {
 
       <section className="mt-6 grid gap-4 lg:grid-cols-2">
         <article className="rounded-2xl border border-(--line) bg-white p-6">
+          <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
+            What is s.r.o.?
+          </h2>
+          <p className="mt-4 text-sm leading-6 text-[#314567]">
+            s.r.o. (spolecnost s rucenim omezenym) is the Czech equivalent of a
+            private limited liability company. It is a separate legal entity,
+            can own assets, sign contracts, hire employees, and pay taxes under
+            its own company identification.
+          </p>
+        </article>
+
+        <article className="rounded-2xl border border-(--line) bg-white p-6">
+          <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
+            Benefits of s.r.o.
+          </h2>
+          <ul className="mt-4 space-y-2 text-sm text-[#314567]">
+            <li>Limited liability protection for founders/shareholders.</li>
+            <li>Strong credibility for suppliers, banks, and landlords.</li>
+            <li>Clear ownership shares and structured company governance.</li>
+            <li>Scalable legal form suitable for growth and hiring.</li>
+            <li>Works well for both local Czech business and EU operations.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section className="mt-6 grid gap-4 lg:grid-cols-2">
+        <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-xl font-semibold tracking-tight text-[#162947]">Founder role</h2>
           <ul className="mt-4 space-y-2 text-sm text-[#314567]">
             <li>Minimum one founder is required.</li>

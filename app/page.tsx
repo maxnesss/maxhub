@@ -1,7 +1,9 @@
 import Link from "next/link";
 
+import { checkR2ConnectionAction } from "@/app/actions/r2";
 import { auth } from "@/auth";
 import { TopNav } from "@/components/layout/TopNav";
+import { Toast } from "@/components/ui/Toast";
 
 const highlights = [
   {
@@ -21,13 +23,38 @@ const highlights = [
   },
 ];
 
-export default async function Home() {
+type HomePageProps = {
+  searchParams: Promise<{ r2?: string; buckets?: string; message?: string }>;
+};
+
+export default async function Home({ searchParams }: HomePageProps) {
   const session = await auth();
   const isSignedIn = Boolean(session?.user);
+  const { r2, buckets, message } = await searchParams;
+
+  const r2Toast =
+    r2 === "ok"
+      ? {
+          tone: "success" as const,
+          message: `R2 connection OK (${buckets ?? "0"} bucket(s) visible).`,
+        }
+      : r2 === "missing-env"
+        ? {
+            tone: "error" as const,
+            message:
+              "R2 env vars missing. Set R2_ENDPOINT, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY.",
+          }
+        : r2 === "error"
+          ? {
+              tone: "error" as const,
+              message: `R2 connection failed: ${message ?? "Unknown error."}`,
+            }
+          : null;
 
   return (
     <div className="relative isolate min-h-screen overflow-hidden">
       <main className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-8">
+        {r2Toast ? <Toast message={r2Toast.message} tone={r2Toast.tone} /> : null}
         <TopNav current="home" />
 
         <section className="animate-fade-up mt-10 grid gap-6 rounded-3xl border border-(--line) bg-(--surface-1) p-8 shadow-[0_20px_45px_-34px_rgba(19,33,58,0.55)] md:grid-cols-[1.2fr_0.8fr] md:p-10">
@@ -60,6 +87,14 @@ export default async function Home() {
               >
                 Open Apps
               </Link>
+              <form action={checkR2ConnectionAction}>
+                <button
+                  type="submit"
+                  className="cursor-pointer rounded-xl border border-[#cfe0ff] bg-[#f4f8ff] px-5 py-3 text-sm font-semibold text-[#2d4d88] hover:bg-[#eaf2ff]"
+                >
+                  Sanity Check R2
+                </button>
+              </form>
             </div>
           </div>
 
