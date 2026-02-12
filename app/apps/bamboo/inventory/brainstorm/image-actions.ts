@@ -14,6 +14,31 @@ const deleteSchema = z.object({
   id: z.string().trim().min(1),
 });
 
+function toLoggableError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return { message: "Unknown error", raw: String(error) };
+  }
+
+  const maybeAwsError = error as Error & {
+    name?: string;
+    code?: string;
+    $metadata?: { httpStatusCode?: number; requestId?: string };
+    cause?: unknown;
+  };
+
+  return {
+    name: maybeAwsError.name,
+    message: maybeAwsError.message,
+    code: maybeAwsError.code,
+    httpStatusCode: maybeAwsError.$metadata?.httpStatusCode,
+    requestId: maybeAwsError.$metadata?.requestId,
+    cause:
+      maybeAwsError.cause instanceof Error
+        ? maybeAwsError.cause.message
+        : maybeAwsError.cause,
+  };
+}
+
 function done(saved: string): never {
   revalidatePath(REDIRECT_BASE);
   redirect(`${REDIRECT_BASE}?saved=${saved}`);
@@ -28,11 +53,23 @@ export async function uploadInventoryImageAction(formData: FormData) {
 
   const file = formData.get("image");
   if (!(file instanceof File)) {
+    console.error("[inventory-image-upload] Invalid form file payload.");
     fail("image-invalid");
   }
 
+  console.info("[inventory-image-upload] Upload started.", {
+    name: file.name,
+    sizeBytes: file.size,
+    contentType: file.type,
+  });
+
   try {
     const uploaded = await uploadImageToR2(file, "inventory-brainstorm");
+    console.info("[inventory-image-upload] R2 upload succeeded.", {
+      objectKey: uploaded.objectKey,
+      sizeBytes: uploaded.sizeBytes,
+      contentType: uploaded.contentType,
+    });
 
     await prisma.bambooInventoryImage.create({
       data: {
@@ -42,7 +79,15 @@ export async function uploadInventoryImageAction(formData: FormData) {
         sizeBytes: uploaded.sizeBytes,
       },
     });
+    console.info("[inventory-image-upload] Metadata saved to DB.", {
+      objectKey: uploaded.objectKey,
+    });
   } catch (error) {
+    console.error(
+      "[inventory-image-upload] Failed to upload image.",
+      toLoggableError(error),
+    );
+
     if (error instanceof Error) {
       if (error.message.includes("Missing R2 config")) {
         fail("image-config");
@@ -69,6 +114,7 @@ export async function deleteInventoryImageAction(formData: FormData) {
   });
 
   if (!parsed.success) {
+    console.error("[inventory-image-delete] Invalid form payload.");
     fail("image-invalid");
   }
   const data = parsed.data;
@@ -78,12 +124,17 @@ export async function deleteInventoryImageAction(formData: FormData) {
   });
 
   if (!record) {
+    console.warn("[inventory-image-delete] Record not found.", { id: data.id });
     fail("image-missing");
   }
 
   try {
     await deleteImageFromR2(record.objectKey);
-  } catch {
+  } catch (error) {
+    console.warn(
+      "[inventory-image-delete] R2 delete failed, continuing with DB cleanup.",
+      { objectKey: record.objectKey, error: toLoggableError(error) },
+    );
     // Continue cleanup in DB even if object is already missing in storage.
   }
 

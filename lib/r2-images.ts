@@ -84,22 +84,36 @@ export function validateImageFile(file: File) {
 export async function uploadImageToR2(file: File, prefix: string) {
   validateImageFile(file);
 
-  const { bucket } = getR2Config();
+  const { bucket, endpoint } = getR2Config();
   const s3 = getR2Client();
 
   const extension = extensionForType(file.type);
   const objectKey = `${prefix}/${Date.now()}-${randomUUID()}.${extension}`;
   const body = Buffer.from(await file.arrayBuffer());
 
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: objectKey,
-      Body: body,
-      ContentType: file.type,
-      CacheControl: "public, max-age=31536000, immutable",
-    }),
-  );
+  try {
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: bucket,
+        Key: objectKey,
+        Body: body,
+        ContentType: file.type,
+        CacheControl: "public, max-age=31536000, immutable",
+      }),
+    );
+  } catch (error) {
+    const message =
+      error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    console.error("[r2-images] PutObject failed.", {
+      bucket,
+      endpointHost: new URL(endpoint).host,
+      objectKey,
+      contentType: file.type,
+      sizeBytes: file.size,
+      error: message,
+    });
+    throw error;
+  }
 
   return {
     objectKey,
@@ -110,15 +124,27 @@ export async function uploadImageToR2(file: File, prefix: string) {
 }
 
 export async function deleteImageFromR2(objectKey: string) {
-  const { bucket } = getR2Config();
+  const { bucket, endpoint } = getR2Config();
   const s3 = getR2Client();
 
-  await s3.send(
-    new DeleteObjectCommand({
-      Bucket: bucket,
-      Key: objectKey,
-    }),
-  );
+  try {
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: objectKey,
+      }),
+    );
+  } catch (error) {
+    const message =
+      error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    console.error("[r2-images] DeleteObject failed.", {
+      bucket,
+      endpointHost: new URL(endpoint).host,
+      objectKey,
+      error: message,
+    });
+    throw error;
+  }
 }
 
 export async function getSignedImageUrl(objectKey: string, expiresIn = 60 * 60) {

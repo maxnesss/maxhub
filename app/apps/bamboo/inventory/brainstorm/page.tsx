@@ -16,6 +16,7 @@ import {
   deleteInventoryImageAction,
   uploadInventoryImageAction,
 } from "./image-actions";
+import { AddInventoryIdeaModal } from "./AddInventoryIdeaModal";
 
 type BambooInventoryBrainstormPageProps = {
   searchParams: Promise<{ saved?: string; error?: string; edit?: string }>;
@@ -95,6 +96,13 @@ export default async function BambooInventoryBrainstormPage({
       </section>
 
       <section className="mt-6 overflow-hidden rounded-2xl border border-(--line) bg-white">
+        <div className="flex items-center justify-between gap-3 border-b border-[#edf2fb] px-4 py-3">
+          <h2 className="text-lg font-semibold tracking-tight text-[#162947]">
+            Inventory ideas
+          </h2>
+          {canEdit ? <AddInventoryIdeaModal action={addInventoryIdeaAction} /> : null}
+        </div>
+
         <div className="grid grid-cols-[0.8fr_1.6fr_0.6fr_0.6fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
           <span>Name</span>
           <span>Notes</span>
@@ -186,11 +194,7 @@ export default async function BambooInventoryBrainstormPage({
               </div>
             );
           })
-        ) : (
-          <div className="border-t border-[#edf2fb] px-4 py-4 text-sm text-(--text-muted)">
-            No ideas yet.
-          </div>
-        )}
+        ) : <div className="px-4 py-4 text-sm text-(--text-muted)">No ideas yet.</div>}
       </section>
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
@@ -205,8 +209,15 @@ export default async function BambooInventoryBrainstormPage({
           </div>
 
           {canEdit ? (
-            <form action={uploadInventoryImageAction} className="flex flex-wrap items-center gap-2">
+            <form action={uploadInventoryImageAction} className="flex flex-wrap items-end gap-2">
+              <label
+                htmlFor="brainstorm-image-upload"
+                className="text-sm font-medium text-[#4e5e7a]"
+              >
+                Upload image
+              </label>
               <input
+                id="brainstorm-image-upload"
                 type="file"
                 name="image"
                 accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
@@ -268,43 +279,6 @@ export default async function BambooInventoryBrainstormPage({
         )}
       </section>
 
-      {canEdit ? (
-        <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
-          <h2 className="text-xl font-semibold tracking-tight text-[#162947]">Add new idea</h2>
-          <form action={addInventoryIdeaAction} className="mt-4 grid gap-3 md:grid-cols-3">
-            <input
-              type="text"
-              name="name"
-              required
-              placeholder="Idea name"
-              maxLength={120}
-              className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-            />
-            <input
-              type="text"
-              name="targetPriceBand"
-              required
-              placeholder="Target price (e.g. 200-900 CZK)"
-              maxLength={80}
-              className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-            />
-            <button
-              type="submit"
-              className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
-            >
-              Add idea
-            </button>
-            <textarea
-              name="notes"
-              required
-              rows={3}
-              placeholder="Notes"
-              maxLength={1000}
-              className="md:col-span-3 rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-            />
-          </form>
-        </section>
-      ) : null}
     </main>
   );
 }
