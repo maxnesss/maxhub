@@ -8,7 +8,8 @@ type SectionTabsProps = {
     | "overview"
     | "brainstorm"
     | "tasks"
-    | "charts";
+    | "charts"
+    | "hackaton";
 };
 
 const SECTION_KEY_BY_HREF: Record<string, Exclude<SectionTabsProps["current"], "home">> = {
@@ -16,6 +17,7 @@ const SECTION_KEY_BY_HREF: Record<string, Exclude<SectionTabsProps["current"], "
   "/apps/skating-bible/brainstorm": "brainstorm",
   "/apps/skating-bible/tasks": "tasks",
   "/apps/skating-bible/charts": "charts",
+  "/apps/skating-bible/hackaton": "hackaton",
 };
 
 export function SectionTabs({ current }: SectionTabsProps) {

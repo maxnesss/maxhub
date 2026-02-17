@@ -21,6 +21,11 @@ export const SKATING_BIBLE_SECTIONS = [
     href: "/apps/skating-bible/charts",
     description: "Visual task status and completion signals.",
   },
+  {
+    label: "Hackaton",
+    href: "/apps/skating-bible/hackaton",
+    description: "Countdown to the event, then a 24-hour execution schedule.",
+  },
 ] as const;
 
 export const SKATING_BIBLE_TASK_STATUS_OPTIONS = [
