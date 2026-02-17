@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
+import type { SkatingBrainstormColorKey } from "./colors";
+
 type BrainstormIdea = {
   id: string;
   title: string;
@@ -14,6 +16,15 @@ type BrainstormIdea = {
 type BrainstormMapProps = {
   brainstormId: string;
   centerTitle: string;
+  color: {
+    key: SkatingBrainstormColorKey;
+    listBg: string;
+    listBorder: string;
+    bubbleBg: string;
+    bubbleBorder: string;
+    bubbleText: string;
+    bubbleHoverBg: string;
+  };
   ideas: BrainstormIdea[];
   canEdit: boolean;
   addIdeaAction: (formData: FormData) => void;
@@ -47,8 +58,9 @@ type ActiveEditor =
   | { target: "center"; mode: "edit" | "add-child" }
   | { target: "idea"; id: string; mode: "edit" | "add-child" };
 
-const NODE_SAFE_X = 170;
-const NODE_SAFE_Y = 150;
+// Keep bubbles mostly visible, while allowing drag across nearly all map area.
+const NODE_SAFE_X = 96;
+const NODE_SAFE_Y = 56;
 const DEFAULT_MAP_WIDTH = 1100;
 const DEFAULT_MAP_HEIGHT = 780;
 const MIN_MAP_WIDTH = 900;
@@ -152,6 +164,7 @@ function buildAutoLayout(ideas: BrainstormIdea[], mapWidth: number, mapHeight: n
 export function BrainstormMap({
   brainstormId,
   centerTitle,
+  color,
   ideas,
   canEdit,
   addIdeaAction,
@@ -265,6 +278,20 @@ export function BrainstormMap({
     pendingClickTargetRef.current = null;
   }
 
+  function closeActiveEditor() {
+    clearPendingClick();
+    setActiveEditor(null);
+  }
+
+  function handlePopupFormKeyDown(event: React.KeyboardEvent<HTMLFormElement>) {
+    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
+      return;
+    }
+
+    event.preventDefault();
+    event.currentTarget.requestSubmit();
+  }
+
   function handleBubbleClick(targetKey: string, openEdit: () => void, openAddChild: () => void) {
     if (!canEdit) {
       return;
@@ -301,8 +328,13 @@ export function BrainstormMap({
       <div className="mt-4 overflow-x-auto">
         <div ref={mapViewportRef} className="h-0 w-full" />
         <div
-          className="relative mx-auto min-w-[760px] rounded-2xl border border-[#e3eaf7] bg-[#f8fbff]"
-          style={{ width: mapWidth, height: mapHeight }}
+          className="relative mx-auto min-w-[760px] rounded-2xl border"
+          style={{
+            width: mapWidth,
+            height: mapHeight,
+            borderColor: color.listBorder,
+            backgroundColor: color.listBg,
+          }}
         >
           <svg
             className="absolute inset-0 h-full w-full"
@@ -320,7 +352,7 @@ export function BrainstormMap({
                     y1={mapCenterY}
                     x2={child.x}
                     y2={child.y}
-                    stroke="#d5e2f7"
+                    stroke={color.listBorder}
                     strokeWidth="2"
                   />
                 );
@@ -334,7 +366,7 @@ export function BrainstormMap({
                   y1={parent.y}
                   x2={child.x}
                   y2={child.y}
-                  stroke="#d5e2f7"
+                  stroke={color.listBorder}
                   strokeWidth="2"
                 />
               );
@@ -362,6 +394,8 @@ export function BrainstormMap({
                     action={updateCenterTopicAction}
                     className="mt-3 space-y-3"
                     key={`center-inline-edit-${centerTitle}`}
+                    onSubmit={closeActiveEditor}
+                    onKeyDown={handlePopupFormKeyDown}
                   >
                     <input type="hidden" name="brainstormId" value={brainstormId} />
                     <input
@@ -381,7 +415,12 @@ export function BrainstormMap({
                     </div>
                   </form>
                 ) : (
-                  <form action={addIdeaAction} className="mt-3 space-y-3">
+                  <form
+                    action={addIdeaAction}
+                    className="mt-3 space-y-3"
+                    onSubmit={closeActiveEditor}
+                    onKeyDown={handlePopupFormKeyDown}
+                  >
                     <input type="hidden" name="brainstormId" value={brainstormId} />
                     <input type="hidden" name="parentId" value="" />
                     <input
@@ -419,7 +458,12 @@ export function BrainstormMap({
                   () => setActiveEditor({ target: "center", mode: "add-child" }),
                 )
               }
-              className="inline-flex h-28 w-28 items-center justify-center rounded-full border-2 border-[#9bb9e9] bg-[#e9f2ff] px-3 text-center text-sm font-semibold text-[#1e4380] shadow-[0_12px_24px_-18px_rgba(19,33,58,0.45)] hover:bg-[#dfeeff]"
+              className="inline-flex h-28 w-28 items-center justify-center rounded-full border-2 px-3 text-center text-sm font-semibold shadow-[0_12px_24px_-18px_rgba(19,33,58,0.45)] hover:opacity-95"
+              style={{
+                borderColor: color.bubbleBorder,
+                backgroundColor: color.bubbleBg,
+                color: color.bubbleText,
+              }}
             >
               {trimForBubble(centerTitle, 32)}
             </button>
@@ -455,7 +499,12 @@ export function BrainstormMap({
 
                   {activeEditor.mode === "edit" ? (
                     <div className="mt-3 space-y-3" key={`bubble-inline-edit-${activeIdea.id}-${activeIdea.title}`}>
-                      <form action={updateIdeaAction} className="space-y-3">
+                      <form
+                        action={updateIdeaAction}
+                        className="space-y-3"
+                        onSubmit={closeActiveEditor}
+                        onKeyDown={handlePopupFormKeyDown}
+                      >
                         <input type="hidden" name="brainstormId" value={brainstormId} />
                         <input type="hidden" name="id" value={activeIdea.id} />
                         <input
@@ -495,7 +544,12 @@ export function BrainstormMap({
                       </form>
                     </div>
                   ) : (
-                    <form action={addIdeaAction} className="mt-3 space-y-3">
+                    <form
+                      action={addIdeaAction}
+                      className="mt-3 space-y-3"
+                      onSubmit={closeActiveEditor}
+                      onKeyDown={handlePopupFormKeyDown}
+                    >
                       <input type="hidden" name="brainstormId" value={brainstormId} />
                       <input type="hidden" name="parentId" value={activeIdea.id} />
                       <input
@@ -645,15 +699,18 @@ export function BrainstormMap({
                     setDragging(null);
                   }
                 }}
-                className={`absolute z-10 max-w-[180px] -translate-x-1/2 -translate-y-1/2 rounded-full border px-4 py-3 text-center shadow-[0_12px_24px_-18px_rgba(19,33,58,0.45)] border-[#cfdcf4] bg-white hover:bg-[#f6f9ff] ${canEdit ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""}`}
+                className={`absolute z-10 max-w-[180px] -translate-x-1/2 -translate-y-1/2 rounded-full border px-4 py-3 text-center shadow-[0_12px_24px_-18px_rgba(19,33,58,0.45)] hover:opacity-95 ${canEdit ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""}`}
                 style={{
                   left: node.x,
                   top: node.y,
                   touchAction: canEdit ? "none" : "auto",
+                  borderColor: color.bubbleBorder,
+                  backgroundColor: color.bubbleBg,
+                  color: color.bubbleText,
                 }}
                 title={idea.title}
               >
-                <p className="text-xs font-semibold text-[#1a2b49]">{trimForBubble(idea.title)}</p>
+                <p className="text-xs font-semibold">{trimForBubble(idea.title)}</p>
               </button>
             );
           })}

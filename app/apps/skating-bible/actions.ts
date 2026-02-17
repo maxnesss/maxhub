@@ -9,6 +9,7 @@ import { requireAppEdit } from "@/lib/authz";
 import { isMissingTableError } from "@/lib/prisma-errors";
 import { parseSkatingBibleTaskStatus } from "@/lib/skating-bible";
 import { prisma } from "@/prisma";
+import { SKATING_BRAINSTORM_COLOR_KEYS } from "./brainstorm/colors";
 
 const overviewSchema = z.object({
   projectName: z.string().trim().min(2).max(120),
@@ -44,10 +45,16 @@ const updateCenterTopicSchema = z.object({
 
 const createBrainstormSchema = z.object({
   title: z.string().trim().min(2).max(120),
+  colorKey: z.enum(SKATING_BRAINSTORM_COLOR_KEYS).default("sky"),
 });
 
 const deleteBrainstormSchema = z.object({
   id: z.string().trim().min(1),
+});
+
+const renameBrainstormSchema = z.object({
+  id: z.string().trim().min(1),
+  title: z.string().trim().min(2).max(120),
 });
 
 const updateIdeaPositionSchema = z.object({
@@ -215,6 +222,7 @@ export async function createSkatingBibleBrainstormAction(formData: FormData) {
 
   const parsed = createBrainstormSchema.safeParse({
     title: formData.get("title"),
+    colorKey: formData.get("colorKey"),
   });
 
   if (!parsed.success) {
@@ -225,6 +233,7 @@ export async function createSkatingBibleBrainstormAction(formData: FormData) {
     const brainstorm = await prisma.skatingBibleBrainstorm.create({
       data: {
         title: parsed.data.title,
+        colorKey: parsed.data.colorKey,
       },
       select: { id: true },
     });
@@ -277,6 +286,38 @@ export async function deleteSkatingBibleBrainstormAction(formData: FormData) {
   }
 }
 
+export async function renameSkatingBibleBrainstormAction(formData: FormData) {
+  await requireAppEdit("SKATING_BIBLE");
+
+  const parsed = renameBrainstormSchema.safeParse({
+    id: formData.get("id"),
+    title: formData.get("title"),
+  });
+
+  if (!parsed.success) {
+    redirect(buildBrainstormUrl({ error: "invalid" }));
+  }
+
+  try {
+    const updated = await prisma.skatingBibleBrainstorm.updateMany({
+      where: { id: parsed.data.id },
+      data: { title: parsed.data.title },
+    });
+
+    if (updated.count === 0) {
+      redirect(buildBrainstormUrl({ error: "invalid" }));
+    }
+  } catch (error) {
+    if (isMissingTableError(error, "SkatingBible")) {
+      redirectSetupError("/apps/skating-bible/brainstorm");
+    }
+
+    throw error;
+  }
+
+  revalidateSkatingBibleSurfaces();
+}
+
 export async function addSkatingBibleIdeaAction(formData: FormData) {
   await requireAppEdit("SKATING_BIBLE");
 
@@ -327,7 +368,6 @@ export async function addSkatingBibleIdeaAction(formData: FormData) {
   }
 
   revalidateSkatingBibleSurfaces();
-  redirect(buildBrainstormUrl({ brainstormId: parsed.data.brainstormId, saved: "added" }));
 }
 
 export async function updateSkatingBibleIdeaAction(formData: FormData) {
@@ -368,7 +408,6 @@ export async function updateSkatingBibleIdeaAction(formData: FormData) {
   }
 
   revalidateSkatingBibleSurfaces();
-  redirect(buildBrainstormUrl({ brainstormId: parsed.data.brainstormId, saved: "updated" }));
 }
 
 export async function updateSkatingBibleCenterTopicAction(formData: FormData) {
@@ -401,7 +440,6 @@ export async function updateSkatingBibleCenterTopicAction(formData: FormData) {
   }
 
   revalidateSkatingBibleSurfaces();
-  redirect(buildBrainstormUrl({ brainstormId: parsed.data.brainstormId, saved: "center" }));
 }
 
 export async function saveSkatingBibleIdeaPositionAction(input: {

@@ -19,6 +19,7 @@ model SkatingBibleOverview {
 model SkatingBibleBrainstorm {
   id        String             @id @default(cuid())
   title     String
+  colorKey  String             @default("sky")
   ideas     SkatingBibleIdea[]
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt

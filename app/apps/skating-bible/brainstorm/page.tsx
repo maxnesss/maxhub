@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { SectionTabs } from "../SectionTabs";
 import { SetupRequiredNotice } from "../SetupRequiredNotice";
 
@@ -8,11 +6,14 @@ import {
   createSkatingBibleBrainstormAction,
   deleteSkatingBibleBrainstormAction,
   deleteSkatingBibleIdeaAction,
+  renameSkatingBibleBrainstormAction,
   saveSkatingBibleIdeaPositionAction,
   updateSkatingBibleCenterTopicAction,
   updateSkatingBibleIdeaAction,
 } from "../actions";
+import { BrainstormListSection } from "./BrainstormListSection";
 import { BrainstormMap } from "./BrainstormMap";
+import { getSkatingBrainstormColor } from "./colors";
 
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
@@ -26,20 +27,8 @@ type SkatingBibleBrainstormPageProps = {
 };
 
 function getToastMessage(saved: string | undefined) {
-  if (saved === "added") {
-    return "Idea added.";
-  }
-
-  if (saved === "updated") {
-    return "Idea updated.";
-  }
-
   if (saved === "deleted") {
     return "Idea deleted.";
-  }
-
-  if (saved === "center") {
-    return "Center topic updated.";
   }
 
   if (saved === "brainstorm-created") {
@@ -62,9 +51,15 @@ export default async function SkatingBibleBrainstormPage({
   const toastMessage = getToastMessage(saved);
 
   let setupRequired = false;
-  let brainstorms: Array<{ id: string; title: string; createdAt: Date }> = [];
+  let brainstorms: Array<{
+    id: string;
+    title: string;
+    colorKey: string;
+    createdAt: Date;
+  }> = [];
   let selectedBrainstormId: string | null = null;
   let centerTitle = "Main brainstorm";
+  let selectedBrainstormColorKey = "sky";
   let ideas: Array<{
     id: string;
     title: string;
@@ -80,6 +75,7 @@ export default async function SkatingBibleBrainstormPage({
       select: {
         id: true,
         title: true,
+        colorKey: true,
         createdAt: true,
       },
     });
@@ -92,6 +88,7 @@ export default async function SkatingBibleBrainstormPage({
     if (selectedBrainstorm) {
       selectedBrainstormId = selectedBrainstorm.id;
       centerTitle = selectedBrainstorm.title;
+      selectedBrainstormColorKey = selectedBrainstorm.colorKey;
 
       ideas = await prisma.skatingBibleIdea.findMany({
         where: {
@@ -146,73 +143,19 @@ export default async function SkatingBibleBrainstormPage({
       {setupRequired ? (
         <SetupRequiredNotice />
       ) : (
-        <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-semibold tracking-tight text-[#162947]">Brainstorm list</h2>
-              <p className="mt-1 text-sm text-(--text-muted)">
-                Switch between brainstorm maps or create a new one.
-              </p>
-            </div>
-
-            {canEdit ? (
-              <form action={createSkatingBibleBrainstormAction} className="flex flex-wrap items-end gap-2">
-                <label className="space-y-1">
-                  <span className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
-                    New brainstorm
-                  </span>
-                  <input
-                    name="title"
-                    required
-                    maxLength={120}
-                    className="w-56 rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-                    placeholder="Brainstorm title"
-                  />
-                </label>
-                <button
-                  type="submit"
-                  className="cursor-pointer rounded-lg border border-[#bcd0f2] bg-[#eef4ff] px-3 py-2 text-xs font-semibold text-[#32548f] hover:bg-[#e5efff]"
-                >
-                  Create
-                </button>
-              </form>
-            ) : null}
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            {brainstorms.length > 0 ? (
-              brainstorms.map((brainstorm) => (
-                <div key={brainstorm.id} className="inline-flex items-center gap-1 rounded-lg border border-[#d9e2f3] bg-white p-1">
-                  <Link
-                    href={`/apps/skating-bible/brainstorm?brainstormId=${brainstorm.id}`}
-                    className={`rounded-md px-3 py-2 text-xs font-semibold tracking-[0.08em] uppercase ${
-                      brainstorm.id === selectedBrainstormId
-                        ? "bg-[#eef4ff] text-[#334e7f]"
-                        : "text-[#4e5e7a] hover:bg-[#f8faff]"
-                    }`}
-                  >
-                    {brainstorm.title}
-                  </Link>
-                  {canEdit ? (
-                    <form action={deleteSkatingBibleBrainstormAction}>
-                      <input type="hidden" name="id" value={brainstorm.id} />
-                      <button
-                        type="submit"
-                        className="cursor-pointer rounded-md border border-[#efcbc2] bg-[#fff2ef] px-2 py-1 text-[10px] font-semibold tracking-[0.08em] text-[#8b3a2d] uppercase hover:bg-[#fee8e3]"
-                        title={`Delete ${brainstorm.title}`}
-                        aria-label={`Delete ${brainstorm.title}`}
-                      >
-                        Delete
-                      </button>
-                    </form>
-                  ) : null}
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-(--text-muted)">No brainstorms created yet.</p>
-            )}
-          </div>
-        </section>
+        <BrainstormListSection
+          canEdit={canEdit}
+          brainstorms={brainstorms.map((item) => ({
+            id: item.id,
+            title: item.title,
+            colorKey: item.colorKey,
+            color: getSkatingBrainstormColor(item.colorKey),
+          }))}
+          selectedBrainstormId={selectedBrainstormId}
+          createBrainstormAction={createSkatingBibleBrainstormAction}
+          renameBrainstormAction={renameSkatingBibleBrainstormAction}
+          deleteBrainstormAction={deleteSkatingBibleBrainstormAction}
+        />
       )}
 
       {!setupRequired && selectedBrainstormId ? (
@@ -228,6 +171,7 @@ export default async function SkatingBibleBrainstormPage({
             posX: idea.posX,
             posY: idea.posY,
           }))}
+          color={getSkatingBrainstormColor(selectedBrainstormColorKey)}
           addIdeaAction={addSkatingBibleIdeaAction}
           deleteIdeaAction={deleteSkatingBibleIdeaAction}
           updateIdeaAction={updateSkatingBibleIdeaAction}
