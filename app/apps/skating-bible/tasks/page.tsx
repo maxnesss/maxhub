@@ -6,11 +6,14 @@ import { SetupRequiredNotice } from "../SetupRequiredNotice";
 import {
   createSkatingBibleTaskAction,
   createSkatingBibleTaskGroupAction,
+  deleteSkatingBibleTaskAction,
   deleteSkatingBibleTaskGroupAction,
   updateSkatingBibleTaskStatusAction,
 } from "../actions";
 
+import { CreateSkatingBibleTaskGroupModal } from "./CreateSkatingBibleTaskGroupModal";
 import { CreateSkatingBibleTaskModal } from "./CreateSkatingBibleTaskModal";
+import { DeleteWithConfirmButton } from "./DeleteWithConfirmButton";
 
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
@@ -54,6 +57,10 @@ function getToastMessage(saved: string | undefined) {
     return "Task group deleted with its tasks.";
   }
 
+  if (saved === "task-deleted") {
+    return "Task deleted.";
+  }
+
   return null;
 }
 
@@ -64,10 +71,6 @@ function getErrorMessage(error: string | undefined) {
 
   if (error === "group-exists") {
     return "That group name already exists.";
-  }
-
-  if (error === "last-group") {
-    return "Keep at least one task group.";
   }
 
   return null;
@@ -203,86 +206,25 @@ export default async function SkatingBibleTasksPage({
           Keep execution visible by group and move tasks through status transitions.
         </p>
 
-        <SectionTabs current="tasks" />
-      </section>
-
-      {setupRequired ? <SetupRequiredNotice /> : null}
-
-      {!setupRequired && canEdit ? (
-        <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold tracking-tight text-[#162947]">Task groups</h2>
-              <p className="mt-1 text-sm text-(--text-muted)">
-                Add or remove groups. Removing a group also removes its tasks.
-              </p>
-            </div>
-            <form action={createSkatingBibleTaskGroupAction} className="flex flex-wrap items-end gap-2">
-              <label className="space-y-1">
-                <span className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
-                  New group
-                </span>
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  maxLength={80}
-                  className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-                  placeholder="Group name"
-                />
-              </label>
-              <button
-                type="submit"
-                className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
-              >
-                Add group
-              </button>
-            </form>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            {taskGroups.length > 0 ? (
-              taskGroups.map((item) => (
-                <div
-                  key={item.id}
-                  className="inline-flex items-center gap-2 rounded-xl border border-[#dfe7f7] bg-[#fbfdff] px-3 py-2"
-                >
-                  <span className="text-sm font-medium text-[#1a2b49]">{item.name}</span>
-                  <span className="text-xs text-[#647494]">{openByGroupMap.get(item.id) ?? 0} open</span>
-                  <form action={deleteSkatingBibleTaskGroupAction}>
-                    <input type="hidden" name="id" value={item.id} />
-                    <button
-                      type="submit"
-                      disabled={taskGroups.length <= 1}
-                      className="cursor-pointer rounded-md border border-[#f2d2cb] bg-white px-2 py-1 text-xs font-semibold text-[#9c3d2f] hover:bg-[#fff3f0] disabled:cursor-not-allowed disabled:opacity-45"
-                    >
-                      Delete
-                    </button>
-                  </form>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-(--text-muted)">No groups yet.</p>
-            )}
-          </div>
-        </section>
-      ) : null}
-
-      {!setupRequired && canEdit ? (
-        <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold tracking-tight text-[#162947]">Add task</h2>
+        {!setupRequired && canEdit ? (
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            <CreateSkatingBibleTaskGroupModal action={createSkatingBibleTaskGroupAction} />
             <CreateSkatingBibleTaskModal
               action={createSkatingBibleTaskAction}
               groupOptions={taskGroups}
               defaultGroupId={defaultCreateGroupId}
             />
           </div>
-          {taskGroups.length === 0 ? (
-            <p className="mt-2 text-sm text-(--text-muted)">Create a group first to add tasks.</p>
-          ) : null}
-        </section>
-      ) : null}
+        ) : null}
+
+        {!setupRequired && canEdit && taskGroups.length === 0 ? (
+          <p className="mt-2 text-sm text-(--text-muted)">Create a group first to add tasks.</p>
+        ) : null}
+
+        <SectionTabs current="tasks" />
+      </section>
+
+      {setupRequired ? <SetupRequiredNotice /> : null}
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -304,17 +246,28 @@ export default async function SkatingBibleTasksPage({
             All groups ({totalOpen})
           </Link>
           {taskGroups.map((item) => (
-            <Link
-              key={item.id}
-              href={skatingBibleTaskFilterHref({ group: item.name, status: statusFilter })}
-              className={`inline-flex rounded-lg border px-3 py-2 text-xs font-semibold tracking-[0.08em] uppercase ${
-                groupFilter === item.name
-                  ? "border-[#c8d8f5] bg-[#eef4ff] text-[#334e7f]"
-                  : "border-[#d9e2f3] bg-white text-[#4e5e7a] hover:bg-[#f8faff]"
-              }`}
-            >
-              {item.name} ({openByGroupMap.get(item.id) ?? 0})
-            </Link>
+            <div key={item.id} className="inline-flex items-center gap-1">
+              <Link
+                href={skatingBibleTaskFilterHref({ group: item.name, status: statusFilter })}
+                className={`inline-flex rounded-lg border px-3 py-2 text-xs font-semibold tracking-[0.08em] uppercase ${
+                  groupFilter === item.name
+                    ? "border-[#c8d8f5] bg-[#eef4ff] text-[#334e7f]"
+                    : "border-[#d9e2f3] bg-white text-[#4e5e7a] hover:bg-[#f8faff]"
+                }`}
+              >
+                {item.name} ({openByGroupMap.get(item.id) ?? 0})
+              </Link>
+              {canEdit ? (
+                <DeleteWithConfirmButton
+                  action={deleteSkatingBibleTaskGroupAction}
+                  id={item.id}
+                  returnTo={currentFilterHref}
+                  title={`Delete group \"${item.name}\"?`}
+                  description="This will permanently delete the group and all tasks in it."
+                  ariaLabel={`Delete group ${item.name}`}
+                />
+              ) : null}
+            </div>
           ))}
         </div>
 
@@ -357,9 +310,21 @@ export default async function SkatingBibleTasksPage({
             <article key={taskGroup.id} className="rounded-2xl border border-(--line) bg-white p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-xl font-semibold tracking-tight text-[#162947]">{taskGroup.name}</h2>
-                <span className="text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
-                  {groupTasks.length} tasks
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
+                    {groupTasks.length} tasks
+                  </span>
+                  {canEdit ? (
+                    <DeleteWithConfirmButton
+                      action={deleteSkatingBibleTaskGroupAction}
+                      id={taskGroup.id}
+                      returnTo={currentFilterHref}
+                      title={`Delete group \"${taskGroup.name}\"?`}
+                      description="This will permanently delete the group and all tasks in it."
+                      ariaLabel={`Delete group ${taskGroup.name}`}
+                    />
+                  ) : null}
+                </div>
               </div>
 
               <div className="mt-4 space-y-3">
@@ -387,17 +352,27 @@ export default async function SkatingBibleTasksPage({
                               {SKATING_BIBLE_TASK_STATUS_LABELS[task.status]}
                             </span>
                             {canEdit ? (
-                              <form action={updateSkatingBibleTaskStatusAction}>
-                                <input type="hidden" name="id" value={task.id} />
-                                <input type="hidden" name="status" value={nextStatus} />
-                                <input type="hidden" name="returnTo" value={currentFilterHref} />
-                                <button
-                                  type="submit"
-                                  className="block cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-1 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
-                                >
-                                  {getStatusTransitionLabel(task.status)}
-                                </button>
-                              </form>
+                              <div className="flex items-center justify-end gap-2">
+                                <form action={updateSkatingBibleTaskStatusAction}>
+                                  <input type="hidden" name="id" value={task.id} />
+                                  <input type="hidden" name="status" value={nextStatus} />
+                                  <input type="hidden" name="returnTo" value={currentFilterHref} />
+                                  <button
+                                    type="submit"
+                                    className="block cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-1 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+                                  >
+                                    {getStatusTransitionLabel(task.status)}
+                                  </button>
+                                </form>
+                                <DeleteWithConfirmButton
+                                  action={deleteSkatingBibleTaskAction}
+                                  id={task.id}
+                                  returnTo={currentFilterHref}
+                                  title={`Delete task \"${task.title}\"?`}
+                                  description="This will permanently delete this task."
+                                  ariaLabel={`Delete task ${task.title}`}
+                                />
+                              </div>
                             ) : null}
                           </div>
                         </div>

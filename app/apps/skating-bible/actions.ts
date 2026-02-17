@@ -75,6 +75,12 @@ const createTaskGroupSchema = z.object({
 
 const deleteTaskGroupSchema = z.object({
   id: z.string().trim().min(1),
+  returnTo: z.string().trim().optional(),
+});
+
+const deleteTaskSchema = z.object({
+  id: z.string().trim().min(1),
+  returnTo: z.string().trim().optional(),
 });
 
 function normalizeOptional(value: string | undefined) {
@@ -546,6 +552,7 @@ export async function deleteSkatingBibleTaskGroupAction(formData: FormData) {
 
   const parsed = deleteTaskGroupSchema.safeParse({
     id: formData.get("id"),
+    returnTo: formData.get("returnTo"),
   });
 
   if (!parsed.success) {
@@ -553,11 +560,6 @@ export async function deleteSkatingBibleTaskGroupAction(formData: FormData) {
   }
 
   try {
-    const groupCount = await prisma.skatingBibleTaskGroup.count();
-    if (groupCount <= 1) {
-      redirect(buildTasksUrl({ error: "last-group" }));
-    }
-
     const deleted = await prisma.skatingBibleTaskGroup.deleteMany({
       where: { id: parsed.data.id },
     });
@@ -574,7 +576,43 @@ export async function deleteSkatingBibleTaskGroupAction(formData: FormData) {
   }
 
   revalidateSkatingBibleSurfaces();
-  redirect(buildTasksUrl({ saved: "group-deleted" }));
+  const target = sanitizeReturnTo(parsed.data.returnTo);
+  const separator = target.includes("?") ? "&" : "?";
+  redirect(`${target}${separator}saved=group-deleted`);
+}
+
+export async function deleteSkatingBibleTaskAction(formData: FormData) {
+  await requireAppEdit("SKATING_BIBLE");
+
+  const parsed = deleteTaskSchema.safeParse({
+    id: formData.get("id"),
+    returnTo: formData.get("returnTo"),
+  });
+
+  if (!parsed.success) {
+    redirect(buildTasksUrl({ error: "invalid" }));
+  }
+
+  try {
+    const deleted = await prisma.skatingBibleTask.deleteMany({
+      where: { id: parsed.data.id },
+    });
+
+    if (deleted.count === 0) {
+      redirect(buildTasksUrl({ error: "invalid" }));
+    }
+  } catch (error) {
+    if (isMissingTableError(error, "SkatingBible")) {
+      redirectSetupError("/apps/skating-bible/tasks");
+    }
+
+    throw error;
+  }
+
+  revalidateSkatingBibleSurfaces();
+  const target = sanitizeReturnTo(parsed.data.returnTo);
+  const separator = target.includes("?") ? "&" : "?";
+  redirect(`${target}${separator}saved=task-deleted`);
 }
 
 export async function updateSkatingBibleTaskStatusAction(formData: FormData) {
