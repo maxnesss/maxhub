@@ -59,6 +59,7 @@ export default async function SkatingBibleOverviewPage({
   const goal = overview?.goal ?? "";
   const techStack = overview?.techStack ?? "";
   const keyFeatures = overview?.keyFeatures ?? "";
+  const sectionTitleClass = "text-sm font-semibold tracking-[0.08em] text-[#415882] uppercase";
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
@@ -91,7 +92,7 @@ export default async function SkatingBibleOverviewPage({
         ) : isEditMode ? (
           <form action={updateSkatingBibleOverviewAction} className="space-y-4">
             <label className="block space-y-1">
-              <span className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
+              <span className={sectionTitleClass}>
                 Project name
               </span>
               <input
@@ -104,7 +105,7 @@ export default async function SkatingBibleOverviewPage({
             </label>
 
             <label className="block space-y-1">
-              <span className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
+              <span className={sectionTitleClass}>
                 Summary
               </span>
               <textarea
@@ -118,7 +119,7 @@ export default async function SkatingBibleOverviewPage({
             </label>
 
             <label className="block space-y-1">
-              <span className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
+              <span className={sectionTitleClass}>
                 Goal
               </span>
               <textarea
@@ -132,7 +133,7 @@ export default async function SkatingBibleOverviewPage({
             </label>
 
             <label className="block space-y-1">
-              <span className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
+              <span className={sectionTitleClass}>
                 Tech stack
               </span>
               <textarea
@@ -146,7 +147,7 @@ export default async function SkatingBibleOverviewPage({
             </label>
 
             <label className="block space-y-1">
-              <span className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
+              <span className={sectionTitleClass}>
                 Features
               </span>
               <textarea
@@ -192,13 +193,13 @@ export default async function SkatingBibleOverviewPage({
               </div>
             ) : null}
             <div>
-              <p className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
+              <p className={sectionTitleClass}>
                 Project name
               </p>
               <p className="mt-1 text-lg font-semibold text-[#162947]">{projectName}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
+              <p className={sectionTitleClass}>
                 Summary
               </p>
               <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-(--text-muted)">
@@ -206,7 +207,7 @@ export default async function SkatingBibleOverviewPage({
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
+              <p className={sectionTitleClass}>
                 Goal
               </p>
               <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-(--text-muted)">
@@ -214,7 +215,7 @@ export default async function SkatingBibleOverviewPage({
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
+              <p className={sectionTitleClass}>
                 Tech stack
               </p>
               <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-(--text-muted)">
@@ -222,7 +223,7 @@ export default async function SkatingBibleOverviewPage({
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
+              <p className={sectionTitleClass}>
                 Features
               </p>
               <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-(--text-muted)">
