@@ -24,6 +24,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
+    "db:copy:workout-results": "node --env-file=.env scripts/copy-workout-results-to-remote.mjs",
     "create:user": "node --env-file=.env create-user.mjs"
   },
   "engines": {
