@@ -74,16 +74,16 @@ export const BAMBOO_GENERAL_TILES: BambooTile[] = [
 
 export const BAMBOO_INVENTORY_TILES: BambooTile[] = [
   {
-    title: "Inventory",
-    href: "/apps/bamboo/inventory",
-    description: "Inventory planning hub and operating framework.",
-    badge: "Supply",
-  },
-  {
     title: "Inventory budget",
     href: "/apps/bamboo/inventory/budget",
     description: "Editable initial and periodical inventory cost estimates.",
     badge: "Budget",
+  },
+  {
+    title: "Inventory",
+    href: "/apps/bamboo/inventory",
+    description: "Inventory planning hub and operating framework.",
+    badge: "Supply",
   },
   {
     title: "Inventory brainstorm",
@@ -136,7 +136,7 @@ export const BAMBOO_SETUP_COMPANY_TILES: BambooTile[] = [
   {
     title: "Company setup",
     href: "/apps/bamboo/company-setup",
-    description: "Full 12-step process for setting up an s.r.o. in Czechia.",
+    description: "Full 11-step process for setting up an s.r.o. in Czechia.",
     badge: "Execution",
   },
   {
@@ -168,11 +168,21 @@ export const BAMBOO_DOCUMENT_TILES: BambooTile[] = [
   },
 ];
 
+export const BAMBOO_ESHOP_TILES: BambooTile[] = [
+  {
+    title: "Eshop + webpage",
+    href: "/apps/bamboo/eshop",
+    description: "Online-store strategy, website structure, and launch readiness plan.",
+    badge: "Digital",
+  },
+];
+
 export const BAMBOO_TILES: BambooTile[] = [
   ...BAMBOO_GENERAL_TILES,
   ...BAMBOO_INVENTORY_TILES,
   ...BAMBOO_SETUP_COMPANY_TILES,
   ...BAMBOO_SHOP_TILES,
+  ...BAMBOO_ESHOP_TILES,
   ...BAMBOO_DOCUMENT_TILES,
 ];
 
@@ -220,6 +230,7 @@ export const BAMBOO_COMPANY_SETUP_STEPS: BambooChecklistStep[] = [
       "Address must be in the Czech Republic.",
       "Option A: physical shop address.",
       "Option B: virtual office service (~300-1000 CZK/month).",
+      "Option C (recommended): Babi in Modrany and lock this as the registered office address.",
     ],
   },
   {
@@ -260,15 +271,6 @@ export const BAMBOO_COMPANY_SETUP_STEPS: BambooChecklistStep[] = [
   },
   {
     id: 10,
-    title: "Social security and health insurance registration",
-    details: [
-      "Needed only when hiring employees.",
-      "Register as employer with CSSZ and health insurer.",
-      "Complete within 8 days from hiring date.",
-    ],
-  },
-  {
-    id: 11,
     title: "Optional e-commerce and EU trade registration",
     details: [
       "Prepare website legal texts (GDPR, e-commerce terms).",
@@ -276,7 +278,7 @@ export const BAMBOO_COMPANY_SETUP_STEPS: BambooChecklistStep[] = [
     ],
   },
   {
-    id: 12,
+    id: 11,
     title: "Accounting setup",
     details: [
       "s.r.o. requires double-entry accounting.",

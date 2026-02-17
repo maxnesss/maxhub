@@ -12,6 +12,7 @@ import {
 } from "@/lib/bamboo-budget";
 import {
   BAMBOO_DOCUMENT_TILES,
+  BAMBOO_ESHOP_TILES,
   BAMBOO_GENERAL_TILES,
   BAMBOO_INVENTORY_TILES,
   BAMBOO_OVERVIEW_STATS,
@@ -295,6 +296,32 @@ export default async function BambooPage() {
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {BAMBOO_SHOP_TILES.map((tile) => (
+            <Link
+              key={tile.href}
+              href={tile.href}
+              className="group block rounded-2xl border border-(--line) bg-white p-6 transition hover:-translate-y-0.5 hover:border-[#cfdbf2] hover:bg-[#fcfdff]"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-xl font-semibold text-[#162947]">{tile.title}</h2>
+                <span className="rounded-full border border-[#d8e2f4] bg-[#f8faff] px-3 py-1 text-xs font-semibold text-[#5a6b8f]">
+                  {tile.badge}
+                </span>
+              </div>
+              <p className="mt-2 text-sm leading-6 text-(--text-muted)">{tile.description}</p>
+              <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
+                Open section
+              </p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <p className="text-xs font-semibold tracking-[0.14em] text-[#647494] uppercase">
+          Eshop
+        </p>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {BAMBOO_ESHOP_TILES.map((tile) => (
             <Link
               key={tile.href}
               href={tile.href}

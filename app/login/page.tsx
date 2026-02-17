@@ -1,13 +1,13 @@
 import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { TopNav } from "@/components/layout/TopNav";
+import { getCurrentUserContext } from "@/lib/authz";
 
 export default async function LoginPage() {
-  const session = await auth();
+  const user = await getCurrentUserContext();
 
-  if (session?.user) {
+  if (user) {
     redirect("/profile");
   }
 

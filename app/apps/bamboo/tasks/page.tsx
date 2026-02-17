@@ -140,6 +140,12 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
           >
             Open phase overview
           </Link>
+          <Link
+            href="/apps/bamboo/tasks/graph-overview"
+            className="inline-flex rounded-xl border border-[#d9e2f3] bg-[#f4f8ff] px-4 py-2 text-sm font-semibold text-[#3d5588] hover:bg-[#ebf2ff]"
+          >
+            Graph overview
+          </Link>
           {canEdit ? (
             <CreateBambooTaskModal
               action={createBambooTaskAction}

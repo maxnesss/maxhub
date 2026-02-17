@@ -16,6 +16,7 @@ enum AppCode {
   TASKS
   CALENDAR
   BAMBOO
+  WORKOUT
 }
 
 enum ProjectPriority {

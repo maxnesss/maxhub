@@ -50,6 +50,7 @@ function revalidateBambooTaskSurfaces() {
   revalidatePath("/apps/bamboo");
   revalidatePath("/apps/bamboo/overview");
   revalidatePath("/apps/bamboo/tasks");
+  revalidatePath("/apps/bamboo/tasks/graph-overview");
   revalidatePath("/apps/bamboo/timeline");
   revalidatePath("/apps/bamboo/company-setup");
   revalidatePath("/apps/bamboo/inventory");

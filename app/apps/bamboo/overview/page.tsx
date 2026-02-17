@@ -5,6 +5,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import {
   BAMBOO_DOCUMENT_TILES,
+  BAMBOO_ESHOP_TILES,
   BAMBOO_GENERAL_TILES,
   BAMBOO_INVENTORY_TILES,
   BAMBOO_SHOP_TILES,
@@ -385,6 +386,12 @@ export default async function BambooOverviewPage() {
         >
           Open shop
         </Link>
+        <Link
+          href="/apps/bamboo/eshop"
+          className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+        >
+          Open eshop
+        </Link>
       </section>
 
       <section className="mt-6 grid gap-4 lg:grid-cols-4">
@@ -454,6 +461,22 @@ export default async function BambooOverviewPage() {
       </section>
 
       <section className="mt-6 grid gap-4 lg:grid-cols-1">
+        <article className="rounded-2xl border border-(--line) bg-white p-6">
+          <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
+            Eshop
+          </h2>
+          <ul className="mt-4 space-y-2">
+            {BAMBOO_ESHOP_TILES.map((tile) => (
+              <li
+                key={tile.href}
+                className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"
+              >
+                {tile.title}
+              </li>
+            ))}
+          </ul>
+        </article>
+
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
             Documents

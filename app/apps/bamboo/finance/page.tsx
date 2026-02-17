@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { BambooTaskCategory, BambooTaskStatus } from "@prisma/client";
 
 import { TaskCategoryPanel } from "@/components/bamboo/TaskCategoryPanel";
@@ -97,22 +96,6 @@ export default async function BambooFinancePage() {
             </ul>
           </article>
         ))}
-      </section>
-
-      <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
-        <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
-          Related setup requirements
-        </h2>
-        <p className="mt-2 text-sm text-(--text-muted)">
-          For registration costs, capital minimums, and bank/accounting setup
-          required for incorporation, use the dedicated setup page.
-        </p>
-        <Link
-          href="/apps/bamboo/finance-requirements"
-          className="mt-4 inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
-        >
-          Open finance requirements
-        </Link>
       </section>
 
       <TaskCategoryPanel

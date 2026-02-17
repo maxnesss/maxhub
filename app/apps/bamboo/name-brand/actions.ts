@@ -19,6 +19,10 @@ const customNameSchema = z.object({
   name: z.string().trim().min(2).max(120),
 });
 
+const removeCustomNameSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+});
+
 function normalizeName(value: string) {
   return value.trim().toLocaleLowerCase();
 }
@@ -114,4 +118,32 @@ export async function addCustomNameAction(formData: FormData) {
 
   revalidatePath("/apps/bamboo/name-brand");
   redirect("/apps/bamboo/name-brand?saved=custom");
+}
+
+export async function removeCustomNameAction(formData: FormData) {
+  await requireAppRead("BAMBOO");
+
+  const parsed = removeCustomNameSchema.safeParse({
+    name: formData.get("name"),
+  });
+
+  if (!parsed.success) {
+    redirect("/apps/bamboo/name-brand?error=invalid");
+  }
+
+  const normalizedName = normalizeName(parsed.data.name);
+
+  const deleted = await prisma.bambooNameIdea.deleteMany({
+    where: {
+      normalizedName,
+      OR: [{ isCustom: true }, { category: CUSTOM_CATEGORY }],
+    },
+  });
+
+  if (deleted.count === 0) {
+    redirect("/apps/bamboo/name-brand?error=invalid");
+  }
+
+  revalidatePath("/apps/bamboo/name-brand");
+  redirect("/apps/bamboo/name-brand?saved=custom-removed");
 }

@@ -12,6 +12,15 @@ type BambooProjectCharterPageProps = {
   searchParams: Promise<{ saved?: string; error?: string; edit?: string }>;
 };
 
+const DEFAULT_KEY_RISK_ITEMS = [
+  "Supplier quality variance and inconsistent product finishing in early batches.",
+  "Customs/import delays that can shift launch timing and lock cash in transit inventory.",
+  "Rent-to-revenue mismatch during first months if location economics are overestimated.",
+  "Weak demand validation for the initial assortment, leading to slow inventory turnover.",
+  "Operational bottlenecks in restocking, labeling, and in-store process discipline.",
+  "Brand differentiation risk in a crowded eco-home category with similar value propositions.",
+];
+
 const DEFAULT_CHARTER = {
   vision:
     "Build Bamboo into a focused eco-home retail business with strong unit economics and a scalable operating model.",
@@ -25,9 +34,45 @@ const DEFAULT_CHARTER = {
     "Keep setup and early operating commitments within the recommended capital range and review monthly variance.",
   launchCriteria:
     "Legal setup complete, supplier quality validated, launch inventory secured, location selected, and budget runway protected.",
-  keyRisks:
-    "Supplier quality variance, customs/import delays, rent-to-revenue mismatch, and weak initial demand validation.",
+  keyRisks: DEFAULT_KEY_RISK_ITEMS.join("\n"),
 };
+
+const LEGACY_DEFAULT_KEY_RISKS = new Set([
+  "Supplier quality variance, customs/import delays, rent-to-revenue mismatch, and weak initial demand validation.",
+  "Supplier quality variance, customs or import delays, rent-to-revenue mismatch, and weak initial demand validation.",
+]);
+
+function normalizeCharterValues(charter: (typeof DEFAULT_CHARTER) | null) {
+  if (!charter) {
+    return DEFAULT_CHARTER;
+  }
+
+  const keyRisks = charter.keyRisks.trim();
+  if (LEGACY_DEFAULT_KEY_RISKS.has(keyRisks)) {
+    return {
+      ...charter,
+      keyRisks: DEFAULT_CHARTER.keyRisks,
+    };
+  }
+
+  return charter;
+}
+
+function parseKeyRiskItems(value: string) {
+  const normalizedLines = value
+    .split("\n")
+    .map((line) => line.trim().replace(/^[-*]\s+/, ""))
+    .filter(Boolean);
+
+  if (normalizedLines.length === 1) {
+    return normalizedLines[0]
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return normalizedLines;
+}
 
 export default async function BambooProjectCharterPage({
   searchParams,
@@ -40,7 +85,8 @@ export default async function BambooProjectCharterPage({
   const charter = await prisma.bambooProjectCharter.findUnique({
     where: { id: "default" },
   });
-  const values = charter ?? DEFAULT_CHARTER;
+  const values = normalizeCharterValues(charter);
+  const keyRiskItems = parseKeyRiskItems(values.keyRisks);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
@@ -152,7 +198,7 @@ export default async function BambooProjectCharterPage({
             <textarea
               name="keyRisks"
               required
-              rows={3}
+              rows={6}
               defaultValue={values.keyRisks}
               maxLength={4000}
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
@@ -215,7 +261,13 @@ export default async function BambooProjectCharterPage({
         <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
           Key risks
         </p>
-        <p className="mt-2 text-sm leading-6 text-[#314567]">{values.keyRisks}</p>
+        <ul className="mt-2 space-y-2">
+          {keyRiskItems.map((risk) => (
+            <li key={risk} className="text-sm leading-6 text-[#314567]">
+              - {risk}
+            </li>
+          ))}
+        </ul>
       </section>
     </main>
   );

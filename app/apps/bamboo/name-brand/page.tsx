@@ -12,7 +12,11 @@ import {
 import { bambooTaskFilterHref } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
 
-import { addCustomNameAction, setNameShortlistAction } from "./actions";
+import {
+  addCustomNameAction,
+  removeCustomNameAction,
+  setNameShortlistAction,
+} from "./actions";
 
 type BambooNameBrandPageProps = {
   searchParams: Promise<{ saved?: string; error?: string }>;
@@ -22,6 +26,14 @@ const CUSTOM_CATEGORY = "Custom category";
 
 function normalizeName(value: string) {
   return value.trim().toLocaleLowerCase();
+}
+
+function getNameTileClass(shortlisted: boolean) {
+  if (shortlisted) {
+    return "border-[#cbdcf8] bg-[#ecf4ff]";
+  }
+
+  return "border-[#e3eaf7] bg-[#fbfdff]";
 }
 
 export default async function BambooNameBrandPage({
@@ -84,6 +96,9 @@ export default async function BambooNameBrandPage({
         <Toast message="Shared shortlist updated." />
       ) : null}
       {saved === "custom" ? <Toast message="Custom name added." /> : null}
+      {saved === "custom-removed" ? (
+        <Toast message="Custom name removed." />
+      ) : null}
       {error === "invalid" ? (
         <Toast message="Invalid input." tone="error" />
       ) : null}
@@ -123,7 +138,7 @@ export default async function BambooNameBrandPage({
               {group.names.map((item) => (
                 <li
                   key={item.name}
-                  className="flex items-center justify-between gap-2 rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2"
+                  className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2 ${getNameTileClass(item.shortlisted)}`}
                 >
                   <span className="text-sm text-[#1a2b49]">{item.name}</span>
                   <form action={setNameShortlistAction}>
@@ -175,24 +190,35 @@ export default async function BambooNameBrandPage({
               customNames.map((item) => (
                 <li
                   key={item.name}
-                  className="flex items-center justify-between gap-2 rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2"
+                  className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2 ${getNameTileClass(item.shortlisted)}`}
                 >
                   <span className="text-sm text-[#1a2b49]">{item.name}</span>
-                  <form action={setNameShortlistAction}>
-                    <input type="hidden" name="name" value={item.name} />
-                    <input type="hidden" name="category" value={CUSTOM_CATEGORY} />
-                    <input
-                      type="hidden"
-                      name="shortlisted"
-                      value={item.shortlisted ? "0" : "1"}
-                    />
-                    <button
-                      type="submit"
-                      className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-1 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
-                    >
-                      {item.shortlisted ? "Remove" : "Shortlist"}
-                    </button>
-                  </form>
+                  <div className="flex items-center gap-2">
+                    <form action={setNameShortlistAction}>
+                      <input type="hidden" name="name" value={item.name} />
+                      <input type="hidden" name="category" value={CUSTOM_CATEGORY} />
+                      <input
+                        type="hidden"
+                        name="shortlisted"
+                        value={item.shortlisted ? "0" : "1"}
+                      />
+                      <button
+                        type="submit"
+                        className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-1 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+                      >
+                        {item.shortlisted ? "Remove" : "Shortlist"}
+                      </button>
+                    </form>
+                    <form action={removeCustomNameAction}>
+                      <input type="hidden" name="name" value={item.name} />
+                      <button
+                        type="submit"
+                        className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-1 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
+                      >
+                        Delete
+                      </button>
+                    </form>
+                  </div>
                 </li>
               ))
             ) : (
