@@ -4,7 +4,7 @@ export const SKATING_BIBLE_SECTIONS = [
   {
     label: "Project overview",
     href: "/apps/skating-bible/overview",
-    description: "Capture project context, focus, and key features.",
+    description: "Capture project context, goal, and features.",
   },
   {
     label: "Brainstorm",

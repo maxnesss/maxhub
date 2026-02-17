@@ -13,7 +13,7 @@ import { prisma } from "@/prisma";
 const overviewSchema = z.object({
   projectName: z.string().trim().min(2).max(120),
   summary: z.string().trim().max(4000).optional(),
-  focus: z.string().trim().max(1200).optional(),
+  goal: z.string().trim().max(1200).optional(),
   techStack: z.string().trim().max(2000).optional(),
   keyFeatures: z.string().trim().max(3000).optional(),
 });
@@ -170,7 +170,7 @@ export async function updateSkatingBibleOverviewAction(formData: FormData) {
   const parsed = overviewSchema.safeParse({
     projectName: formData.get("projectName"),
     summary: formData.get("summary"),
-    focus: formData.get("focus"),
+    goal: formData.get("goal"),
     techStack: formData.get("techStack"),
     keyFeatures: formData.get("keyFeatures"),
   });
@@ -185,7 +185,7 @@ export async function updateSkatingBibleOverviewAction(formData: FormData) {
       update: {
         projectName: parsed.data.projectName,
         summary: parsed.data.summary?.trim() ?? "",
-        focus: parsed.data.focus?.trim() ?? "",
+        goal: parsed.data.goal?.trim() ?? "",
         techStack: parsed.data.techStack?.trim() ?? "",
         keyFeatures: parsed.data.keyFeatures?.trim() ?? "",
       },
@@ -193,7 +193,7 @@ export async function updateSkatingBibleOverviewAction(formData: FormData) {
         id: "default",
         projectName: parsed.data.projectName,
         summary: parsed.data.summary?.trim() ?? "",
-        focus: parsed.data.focus?.trim() ?? "",
+        goal: parsed.data.goal?.trim() ?? "",
         techStack: parsed.data.techStack?.trim() ?? "",
         keyFeatures: parsed.data.keyFeatures?.trim() ?? "",
       },

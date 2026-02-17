@@ -28,7 +28,7 @@ export default async function SkatingBibleOverviewPage({
   let overview: {
     projectName: string;
     summary: string;
-    focus: string;
+    goal: string;
     techStack: string;
     keyFeatures: string;
     updatedAt: Date;
@@ -40,7 +40,7 @@ export default async function SkatingBibleOverviewPage({
       select: {
         projectName: true,
         summary: true,
-        focus: true,
+        goal: true,
         techStack: true,
         keyFeatures: true,
         updatedAt: true,
@@ -56,7 +56,7 @@ export default async function SkatingBibleOverviewPage({
 
   const projectName = overview?.projectName ?? "Skating bible";
   const summary = overview?.summary ?? "";
-  const focus = overview?.focus ?? "";
+  const goal = overview?.goal ?? "";
   const techStack = overview?.techStack ?? "";
   const keyFeatures = overview?.keyFeatures ?? "";
 
@@ -119,15 +119,15 @@ export default async function SkatingBibleOverviewPage({
 
             <label className="block space-y-1">
               <span className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
-                Current focus
+                Goal
               </span>
               <textarea
-                name="focus"
-                defaultValue={focus}
+                name="goal"
+                defaultValue={goal}
                 rows={4}
                 maxLength={1200}
                 className="w-full rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-                placeholder="What matters most right now?"
+                placeholder="What is the main goal for this project?"
               />
             </label>
 
@@ -147,7 +147,7 @@ export default async function SkatingBibleOverviewPage({
 
             <label className="block space-y-1">
               <span className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
-                Key features
+                Features
               </span>
               <textarea
                 name="keyFeatures"
@@ -155,7 +155,7 @@ export default async function SkatingBibleOverviewPage({
                 rows={4}
                 maxLength={3000}
                 className="w-full rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-                placeholder="List the core product capabilities and planned highlights."
+                placeholder="List product features and planned highlights."
               />
             </label>
 
@@ -207,10 +207,10 @@ export default async function SkatingBibleOverviewPage({
             </div>
             <div>
               <p className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
-                Current focus
+                Goal
               </p>
               <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-(--text-muted)">
-                {focus || "No current focus yet."}
+                {goal || "No goal yet."}
               </p>
             </div>
             <div>
@@ -223,10 +223,10 @@ export default async function SkatingBibleOverviewPage({
             </div>
             <div>
               <p className="text-xs font-semibold tracking-[0.12em] text-[#5f6f8f] uppercase">
-                Key features
+                Features
               </p>
               <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-(--text-muted)">
-                {keyFeatures || "No key features defined yet."}
+                {keyFeatures || "No features defined yet."}
               </p>
             </div>
           </div>

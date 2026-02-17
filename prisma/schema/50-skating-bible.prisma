@@ -9,7 +9,7 @@ model SkatingBibleOverview {
   id            String   @id @default("default")
   projectName   String   @default("Skating bible")
   summary       String   @default("")
-  focus         String   @default("")
+  goal          String   @default("")
   techStack     String   @default("")
   keyFeatures   String   @default("")
   createdAt     DateTime @default(now())

@@ -101,10 +101,10 @@ export default async function SkatingBiblePage() {
         </article>
         <article className="rounded-2xl border border-(--line) bg-white p-5">
           <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-            Key features
+            Features
           </p>
           <p className="mt-2 text-sm leading-6 text-[#1a2b49]">
-            {overview?.keyFeatures || "Add key features in overview page."}
+            {overview?.keyFeatures || "Add features in overview page."}
           </p>
         </article>
       </section>
