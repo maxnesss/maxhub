@@ -1,4 +1,11 @@
-export const APP_CODES = ["PROJECTS", "TASKS", "CALENDAR", "BAMBOO", "WORKOUT"] as const;
+export const APP_CODES = [
+  "PROJECTS",
+  "TASKS",
+  "CALENDAR",
+  "BAMBOO",
+  "WORKOUT",
+  "SKATING_BIBLE",
+] as const;
 
 export type AppCode = (typeof APP_CODES)[number];
 
@@ -31,6 +38,11 @@ export const APP_DEFINITIONS: Record<AppCode, AppDefinition> = {
     label: "Workout",
     description: "Quick training tools with tile-based modules and timers.",
     href: "/apps/workout",
+  },
+  SKATING_BIBLE: {
+    label: "Skating bible",
+    description: "Project workspace for overview, brainstorms, grouped tasks, and charts.",
+    href: "/apps/skating-bible",
   },
 };
 

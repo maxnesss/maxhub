@@ -1,0 +1,71 @@
+enum SkatingBibleTaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+model SkatingBibleOverview {
+  id            String   @id @default("default")
+  projectName   String   @default("Skating bible")
+  summary       String   @default("")
+  focus         String   @default("")
+  techStack     String   @default("")
+  keyFeatures   String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SkatingBibleBrainstorm {
+  id        String             @id @default(cuid())
+  title     String
+  ideas     SkatingBibleIdea[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([createdAt])
+}
+
+model SkatingBibleIdea {
+  id           String                 @id @default(cuid())
+  brainstormId String
+  title        String
+  notes        String
+  parentId     String?
+  posX         Int?
+  posY         Int?
+  brainstorm   SkatingBibleBrainstorm @relation(fields: [brainstormId], references: [id], onDelete: Cascade)
+  parent       SkatingBibleIdea?      @relation("SkatingBibleIdeaChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children     SkatingBibleIdea[]     @relation("SkatingBibleIdeaChildren")
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  @@index([createdAt])
+  @@index([brainstormId, createdAt])
+  @@index([parentId, createdAt])
+}
+
+model SkatingBibleTaskGroup {
+  id        String            @id @default(cuid())
+  name      String            @unique
+  tasks     SkatingBibleTask[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([createdAt])
+  @@map("SkatingBibleTaskGroupEntity")
+}
+
+model SkatingBibleTask {
+  id          String                 @id @default(cuid())
+  title       String
+  details     String?
+  taskGroupId String
+  taskGroup   SkatingBibleTaskGroup  @relation(fields: [taskGroupId], references: [id], onDelete: Cascade)
+  status      SkatingBibleTaskStatus @default(TODO)
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  @@index([taskGroupId, status])
+  @@index([status])
+}
