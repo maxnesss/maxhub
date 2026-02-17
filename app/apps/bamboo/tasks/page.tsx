@@ -250,76 +250,133 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
       </section>
 
       <section className="mt-6 overflow-hidden rounded-2xl border border-(--line) bg-white">
-        <div className="grid grid-cols-[1.5fr_0.8fr_1fr_0.7fr_0.6fr_0.8fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
-          <span>Task</span>
-          <span>Category</span>
-          <span>Phase</span>
-          <span>Owner</span>
-          <span>Priority</span>
-          <span>Status</span>
-        </div>
+        <div className="space-y-3 p-4 md:hidden">
+          {tasks.length > 0 ? (
+            tasks.map((task) => {
+              const nextStatus = getNextBambooTaskStatus(task.status);
+              const hasDescription = Boolean(task.description && task.description.trim().length > 0);
 
-        {tasks.length > 0 ? (
-          tasks.map((task) => {
-            const nextStatus = getNextBambooTaskStatus(task.status);
-            const hasDescription = Boolean(task.description && task.description.trim().length > 0);
-
-            return (
-              <div
-                key={task.id}
-                className="grid grid-cols-[1.5fr_0.8fr_1fr_0.7fr_0.6fr_0.8fr] items-start gap-2 border-t border-[#edf2fb] px-4 py-3"
-              >
-                <div>
+              return (
+                <article
+                  key={task.id}
+                  className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4"
+                >
                   <p className="text-sm font-semibold text-[#1a2b49]">{task.title}</p>
-                  {task.subCategory ? (
-                    <p className="mt-1 text-xs text-[#5b6c8d]">{task.subCategory}</p>
-                  ) : null}
+                  {task.subCategory ? <p className="mt-1 text-xs text-[#5b6c8d]">{task.subCategory}</p> : null}
                   {hasDescription ? (
-                    <p className="mt-1 text-xs leading-5 text-(--text-muted)">{task.description}</p>
+                    <p className="mt-2 text-xs leading-5 text-(--text-muted)">{task.description}</p>
                   ) : null}
-                </div>
-                <p className="text-sm text-(--text-muted)">
-                  {BAMBOO_TASK_CATEGORY_LABELS[task.category]}
-                </p>
-                <span
-                  className={`inline-flex w-fit rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_PHASE_STYLES[task.phase]}`}
-                >
-                  {BAMBOO_TASK_PHASE_LABELS[task.phase]}
-                </span>
-                <p className="text-sm text-(--text-muted)">{task.owner}</p>
-                <span
-                  className={`inline-flex w-fit rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_PRIORITY_STYLES[task.priority]}`}
-                >
-                  {BAMBOO_TASK_PRIORITY_LABELS[task.priority]}
-                </span>
-                <div className="space-y-2">
-                  <span
-                    className={`inline-flex w-fit rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_STATUS_STYLES[task.status]}`}
-                  >
-                    {BAMBOO_TASK_STATUS_LABELS[task.status]}
-                  </span>
+                  <p className="mt-3 text-xs text-(--text-muted)">
+                    {BAMBOO_TASK_CATEGORY_LABELS[task.category]} · {BAMBOO_TASK_PHASE_LABELS[task.phase]}
+                  </p>
+                  <p className="mt-1 text-xs text-(--text-muted)">Owner: {task.owner}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span
+                      className={`inline-flex w-fit rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_PRIORITY_STYLES[task.priority]}`}
+                    >
+                      {BAMBOO_TASK_PRIORITY_LABELS[task.priority]}
+                    </span>
+                    <span
+                      className={`inline-flex w-fit rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_STATUS_STYLES[task.status]}`}
+                    >
+                      {BAMBOO_TASK_STATUS_LABELS[task.status]}
+                    </span>
+                  </div>
                   {canEdit ? (
-                    <form action={updateBambooTaskStatusAction}>
+                    <form action={updateBambooTaskStatusAction} className="mt-3">
                       <input type="hidden" name="id" value={task.id} />
                       <input type="hidden" name="status" value={nextStatus} />
                       <input type="hidden" name="returnTo" value={currentFilterHref} />
                       <button
                         type="submit"
-                        className="block cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-1 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+                        className="block cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                       >
                         {getStatusTransitionLabel(task.status)}
                       </button>
                     </form>
                   ) : null}
-                </div>
+                </article>
+              );
+            })
+          ) : (
+            <p className="text-sm text-(--text-muted)">No tasks found for current filters.</p>
+          )}
+        </div>
+
+        <div className="hidden overflow-x-auto md:block">
+          <div className="min-w-[900px]">
+            <div className="grid grid-cols-[1.5fr_0.8fr_1fr_0.7fr_0.6fr_0.8fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
+              <span>Task</span>
+              <span>Category</span>
+              <span>Phase</span>
+              <span>Owner</span>
+              <span>Priority</span>
+              <span>Status</span>
+            </div>
+
+            {tasks.length > 0 ? (
+              tasks.map((task) => {
+                const nextStatus = getNextBambooTaskStatus(task.status);
+                const hasDescription = Boolean(task.description && task.description.trim().length > 0);
+
+                return (
+                  <div
+                    key={task.id}
+                    className="grid grid-cols-[1.5fr_0.8fr_1fr_0.7fr_0.6fr_0.8fr] items-start gap-2 border-t border-[#edf2fb] px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-[#1a2b49]">{task.title}</p>
+                      {task.subCategory ? (
+                        <p className="mt-1 text-xs text-[#5b6c8d]">{task.subCategory}</p>
+                      ) : null}
+                      {hasDescription ? (
+                        <p className="mt-1 text-xs leading-5 text-(--text-muted)">{task.description}</p>
+                      ) : null}
+                    </div>
+                    <p className="text-sm text-(--text-muted)">
+                      {BAMBOO_TASK_CATEGORY_LABELS[task.category]}
+                    </p>
+                    <span
+                      className={`inline-flex w-fit rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_PHASE_STYLES[task.phase]}`}
+                    >
+                      {BAMBOO_TASK_PHASE_LABELS[task.phase]}
+                    </span>
+                    <p className="text-sm text-(--text-muted)">{task.owner}</p>
+                    <span
+                      className={`inline-flex w-fit rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_PRIORITY_STYLES[task.priority]}`}
+                    >
+                      {BAMBOO_TASK_PRIORITY_LABELS[task.priority]}
+                    </span>
+                    <div className="space-y-2">
+                      <span
+                        className={`inline-flex w-fit rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_STATUS_STYLES[task.status]}`}
+                      >
+                        {BAMBOO_TASK_STATUS_LABELS[task.status]}
+                      </span>
+                      {canEdit ? (
+                        <form action={updateBambooTaskStatusAction}>
+                          <input type="hidden" name="id" value={task.id} />
+                          <input type="hidden" name="status" value={nextStatus} />
+                          <input type="hidden" name="returnTo" value={currentFilterHref} />
+                          <button
+                            type="submit"
+                            className="block cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-1 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+                          >
+                            {getStatusTransitionLabel(task.status)}
+                          </button>
+                        </form>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="px-4 py-4 text-sm text-(--text-muted)">
+                No tasks found for current filters.
               </div>
-            );
-          })
-        ) : (
-          <div className="px-4 py-4 text-sm text-(--text-muted)">
-            No tasks found for current filters.
+            )}
           </div>
-        )}
+        </div>
       </section>
     </main>
   );

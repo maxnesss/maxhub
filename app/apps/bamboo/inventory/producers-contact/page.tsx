@@ -215,7 +215,7 @@ export default async function BambooProducersContactPage({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-[0.7fr_0.9fr_0.8fr_1.2fr_0.7fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
+        <div className="hidden grid-cols-[0.7fr_0.9fr_0.8fr_1.2fr_0.7fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase md:grid">
           <span>Name</span>
           <span>Contact</span>
           <span>Sortiment</span>
@@ -232,40 +232,60 @@ export default async function BambooProducersContactPage({
                 {isEditing ? (
                   <form
                     action={updateProducerContactAction}
-                    className="grid grid-cols-[0.7fr_0.9fr_0.8fr_1.2fr_0.7fr] items-start gap-2"
+                    className="grid gap-2 md:grid-cols-[0.7fr_0.9fr_0.8fr_1.2fr_0.7fr] md:items-start"
                   >
                     <input type="hidden" name="id" value={producer.id} />
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      maxLength={120}
-                      defaultValue={producer.name}
-                      className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-                    />
-                    <input
-                      type="text"
-                      name="contact"
-                      required
-                      maxLength={240}
-                      defaultValue={producer.contact}
-                      className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-                    />
-                    <input
-                      type="text"
-                      name="sortiment"
-                      required
-                      maxLength={240}
-                      defaultValue={producer.sortiment}
-                      className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-                    />
-                    <textarea
-                      name="notes"
-                      rows={3}
-                      maxLength={1000}
-                      defaultValue={producer.notes}
-                      className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
-                    />
+                    <label className="space-y-1">
+                      <span className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
+                        Name
+                      </span>
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        maxLength={120}
+                        defaultValue={producer.name}
+                        className="w-full rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
+                      />
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
+                        Contact
+                      </span>
+                      <input
+                        type="text"
+                        name="contact"
+                        required
+                        maxLength={240}
+                        defaultValue={producer.contact}
+                        className="w-full rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
+                      />
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
+                        Sortiment
+                      </span>
+                      <input
+                        type="text"
+                        name="sortiment"
+                        required
+                        maxLength={240}
+                        defaultValue={producer.sortiment}
+                        className="w-full rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
+                      />
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
+                        Notes
+                      </span>
+                      <textarea
+                        name="notes"
+                        rows={3}
+                        maxLength={1000}
+                        defaultValue={producer.notes}
+                        className="w-full rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
+                      />
+                    </label>
                     <div className="flex flex-col gap-2">
                       <button
                         type="submit"
@@ -282,33 +302,58 @@ export default async function BambooProducersContactPage({
                     </div>
                   </form>
                 ) : (
-                  <div className="grid grid-cols-[0.7fr_0.9fr_0.8fr_1.2fr_0.7fr] items-start gap-2">
-                    <p className="text-sm font-semibold text-[#1a2b49]">{producer.name}</p>
-                    <p className="text-sm text-[#1a2b49]">{producer.contact}</p>
-                    <p className="text-sm text-[#1a2b49]">{producer.sortiment}</p>
-                    <p className="text-sm text-(--text-muted)">{producer.notes}</p>
-                    <div className="flex gap-2">
-                      {canEdit ? (
-                        <>
-                          <Link
-                            href={`/apps/bamboo/inventory/producers-contact?edit=${producer.id}`}
-                            className="inline-flex rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
-                          >
-                            Edit
-                          </Link>
-                          <form action={deleteProducerContactAction}>
-                            <input type="hidden" name="id" value={producer.id} />
-                            <button
-                              type="submit"
-                              className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
+                  <div className="grid gap-2 md:grid-cols-[0.7fr_0.9fr_0.8fr_1.2fr_0.7fr] md:items-start">
+                    <div>
+                      <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
+                        Name
+                      </p>
+                      <p className="text-sm font-semibold text-[#1a2b49]">{producer.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
+                        Contact
+                      </p>
+                      <p className="text-sm text-[#1a2b49]">{producer.contact}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
+                        Sortiment
+                      </p>
+                      <p className="text-sm text-[#1a2b49]">{producer.sortiment}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
+                        Notes
+                      </p>
+                      <p className="text-sm text-(--text-muted)">{producer.notes}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
+                        Actions
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {canEdit ? (
+                          <>
+                            <Link
+                              href={`/apps/bamboo/inventory/producers-contact?edit=${producer.id}`}
+                              className="inline-flex rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                             >
-                              Remove
-                            </button>
-                          </form>
-                        </>
-                      ) : (
-                        <span className="text-xs text-(--text-muted)">Read only</span>
-                      )}
+                              Edit
+                            </Link>
+                            <form action={deleteProducerContactAction}>
+                              <input type="hidden" name="id" value={producer.id} />
+                              <button
+                                type="submit"
+                                className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
+                              >
+                                Remove
+                              </button>
+                            </form>
+                          </>
+                        ) : (
+                          <span className="text-xs text-(--text-muted)">Read only</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

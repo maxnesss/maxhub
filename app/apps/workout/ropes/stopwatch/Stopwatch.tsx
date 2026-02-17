@@ -115,8 +115,8 @@ export function Stopwatch() {
         Space toggles start and pause
       </p>
 
-      <div className="rounded-2xl border border-[#d8e2f4] bg-[#fbfdff] px-6 py-5 text-center shadow-[0_16px_30px_-26px_rgba(19,33,58,0.45)] md:px-10 md:py-8">
-        <p className="inline-block min-w-[8ch] font-mono tabular-nums text-6xl font-semibold tracking-tight text-[#162947] md:text-8xl">
+      <div className="w-full max-w-full overflow-hidden rounded-2xl border border-[#d8e2f4] bg-[#fbfdff] px-6 py-5 text-center shadow-[0_16px_30px_-26px_rgba(19,33,58,0.45)] md:px-10 md:py-8">
+        <p className="block max-w-full font-mono tabular-nums text-[clamp(2.25rem,14vw,6rem)] font-semibold tracking-tight text-[#162947]">
           {formatElapsed(elapsedMs)}
         </p>
       </div>

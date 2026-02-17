@@ -127,43 +127,78 @@ export default async function AdminUserDetailPage({
         </p>
 
         <div className="mt-3 overflow-hidden rounded-xl border border-[#e3eaf7]">
-          <div className="grid grid-cols-[1.3fr_0.55fr_0.55fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
-            <span>App</span>
-            <span>Read</span>
-            <span>Edit</span>
+          <div className="divide-y divide-[#edf2fb] md:hidden">
+            {APP_VALUE_HELP.map((app) => (
+              <div key={app.value} className="space-y-3 px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium text-[#1a2b49]">{app.label}</p>
+                  <p className="text-xs text-(--text-muted)">{app.description}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.08em] text-[#617294] uppercase">
+                    <input
+                      type="checkbox"
+                      name="readApps"
+                      value={app.value}
+                      defaultChecked={readApps.has(app.value)}
+                      className="h-4 w-4 cursor-pointer rounded border-[#b8c6e6]"
+                    />
+                    Read
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.08em] text-[#617294] uppercase">
+                    <input
+                      type="checkbox"
+                      name="editApps"
+                      value={app.value}
+                      defaultChecked={editApps.has(app.value)}
+                      className="h-4 w-4 cursor-pointer rounded border-[#b8c6e6]"
+                    />
+                    Edit
+                  </label>
+                </div>
+              </div>
+            ))}
           </div>
 
-          {APP_VALUE_HELP.map((app) => (
-            <div
-              key={app.value}
-              className="grid grid-cols-[1.3fr_0.55fr_0.55fr] items-center border-t border-[#edf2fb] px-4 py-3"
-            >
-              <div>
-                <p className="text-sm font-medium text-[#1a2b49]">{app.label}</p>
-                <p className="text-xs text-(--text-muted)">{app.description}</p>
-              </div>
-
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  name="readApps"
-                  value={app.value}
-                  defaultChecked={readApps.has(app.value)}
-                  className="h-4 w-4 cursor-pointer rounded border-[#b8c6e6]"
-                />
-              </label>
-
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  name="editApps"
-                  value={app.value}
-                  defaultChecked={editApps.has(app.value)}
-                  className="h-4 w-4 cursor-pointer rounded border-[#b8c6e6]"
-                />
-              </label>
+          <div className="hidden md:block">
+            <div className="grid grid-cols-[1.3fr_0.55fr_0.55fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
+              <span>App</span>
+              <span>Read</span>
+              <span>Edit</span>
             </div>
-          ))}
+
+            {APP_VALUE_HELP.map((app) => (
+              <div
+                key={app.value}
+                className="grid grid-cols-[1.3fr_0.55fr_0.55fr] items-center border-t border-[#edf2fb] px-4 py-3"
+              >
+                <div>
+                  <p className="text-sm font-medium text-[#1a2b49]">{app.label}</p>
+                  <p className="text-xs text-(--text-muted)">{app.description}</p>
+                </div>
+
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    name="readApps"
+                    value={app.value}
+                    defaultChecked={readApps.has(app.value)}
+                    className="h-4 w-4 cursor-pointer rounded border-[#b8c6e6]"
+                  />
+                </label>
+
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    name="editApps"
+                    value={app.value}
+                    defaultChecked={editApps.has(app.value)}
+                    className="h-4 w-4 cursor-pointer rounded border-[#b8c6e6]"
+                  />
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
       </form>
     </main>

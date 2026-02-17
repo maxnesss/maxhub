@@ -271,50 +271,95 @@ export default async function StarterRopesDayPage({
           </Link>
         </div>
 
-        <div className="grid grid-cols-[1fr_1fr_0.9fr_0.8fr_1fr] bg-[#f8faff] px-5 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
-          <span>When</span>
-          <span>User</span>
-          <span>Round</span>
-          <span>Target</span>
-          <span>Result</span>
+        <div className="space-y-3 p-4 md:hidden">
+          {recentResults.length > 0 ? (
+            recentResults.map((result) => {
+              const userLabel = result.user.nickname || result.user.name || result.user.email;
+              const deltaMs = result.elapsedMs - result.targetSeconds * 1000;
+              const isOverTarget = deltaMs >= 0;
+
+              return (
+                <article
+                  key={result.id}
+                  className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4"
+                >
+                  <p className="text-xs font-semibold tracking-[0.1em] text-[#617294] uppercase">
+                    {new Intl.DateTimeFormat("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }).format(result.completedAt)}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-[#1a2b49]">{userLabel}</p>
+                  <p className="mt-1 text-sm text-(--text-muted)">{result.round.title}</p>
+                  <p className="mt-2 text-sm text-[#1a2b49]">
+                    Target: <span className="font-mono">{formatSeconds(result.targetSeconds)}</span>
+                  </p>
+                  <p className="mt-1 text-sm text-[#1a2b49]">
+                    Result: <span className="font-mono">{formatElapsedMs(result.elapsedMs)}</span>
+                    <span className={isOverTarget ? "ml-2 text-[#1f6a3b]" : "ml-2 text-[#9d3e2f]"}>
+                      ({isOverTarget ? "+" : "-"}{formatElapsedMs(Math.abs(deltaMs))})
+                    </span>
+                  </p>
+                </article>
+              );
+            })
+          ) : (
+            <p className="text-sm text-(--text-muted)">
+              No saved rounds yet for this day.
+            </p>
+          )}
         </div>
 
-        {recentResults.length > 0 ? (
-          recentResults.map((result) => {
-            const userLabel = result.user.nickname || result.user.name || result.user.email;
-            const deltaMs = result.elapsedMs - result.targetSeconds * 1000;
-            const isOverTarget = deltaMs >= 0;
+        <div className="hidden overflow-x-auto md:block">
+          <div className="min-w-[760px]">
+            <div className="grid grid-cols-[1fr_1fr_0.9fr_0.8fr_1fr] bg-[#f8faff] px-5 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
+              <span>When</span>
+              <span>User</span>
+              <span>Round</span>
+              <span>Target</span>
+              <span>Result</span>
+            </div>
 
-            return (
-              <div
-                key={result.id}
-                className="grid grid-cols-[1fr_1fr_0.9fr_0.8fr_1fr] items-center gap-2 border-t border-[#edf2fb] px-5 py-3 text-sm"
-              >
-                <span className="text-(--text-muted)">
-                  {new Intl.DateTimeFormat("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }).format(result.completedAt)}
-                </span>
-                <span className="truncate text-[#1a2b49]" title={userLabel}>{userLabel}</span>
-                <span className="text-(--text-muted)">{result.round.title}</span>
-                <span className="font-mono text-[#1a2b49]">{formatSeconds(result.targetSeconds)}</span>
-                <span className="font-mono text-[#1a2b49]">
-                  {formatElapsedMs(result.elapsedMs)}
-                  <span className={isOverTarget ? "ml-2 text-[#1f6a3b]" : "ml-2 text-[#9d3e2f]"}>
-                    ({isOverTarget ? "+" : "-"}{formatElapsedMs(Math.abs(deltaMs))})
-                  </span>
-                </span>
-              </div>
-            );
-          })
-        ) : (
-          <p className="px-5 py-4 text-sm text-(--text-muted)">
-            No saved rounds yet for this day.
-          </p>
-        )}
+            {recentResults.length > 0 ? (
+              recentResults.map((result) => {
+                const userLabel = result.user.nickname || result.user.name || result.user.email;
+                const deltaMs = result.elapsedMs - result.targetSeconds * 1000;
+                const isOverTarget = deltaMs >= 0;
+
+                return (
+                  <div
+                    key={result.id}
+                    className="grid grid-cols-[1fr_1fr_0.9fr_0.8fr_1fr] items-center gap-2 border-t border-[#edf2fb] px-5 py-3 text-sm"
+                  >
+                    <span className="text-(--text-muted)">
+                      {new Intl.DateTimeFormat("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }).format(result.completedAt)}
+                    </span>
+                    <span className="truncate text-[#1a2b49]" title={userLabel}>{userLabel}</span>
+                    <span className="text-(--text-muted)">{result.round.title}</span>
+                    <span className="font-mono text-[#1a2b49]">{formatSeconds(result.targetSeconds)}</span>
+                    <span className="font-mono text-[#1a2b49]">
+                      {formatElapsedMs(result.elapsedMs)}
+                      <span className={isOverTarget ? "ml-2 text-[#1f6a3b]" : "ml-2 text-[#9d3e2f]"}>
+                        ({isOverTarget ? "+" : "-"}{formatElapsedMs(Math.abs(deltaMs))})
+                      </span>
+                    </span>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="px-5 py-4 text-sm text-(--text-muted)">
+                No saved rounds yet for this day.
+              </p>
+            )}
+          </div>
+        </div>
       </section>
     </main>
   );

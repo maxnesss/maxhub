@@ -61,7 +61,7 @@ export async function TopNav({ current }: TopNavProps) {
         </span>
       </Link>
 
-      <div className="flex items-center gap-3">
+      <div className="flex max-w-full flex-wrap items-center justify-end gap-3">
         <Link
           href="/apps"
           className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
@@ -99,14 +99,14 @@ export async function TopNav({ current }: TopNavProps) {
         {profileIdentity ? (
           <Link
             href="/profile"
-            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm text-[#50607f] ${
+            className={`inline-flex max-w-full items-center gap-2 rounded-full border px-4 py-2 text-sm text-[#50607f] ${
               current === "profile"
                 ? "border-[#cfd9ef] bg-[#eff3ff] text-[#2c3f70]"
                 : "border-[#dce4f3] bg-[#f9fbff] hover:bg-[#f3f7ff]"
             }`}
           >
             <span className="h-2 w-2 rounded-full bg-(--accent-blue)" />
-            {profileIdentity}
+            <span className="max-w-[11rem] truncate">{profileIdentity}</span>
           </Link>
         ) : (
           <Link

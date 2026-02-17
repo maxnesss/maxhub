@@ -129,58 +129,108 @@ export default async function BambooDocumentsPage({
       ) : null}
 
       <section className="mt-6 overflow-hidden rounded-2xl border border-(--line) bg-white">
-        <div className="grid grid-cols-[1.2fr_0.7fr_0.5fr_0.7fr_0.8fr_0.7fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
-          <span>File</span>
-          <span>Type</span>
-          <span>Size</span>
-          <span>Uploaded by</span>
-          <span>Date</span>
-          <span>Actions</span>
+        <div className="space-y-3 p-4 md:hidden">
+          {documentsWithDownload.length > 0 ? (
+            documentsWithDownload.map((document) => (
+              <article
+                key={document.id}
+                className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4"
+              >
+                <p className="text-sm font-semibold text-[#1a2b49] break-all">{document.fileName}</p>
+                <p className="mt-1 text-xs text-(--text-muted) break-all">{document.contentType}</p>
+                <div className="mt-2 text-sm text-[#1a2b49]">
+                  <p>Size: {formatFileSize(document.sizeBytes)}</p>
+                  <p className="text-(--text-muted)">Uploaded by: {document.uploadedBy}</p>
+                  <p className="text-(--text-muted)">Date: {formatDate(document.createdAt)}</p>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {document.downloadUrl ? (
+                    <a
+                      href={document.downloadUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+                    >
+                      Download
+                    </a>
+                  ) : (
+                    <span className="text-xs text-(--text-muted)">Unavailable</span>
+                  )}
+                  {canEdit ? (
+                    <form action={deleteBambooDocumentAction}>
+                      <input type="hidden" name="id" value={document.id} />
+                      <button
+                        type="submit"
+                        className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
+                      >
+                        Remove
+                      </button>
+                    </form>
+                  ) : null}
+                </div>
+              </article>
+            ))
+          ) : (
+            <p className="text-sm text-(--text-muted)">No documents uploaded yet.</p>
+          )}
         </div>
 
-        {documentsWithDownload.length > 0 ? (
-          documentsWithDownload.map((document) => (
-            <div
-              key={document.id}
-              className="grid grid-cols-[1.2fr_0.7fr_0.5fr_0.7fr_0.8fr_0.7fr] items-start gap-2 border-t border-[#edf2fb] px-4 py-3"
-            >
-              <p className="text-sm font-semibold text-[#1a2b49] break-all">{document.fileName}</p>
-              <p className="text-sm text-(--text-muted) break-all">{document.contentType}</p>
-              <p className="text-sm text-[#1a2b49]">{formatFileSize(document.sizeBytes)}</p>
-              <p className="text-sm text-(--text-muted)">{document.uploadedBy}</p>
-              <p className="text-sm text-(--text-muted)">{formatDate(document.createdAt)}</p>
-              <div className="flex flex-wrap gap-2">
-                {document.downloadUrl ? (
-                  <a
-                    href={document.downloadUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
-                  >
-                    Download
-                  </a>
-                ) : (
-                  <span className="text-xs text-(--text-muted)">Unavailable</span>
-                )}
-                {canEdit ? (
-                  <form action={deleteBambooDocumentAction}>
-                    <input type="hidden" name="id" value={document.id} />
-                    <button
-                      type="submit"
-                      className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
-                    >
-                      Remove
-                    </button>
-                  </form>
-                ) : null}
-              </div>
+        <div className="hidden overflow-x-auto md:block">
+          <div className="min-w-[900px]">
+            <div className="grid grid-cols-[1.2fr_0.7fr_0.5fr_0.7fr_0.8fr_0.7fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
+              <span>File</span>
+              <span>Type</span>
+              <span>Size</span>
+              <span>Uploaded by</span>
+              <span>Date</span>
+              <span>Actions</span>
             </div>
-          ))
-        ) : (
-          <p className="border-t border-[#edf2fb] px-4 py-4 text-sm text-(--text-muted)">
-            No documents uploaded yet.
-          </p>
-        )}
+
+            {documentsWithDownload.length > 0 ? (
+              documentsWithDownload.map((document) => (
+                <div
+                  key={document.id}
+                  className="grid grid-cols-[1.2fr_0.7fr_0.5fr_0.7fr_0.8fr_0.7fr] items-start gap-2 border-t border-[#edf2fb] px-4 py-3"
+                >
+                  <p className="text-sm font-semibold text-[#1a2b49] break-all">{document.fileName}</p>
+                  <p className="text-sm text-(--text-muted) break-all">{document.contentType}</p>
+                  <p className="text-sm text-[#1a2b49]">{formatFileSize(document.sizeBytes)}</p>
+                  <p className="text-sm text-(--text-muted)">{document.uploadedBy}</p>
+                  <p className="text-sm text-(--text-muted)">{formatDate(document.createdAt)}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {document.downloadUrl ? (
+                      <a
+                        href={document.downloadUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+                      >
+                        Download
+                      </a>
+                    ) : (
+                      <span className="text-xs text-(--text-muted)">Unavailable</span>
+                    )}
+                    {canEdit ? (
+                      <form action={deleteBambooDocumentAction}>
+                        <input type="hidden" name="id" value={document.id} />
+                        <button
+                          type="submit"
+                          className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
+                        >
+                          Remove
+                        </button>
+                      </form>
+                    ) : null}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="border-t border-[#edf2fb] px-4 py-4 text-sm text-(--text-muted)">
+                No documents uploaded yet.
+              </p>
+            )}
+          </div>
+        </div>
       </section>
     </main>
   );
