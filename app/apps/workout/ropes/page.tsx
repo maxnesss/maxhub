@@ -3,10 +3,7 @@ import Link from "next/link";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
-import {
-  ensureStarterRopesPlanSeed,
-  starterRopesPlanHref,
-} from "@/lib/workout-ropes";
+import { starterRopesPlanHref } from "@/lib/workout-ropes";
 
 const ROPES_TOOLS = [
   {
@@ -27,7 +24,6 @@ const ROPES_PLANS = [
 
 export default async function WorkoutRopesPage() {
   await requireAppRead("WORKOUT");
-  await ensureStarterRopesPlanSeed();
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">

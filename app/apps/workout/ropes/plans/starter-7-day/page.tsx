@@ -5,7 +5,6 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
 import {
-  ensureStarterRopesPlanSeed,
   formatElapsedMs,
   formatSeconds,
   starterRopesDayHref,
@@ -24,7 +23,6 @@ function progressPercent(done: number, total: number) {
 
 export default async function StarterRopesPlanPage() {
   const user = await requireAppRead("WORKOUT");
-  await ensureStarterRopesPlanSeed();
 
   const plan = await prisma.workoutPlan.findUnique({
     where: { slug: WORKOUT_STARTER_PLAN_SLUG },

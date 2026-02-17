@@ -9,7 +9,6 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { requireAppRead } from "@/lib/authz";
 import {
-  ensureStarterRopesPlanSeed,
   formatElapsedMs,
   formatSeconds,
   starterRopesDayHref,
@@ -28,7 +27,6 @@ export default async function StarterRopesDayPage({
   searchParams,
 }: StarterRopesDayPageProps) {
   const user = await requireAppRead("WORKOUT");
-  await ensureStarterRopesPlanSeed();
 
   const { daySlug } = await params;
   const { saved, error } = await searchParams;

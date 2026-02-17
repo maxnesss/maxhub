@@ -6,7 +6,6 @@ import { z } from "zod";
 
 import { requireAppRead } from "@/lib/authz";
 import {
-  ensureStarterRopesPlanSeed,
   starterRopesPlanHref,
   WORKOUT_STARTER_PLAN_SLUG,
 } from "@/lib/workout-ropes";
@@ -33,7 +32,6 @@ function sanitizeReturnTo(path?: string) {
 
 export async function saveWorkoutRoundResultAction(formData: FormData) {
   const user = await requireAppRead("WORKOUT");
-  await ensureStarterRopesPlanSeed();
 
   const parsed = saveRoundResultSchema.safeParse({
     roundId: formData.get("roundId"),
