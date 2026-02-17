@@ -27,7 +27,8 @@ export const APP_DEFINITIONS: Record<AppCode, AppDefinition> = {
   },
   CALENDAR: {
     label: "Calendar",
-    description: "View timelines, key dates, and upcoming milestones.",
+    description: "Plan events with a monthly board, color tags, and reminders.",
+    href: "/apps/calendar",
   },
   BAMBOO: {
     label: "Bamboo",

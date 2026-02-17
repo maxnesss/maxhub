@@ -9,6 +9,7 @@ model User {
   projects       Project[]
   appPermissions UserAppPermission[]
   workoutRoundResults WorkoutRoundResult[]
+  calendarEvents CalendarEvent[]
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
 }

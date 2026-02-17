@@ -8,15 +8,15 @@ import { TopNav } from "@/components/layout/TopNav";
 export default async function AppsPage() {
   const user = await requireUserContext();
 
-  const visibleApps = APP_CODES.filter((appCode) => canReadApp(user, appCode)).map(
-    (appCode) => ({
-      code: appCode,
-      name: APP_DEFINITIONS[appCode].label,
-      details: APP_DEFINITIONS[appCode].description,
-      href: APP_DEFINITIONS[appCode].href,
-      isFavorite: user.favoriteApps.includes(appCode),
-    }),
-  );
+  const visibleApps = APP_CODES.filter(
+    (appCode) => appCode !== "TASKS" && canReadApp(user, appCode),
+  ).map((appCode) => ({
+    code: appCode,
+    name: APP_DEFINITIONS[appCode].label,
+    details: APP_DEFINITIONS[appCode].description,
+    href: APP_DEFINITIONS[appCode].href,
+    isFavorite: user.favoriteApps.includes(appCode),
+  }));
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">

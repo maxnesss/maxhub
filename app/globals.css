@@ -9,13 +9,17 @@
   --accent-blue: #5f7cff;
   --accent-cyan: #34c4dd;
   --accent-coral: #ff8e72;
+  --font-sans-stack:
+    "Avenir Next", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono-stack:
+    "SF Mono", "Roboto Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 @theme inline {
   --color-background: var(--surface-0);
   --color-foreground: var(--text-main);
-  --font-sans: var(--font-space-grotesk);
-  --font-mono: var(--font-sora);
+  --font-sans: var(--font-sans-stack);
+  --font-mono: var(--font-mono-stack);
 }
 
 * {
@@ -26,7 +30,7 @@ body {
   min-height: 100vh;
   margin: 0;
   color: var(--text-main);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-sans-stack);
   background-color: var(--surface-0);
   background-image:
     linear-gradient(180deg, rgba(95, 124, 255, 0.06), transparent 35%),

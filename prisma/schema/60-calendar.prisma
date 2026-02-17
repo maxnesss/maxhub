@@ -1,0 +1,26 @@
+enum CalendarEventColor {
+  SKY
+  MINT
+  PEACH
+  LEMON
+  LILAC
+}
+
+model CalendarEvent {
+  id          String             @id @default(cuid())
+  title       String
+  description String             @default("")
+  location    String             @default("")
+  startsAt    DateTime
+  endsAt      DateTime?
+  isAllDay    Boolean            @default(false)
+  color       CalendarEventColor @default(SKY)
+  createdById String
+  createdBy   User               @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([startsAt])
+  @@index([createdById, startsAt])
+  @@index([color, startsAt])
+}
