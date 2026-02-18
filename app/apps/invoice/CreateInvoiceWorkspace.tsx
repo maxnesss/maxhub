@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { toDataURL } from "qrcode";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type InvoiceItem = {
   id: string;
@@ -136,6 +136,7 @@ function czechAccountToIban(account: string) {
 export function CreateInvoiceWorkspace() {
   const today = useMemo(() => toIsoDate(new Date()), []);
   const supplierIban = useMemo(() => czechAccountToIban(SUPPLIER.bankAccount), []);
+  const previewRef = useRef<HTMLDivElement | null>(null);
 
   const [invoiceNumber] = useState(() => generateInvoiceNumber());
   const [items, setItems] = useState<InvoiceItem[]>([
@@ -149,6 +150,8 @@ export function CreateInvoiceWorkspace() {
   const [dueDate, setDueDate] = useState(addDays(today, 14));
   const [taxableDate, setTaxableDate] = useState(getLastDayOfPreviousMonth());
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   const itemRows = useMemo(
     () =>
@@ -223,8 +226,70 @@ export function CreateInvoiceWorkspace() {
     };
   }, [qrPayload]);
 
-  function downloadPdf() {
-    window.print();
+  async function downloadPdf() {
+    const preview = previewRef.current;
+    if (!preview || isGeneratingPdf) {
+      return;
+    }
+
+    setIsGeneratingPdf(true);
+    setPdfError(null);
+
+    let exportContainer: HTMLDivElement | null = null;
+    try {
+      const [{ default: html2canvas }, { default: JsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+
+      const exportTarget = preview.cloneNode(true) as HTMLDivElement;
+      exportTarget.style.width = "794px";
+      exportTarget.style.minHeight = "1123px";
+      exportTarget.style.display = "flex";
+      exportTarget.style.flexDirection = "column";
+      exportTarget.style.boxSizing = "border-box";
+      exportTarget.style.backgroundColor = "#ffffff";
+
+      const paymentSection = exportTarget.querySelector("[data-invoice-payment]");
+      if (paymentSection instanceof HTMLElement) {
+        paymentSection.style.marginTop = "auto";
+      }
+
+      exportContainer = document.createElement("div");
+      exportContainer.style.position = "fixed";
+      exportContainer.style.left = "-10000px";
+      exportContainer.style.top = "0";
+      exportContainer.style.zIndex = "-1";
+      exportContainer.style.pointerEvents = "none";
+      exportContainer.style.backgroundColor = "#ffffff";
+      exportContainer.appendChild(exportTarget);
+      document.body.appendChild(exportContainer);
+
+      const canvas = await html2canvas(exportTarget, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+      });
+
+      const pdf = new JsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "a4",
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imageData = canvas.toDataURL("image/png");
+      pdf.addImage(imageData, "PNG", 0, 0, pageWidth, pageHeight);
+      pdf.save(`nesazal_${invoiceNumber}.pdf`);
+    } catch (error) {
+      console.error("[invoice] PDF generation failed", error);
+      setPdfError("PDF generation failed. Please try again.");
+    } finally {
+      if (exportContainer) {
+        exportContainer.remove();
+      }
+      setIsGeneratingPdf(false);
+    }
   }
 
   function updateIssueDate(nextValue: string) {
@@ -259,7 +324,7 @@ export function CreateInvoiceWorkspace() {
   }
 
   return (
-    <section className="mt-6 grid gap-6 xl:grid-cols-[1fr_1.25fr]">
+    <section className="mt-6 space-y-6">
       <article className="rounded-2xl border border-(--line) bg-white p-6 print:hidden">
         <h2 className="text-xl font-semibold tracking-tight text-[#162947]">Invoice values</h2>
         <p className="mt-2 text-sm text-(--text-muted)">
@@ -376,126 +441,146 @@ export function CreateInvoiceWorkspace() {
         <button
           type="button"
           onClick={downloadPdf}
-          className="mt-5 cursor-pointer rounded-xl border border-[#bcd0f2] bg-[#eef4ff] px-5 py-2 text-sm font-semibold text-[#32548f] hover:bg-[#e5efff]"
+          disabled={isGeneratingPdf}
+          className="mt-5 cursor-pointer rounded-xl border border-[#bcd0f2] bg-[#eef4ff] px-5 py-2 text-sm font-semibold text-[#32548f] hover:bg-[#e5efff] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          Download PDF
+          {isGeneratingPdf ? "Generating PDF..." : "Download PDF"}
         </button>
+        {pdfError ? <p className="mt-2 text-sm text-[#9a4934]">{pdfError}</p> : null}
       </article>
 
       <article className="rounded-2xl border border-[#d7deeb] bg-white p-6 shadow-[0_20px_40px_-32px_rgba(19,33,58,0.55)] print:rounded-none print:border-0 print:p-0 print:shadow-none">
-        <div className="border border-[#d5d9e2] text-[#2f3138]">
-          <div className="grid border-b border-[#d5d9e2] md:grid-cols-2">
-            <div className="space-y-1 border-b border-[#d5d9e2] p-4 text-xs md:border-r md:border-b-0">
-              <p className="font-semibold tracking-[0.08em] text-[#61656f] uppercase">Dodavatel:</p>
-              <p className="font-semibold">{SUPPLIER.name}</p>
-              <p>{SUPPLIER.street}</p>
-              <p>{SUPPLIER.city}</p>
-              <p>{SUPPLIER.country}</p>
-              <p className="pt-3">IČ: {SUPPLIER.ico}</p>
-              <p>DIČ: {SUPPLIER.dic || "-"}</p>
-            </div>
-
-            <div className="space-y-2 p-4 text-xs">
-              <p className="text-3xl leading-none font-semibold tracking-tight text-[#2a2d34]">
-                Faktura {invoiceNumber}
-              </p>
-              <div className="border-t border-dashed border-[#cdd2dd] pt-3">
-                <p className="font-semibold tracking-[0.08em] text-[#61656f] uppercase">Odběratel:</p>
-                <p className="mt-1 font-semibold">{CUSTOMER.name}</p>
-                <p>{CUSTOMER.street}</p>
-                <p>{CUSTOMER.city}</p>
-                <p>{CUSTOMER.country}</p>
+        <div
+          ref={previewRef}
+          className="mx-auto w-full max-w-[900px] border border-[#d4d8df] bg-[#f7f7f8] text-[#2f3138]"
+        >
+          <div className="flex min-h-[1123px] flex-col">
+            <div className="grid border-b border-dashed border-[#8f939c] md:grid-cols-2">
+              <div className="space-y-1 border-b border-dashed border-[#8f939c] p-5 text-xs md:border-r md:border-b-0">
+                <p className="font-semibold tracking-[0.08em] text-[#575d67] uppercase">Dodavatel:</p>
+                <p className="font-semibold">{SUPPLIER.name}</p>
+                <p>{SUPPLIER.street}</p>
+                <p>{SUPPLIER.city}</p>
+                <p>{SUPPLIER.country}</p>
+                <p className="pt-3">IČ: {SUPPLIER.ico}</p>
+                <p>DIČ: {SUPPLIER.dic || "-"}</p>
               </div>
-            </div>
-          </div>
 
-          <div className="grid border-b border-[#d5d9e2] md:grid-cols-2">
-            <div className="border-b border-[#d5d9e2] p-4 text-xs md:border-r md:border-b-0">
-              <p>{SUPPLIER.legalNote}</p>
-              <p className="mt-7">Komerční banka, a.s.: {SUPPLIER.bankAccount}</p>
-            </div>
-            <div className="grid gap-2 p-4 text-xs sm:grid-cols-2">
-              <p>IČ: {CUSTOMER.ico}</p>
-              <p>Datum vystavení: {formatCzDate(issueDate)}</p>
-              <p>DIČ: {CUSTOMER.dic}</p>
-              <p>Zdanitelné plnění: {formatCzDate(taxableDate)}</p>
-              <p />
-              <p>Datum splatnosti: {formatCzDate(dueDate)}</p>
-            </div>
-          </div>
-
-          <div className="p-3">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-[#d5d9e2] text-[#555a64]">
-                  <th className="py-2 font-semibold">Název položky a popis</th>
-                  <th className="py-2 text-right font-semibold">Množství</th>
-                  <th className="py-2 text-right font-semibold">Jednotka</th>
-                  <th className="py-2 text-right font-semibold">Cena položky</th>
-                  <th className="py-2 text-right font-semibold">Celkem</th>
-                </tr>
-              </thead>
-              <tbody>
-                {itemRows.map((item) => (
-                  <tr key={item.id} className="border-b border-[#d5d9e2]">
-                    <td className="py-2">{item.description || "-"}</td>
-                    <td className="py-2 text-right">{item.quantityLabel}</td>
-                    <td className="py-2 text-right">{FIXED_UNIT}</td>
-                    <td className="py-2 text-right">{unitPriceLabel}</td>
-                    <td className="py-2 text-right">{item.rowTotalLabel}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="border-t border-[#d5d9e2] px-4 py-3 text-right">
-            <p className="text-lg font-semibold text-[#2a2d34]">Celkem: {totalLabel}</p>
-          </div>
-
-          <div className="grid gap-3 border-t border-[#d5d9e2] p-4 md:grid-cols-[140px_1fr]">
-            <div className="flex h-28 w-28 items-center justify-center overflow-hidden border border-[#6b6f79] bg-white">
-              {qrCodeDataUrl ? (
-                <Image
-                  src={qrCodeDataUrl}
-                  alt="QR Platba"
-                  width={112}
-                  height={112}
-                  unoptimized
-                />
-              ) : (
-                <p className="text-center text-xs text-[#5a5f69]">
-                  QR
-                  <br />
-                  Platba
+              <div className="space-y-4 p-5 text-xs">
+                <p className="text-4xl leading-none font-semibold tracking-tight text-[#2f3239] md:text-[46px]">
+                  Faktura {invoiceNumber}
                 </p>
-              )}
-            </div>
-
-            <div className="grid gap-2 text-xs sm:grid-cols-4">
-              <div className="rounded border border-[#d7deeb] bg-[#f2f6ff] p-2">
-                <p className="text-[#63718b]">Číslo účtu</p>
-                <p className="font-semibold">{SUPPLIER.bankAccount}</p>
-              </div>
-              <div className="rounded border border-[#d7deeb] bg-[#f2f6ff] p-2">
-                <p className="text-[#63718b]">Variabilní symbol</p>
-                <p className="font-semibold">{variableSymbol}</p>
-              </div>
-              <div className="rounded border border-[#d7deeb] bg-[#f2f6ff] p-2">
-                <p className="text-[#63718b]">Datum splatnosti</p>
-                <p className="font-semibold">{formatCzDate(dueDate)}</p>
-              </div>
-              <div className="rounded border border-[#d7deeb] bg-[#f2f6ff] p-2">
-                <p className="text-[#63718b]">Částka k uhrazení</p>
-                <p className="font-semibold">{totalLabel}</p>
+                <div className="border-t border-dashed border-[#8f939c] pt-4">
+                  <p className="font-semibold tracking-[0.08em] text-[#575d67] uppercase">Odběratel:</p>
+                  <p className="mt-1 font-semibold">{CUSTOMER.name}</p>
+                  <p>{CUSTOMER.street}</p>
+                  <p>{CUSTOMER.city}</p>
+                  <p>{CUSTOMER.country}</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="grid gap-2 border-t border-[#d5d9e2] p-4 text-xs sm:grid-cols-3 sm:items-center">
-            <p>Vystavil: {SUPPLIER.issuedBy}</p>
-            <p>{SUPPLIER.phone}</p>
-            <p>{SUPPLIER.email}</p>
+            <div className="grid border-b border-dashed border-[#8f939c] md:grid-cols-2">
+              <div className="border-b border-dashed border-[#8f939c] p-5 text-xs md:border-r md:border-b-0">
+                <p>{SUPPLIER.legalNote}</p>
+                <p className="mt-10">Komerční banka, a.s.: {SUPPLIER.bankAccount}</p>
+              </div>
+              <div className="grid gap-2 p-5 text-xs sm:grid-cols-2">
+                <p>IČ: {CUSTOMER.ico}</p>
+                <p>Datum vystavení: {formatCzDate(issueDate)}</p>
+                <p>DIČ: {CUSTOMER.dic}</p>
+                <p>Zdanitelné plnění: {formatCzDate(taxableDate)}</p>
+                <p />
+                <p>Datum splatnosti: {formatCzDate(dueDate)}</p>
+              </div>
+            </div>
+
+            <div className="border-b border-dashed border-[#8f939c] px-4 py-3">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-dashed border-[#8f939c] text-[#575d67]">
+                    <th className="py-2 font-semibold">Název položky a popis</th>
+                    <th className="py-2 text-right font-semibold">Množství</th>
+                    <th className="py-2 text-right font-semibold">Jednotka</th>
+                    <th className="py-2 text-right font-semibold">Cena položky</th>
+                    <th className="py-2 text-right font-semibold">Celkem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {itemRows.map((item) => (
+                    <tr key={item.id} className="border-b border-dashed border-[#8f939c]">
+                      <td className="py-2">{item.description || "-"}</td>
+                      <td className="py-2 text-right">{item.quantityLabel}</td>
+                      <td className="py-2 text-right">{FIXED_UNIT}</td>
+                      <td className="py-2 text-right">{unitPriceLabel}</td>
+                      <td className="py-2 text-right">{item.rowTotalLabel}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="border-b border-dashed border-[#8f939c] px-5 py-4 text-right">
+              <p className="text-3xl font-semibold text-[#2f3239]">
+                Celkem: <span className="tabular-nums">{totalLabel}</span>
+              </p>
+            </div>
+
+            <div
+              data-invoice-payment
+              className="mt-auto grid gap-5 border-b border-dashed border-[#8f939c] p-5 md:grid-cols-[165px_1fr]"
+            >
+              <div>
+                <div className="flex h-32 w-32 items-center justify-center overflow-hidden border-4 border-[#2d3138] bg-white">
+                  {qrCodeDataUrl ? (
+                    <Image
+                      src={qrCodeDataUrl}
+                      alt="QR Platba"
+                      width={124}
+                      height={124}
+                      unoptimized
+                    />
+                  ) : (
+                    <p className="text-center text-xs text-[#5a5f69]">
+                      QR
+                      <br />
+                      Platba
+                    </p>
+                  )}
+                </div>
+                <p className="mt-2 text-xs font-semibold text-[#2f3239]">QR Platba.</p>
+              </div>
+
+              <div className="grid gap-2 text-xs sm:grid-cols-4">
+                <div className="rounded-md bg-[#dceef8] px-3 py-2">
+                  <p className="text-[#5e6e86]">Číslo účtu</p>
+                  <p className="text-sm font-semibold">{SUPPLIER.bankAccount}</p>
+                </div>
+                <div className="rounded-md bg-[#dceef8] px-3 py-2">
+                  <p className="text-[#5e6e86]">Variabilní symbol</p>
+                  <p className="text-sm font-semibold">{variableSymbol}</p>
+                </div>
+                <div className="rounded-md bg-[#dceef8] px-3 py-2">
+                  <p className="text-[#5e6e86]">Datum splatnosti</p>
+                  <p className="text-sm font-semibold">{formatCzDate(dueDate)}</p>
+                </div>
+                <div className="rounded-md bg-[#dceef8] px-3 py-2">
+                  <p className="text-[#5e6e86]">Částka k uhrazení</p>
+                  <p className="text-sm font-semibold">{totalLabel}</p>
+                </div>
+              </div>
+            </div>
+
+            <div data-invoice-footer className="border-t border-dashed border-[#8f939c] px-5 py-4 text-xs text-[#3f444d]">
+              <div className="grid gap-2 sm:grid-cols-3 sm:items-center">
+                <p>
+                  <span className="font-semibold">Vystavil:</span> {SUPPLIER.issuedBy}
+                </p>
+                <p className="sm:text-center">{SUPPLIER.phone}</p>
+                <p className="sm:text-right">{SUPPLIER.email}</p>
+              </div>
+              <p className="mt-2 text-right text-[10px] text-[#6b7280]">Strana 1/1</p>
+            </div>
           </div>
         </div>
       </article>

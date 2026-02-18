@@ -1,10 +1,16 @@
 # MaxHub
 
-MaxHub is a modular personal hub built on Next.js. It currently includes:
-- Core authentication, profile, and admin permission management
-- Apps overview with app-level RBAC
-- `Projects` app
-- `Bamboo` app (business plan workspace with tasks, inventory, shop planning, documents)
+MaxHub is a modular Next.js hub with centralized auth, app-level permissions, and multiple feature apps under one account.
+
+## Current App Modules
+
+- `Projects`
+- `Calendar`
+- `Bamboo` (business planning workspace)
+- `Workout`
+- `Smoothie`
+- `Invoice`
+- `Skating Bible`
 
 ## Tech Stack
 
@@ -21,52 +27,28 @@ MaxHub is a modular personal hub built on Next.js. It currently includes:
 - npm
 - PostgreSQL
 
-## Environment
+## Quick Start
 
-1. Copy env template:
-
-```bash
-cp .env.example .env
-```
-
-2. Set required values in `.env`:
-
-```env
-DATABASE_URL="postgresql://..."
-AUTH_SECRET="..."
-AUTH_TRUST_HOST=true
-```
-
-3. Optional/required for Bamboo file uploads (Cloudflare R2):
-
-```env
-R2_ENDPOINT="https://<account-id>.r2.cloudflarestorage.com"
-R2_BUCKET="..."
-R2_ACCESS_KEY_ID="..."
-R2_SECRET_ACCESS_KEY="..."
-```
-
-## How To Run
-
-Install dependencies:
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-Generate Prisma client:
+2. Copy env template:
+
+```bash
+cp .env.example .env
+```
+
+3. Generate Prisma client and run local migrations:
 
 ```bash
 npx prisma generate
-```
-
-Apply local migrations:
-
-```bash
 npx prisma migrate dev
 ```
 
-Run dev server:
+4. Start the app:
 
 ```bash
 npm run dev
@@ -74,60 +56,95 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-## Command Contract (Explicit)
+Optional: create a local user quickly:
 
-Use these commands as the default workflow:
+```bash
+npm run create:user -- <email> <password> [name] [--role=ADMIN]
+```
+
+## Environment Variables
+
+Required:
+
+- `DATABASE_URL`
+- `AUTH_SECRET`
+- `AUTH_TRUST_HOST=true`
+
+Optional:
+
+- `AUTH_URL` (custom auth base URL)
+- `REMOTE_DATABASE_URL` (used by data copy scripts)
+- `R2_ENDPOINT`
+- `R2_BUCKET`
+- `R2_ACCESS_KEY_ID`
+- `R2_SECRET_ACCESS_KEY`
+
+## Daily Dev Workflow
+
+Default validation flow after meaningful changes:
 
 ```bash
 npm run lint
 npm run typecheck
 npm test
-npx prisma migrate dev
-npx prisma generate
 ```
 
-Additional useful commands:
+For targeted edits first:
 
 ```bash
-npm run lint:file -- <file1> <file2>
+npm run lint:file -- <changed-files>
+```
+
+Useful commands:
+
+```bash
 npm run lint:fix
 npm run test:unit
 npm run test:integration
 npm run test:e2e
 npm run db:studio
-npm run create:user -- <email> <password> [name] [--role=ADMIN]
+npm run db:migrate
+npm run db:generate
 ```
 
 ## Testing
 
-- `npm test` runs unit tests (`tests/unit`).
-- Integration tests are in `tests/integration` and use env-backed services.
-- E2E tests are in `tests/e2e` and expect the app + auth flow to be available.
+- `npm test` runs unit tests in `tests/unit`.
+- Integration tests live in `tests/integration`.
+- E2E tests live in `tests/e2e` and require working env/auth setup.
 
-## Database & Prisma
+## Database and Migrations
 
 - Prisma config: `prisma.config.ts`
-- Schema is split by domain in `prisma/schema/`:
-  - `00-base.prisma`
-  - `10-auth.prisma`
-  - `20-projects.prisma`
-  - `30-bamboo.prisma`
-- Migrations are in `prisma/migrations/` and must be committed.
+- Schema is modular under `prisma/schema/`
+- Migrations live in `prisma/migrations/` and should be committed
+- Do not edit applied migrations unless doing explicit migration recovery
 
-When changing schema:
+For schema changes:
 
 ```bash
 npx prisma migrate dev --name <change_name>
 npx prisma generate
 ```
 
-## Deployment (Vercel)
+## Architecture Guardrails
 
-- Build script uses:
+- Keep auth and permissions centralized in `lib/authz.ts`
+- Route protection entrypoint is `proxy.ts`
+- App registry is `lib/apps.ts`
+- Use Server Components by default
+- Put mutations in `actions.ts` with `"use server"` (async exports only)
+- Validate action/form input with `zod` before writes
+- Call `revalidatePath` after successful writes
+
+See `ARCHITECTURE.md`, `CODEX_RULES.md`, and `AGENTS.md` for project conventions.
+
+## Deployment
+
+Production build command:
 
 ```bash
 npm run vercel-build
 ```
 
-- `vercel-build` runs database deploy migrations + Next build.
-- Ensure production `DATABASE_URL`, auth, and R2 env vars are set in Vercel.
+`vercel-build` runs Prisma deploy migrations and then builds Next.js.
