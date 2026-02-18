@@ -5,6 +5,7 @@ export const APP_CODES = [
   "BAMBOO",
   "WORKOUT",
   "SMOOTHIE",
+  "INVOICE",
   "SKATING_BIBLE",
 ] as const;
 
@@ -45,6 +46,11 @@ export const APP_DEFINITIONS: Record<AppCode, AppDefinition> = {
     label: "Smoothie",
     description: "Simple smoothie recipes you can browse and make quickly.",
     href: "/apps/smoothie",
+  },
+  INVOICE: {
+    label: "Invoice",
+    description: "Create professional invoice PDFs from reusable templates.",
+    href: "/apps/invoice",
   },
   SKATING_BIBLE: {
     label: "Skating bible",

@@ -18,6 +18,7 @@ enum AppCode {
   BAMBOO
   WORKOUT
   SMOOTHIE
+  INVOICE
   SKATING_BIBLE
 }
 
