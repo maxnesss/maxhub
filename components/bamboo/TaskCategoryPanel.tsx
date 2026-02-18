@@ -2,12 +2,13 @@ import Link from "next/link";
 import { BambooTaskPhase, BambooTaskPriority, BambooTaskStatus } from "@prisma/client";
 
 import {
-  BAMBOO_TASK_PHASE_LABELS,
-  BAMBOO_TASK_PRIORITY_LABELS,
   BAMBOO_TASK_PRIORITY_STYLES,
-  BAMBOO_TASK_STATUS_LABELS,
   BAMBOO_TASK_STATUS_STYLES,
+  getBambooTaskPhaseLabels,
+  getBambooTaskPriorityLabels,
+  getBambooTaskStatusLabels,
 } from "@/lib/bamboo-tasks";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 
 type TaskCategoryPanelItem = {
   id: string;
@@ -25,12 +26,17 @@ type TaskCategoryPanelProps = {
   emptyLabel: string;
 };
 
-export function TaskCategoryPanel({
+export async function TaskCategoryPanel({
   title,
   tasks,
   href,
   emptyLabel,
 }: TaskCategoryPanelProps) {
+  const locale = await getBambooLocale();
+  const taskPhaseLabels = getBambooTaskPhaseLabels(locale);
+  const taskPriorityLabels = getBambooTaskPriorityLabels(locale);
+  const taskStatusLabels = getBambooTaskStatusLabels(locale);
+
   return (
     <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
       <div className="flex items-center justify-between gap-3">
@@ -39,7 +45,7 @@ export function TaskCategoryPanel({
           href={href}
           className="inline-flex rounded-lg border border-[#d9e2f3] px-3 py-2 text-xs font-semibold tracking-[0.1em] text-[#4e5e7a] uppercase hover:bg-[#f8faff]"
         >
-          Open board
+          {locale === "zh" ? "打开看板" : "Open board"}
         </Link>
       </div>
 
@@ -52,18 +58,18 @@ export function TaskCategoryPanel({
             >
               <p className="text-sm font-semibold text-[#1a2b49]">{task.title}</p>
               <p className="mt-1 text-xs text-[#5b6c8d]">
-                {BAMBOO_TASK_PHASE_LABELS[task.phase]} • Owner: {task.owner}
+                {taskPhaseLabels[task.phase]} • {locale === "zh" ? "负责人" : "Owner"}: {task.owner}
               </p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span
                   className={`inline-flex rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_PRIORITY_STYLES[task.priority]}`}
                 >
-                  {BAMBOO_TASK_PRIORITY_LABELS[task.priority]}
+                  {taskPriorityLabels[task.priority]}
                 </span>
                 <span
                   className={`inline-flex rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_STATUS_STYLES[task.status]}`}
                 >
-                  {BAMBOO_TASK_STATUS_LABELS[task.status]}
+                  {taskStatusLabels[task.status]}
                 </span>
               </div>
             </li>

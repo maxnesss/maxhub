@@ -7,16 +7,18 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { canEditApp, requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import {
-  BAMBOO_TASK_CATEGORY_LABELS,
-  BAMBOO_TASK_PHASE_DESCRIPTIONS,
-  BAMBOO_TASK_PHASE_LABELS,
   BAMBOO_TASK_PHASE_OPTIONS,
   BAMBOO_TASK_PHASE_STYLES,
-  BAMBOO_TASK_PRIORITY_LABELS,
   BAMBOO_TASK_PRIORITY_STYLES,
-  BAMBOO_TASK_STATUS_LABELS,
   BAMBOO_TASK_STATUS_STYLES,
+  getBambooStatusTransitionLabel,
+  getBambooTaskCategoryLabels,
+  getBambooTaskPhaseDescriptions,
+  getBambooTaskPhaseLabels,
+  getBambooTaskPriorityLabels,
+  getBambooTaskStatusLabels,
   getNextBambooTaskStatus,
 } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
@@ -25,22 +27,16 @@ type BambooTimelinePageProps = {
   searchParams: Promise<{ saved?: string; error?: string }>;
 };
 
-function getStatusTransitionLabel(status: BambooTaskStatus) {
-  switch (status) {
-    case BambooTaskStatus.TODO:
-      return "Start";
-    case BambooTaskStatus.IN_PROGRESS:
-      return "Mark done";
-    case BambooTaskStatus.DONE:
-      return "Reopen";
-    default:
-      return "Update";
-  }
-}
-
 export default async function BambooTimelinePage({ searchParams }: BambooTimelinePageProps) {
   const user = await requireAppRead("BAMBOO");
   const canEdit = canEditApp(user, "BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
+  const taskCategoryLabels = getBambooTaskCategoryLabels(locale);
+  const taskPhaseDescriptions = getBambooTaskPhaseDescriptions(locale);
+  const taskPhaseLabels = getBambooTaskPhaseLabels(locale);
+  const taskPriorityLabels = getBambooTaskPriorityLabels(locale);
+  const taskStatusLabels = getBambooTaskStatusLabels(locale);
   const { saved, error } = await searchParams;
 
   const tasks = await prisma.bambooTask.findMany({
@@ -62,8 +58,8 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
-      {saved === "status" ? <Toast message="Task status updated." /> : null}
-      {error === "invalid" ? <Toast message="Invalid task action." tone="error" /> : null}
+      {saved === "status" ? <Toast message={isZh ? "任务状态已更新。" : "Task status updated."} /> : null}
+      {error === "invalid" ? <Toast message={isZh ? "任务操作无效。" : "Invalid task action."} tone="error" /> : null}
 
       <TopNav current="apps" />
 
@@ -72,37 +68,37 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Phase overview" },
+            { label: isZh ? "阶段概览" : "Phase overview" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Bamboo phase overview
+          {isZh ? "Bamboo 阶段概览" : "Bamboo phase overview"}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Launch plan grouped into four clear phases.
+          {isZh ? "按四个清晰阶段组织的启动计划。" : "Launch plan grouped into four clear phases."}
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <span className="inline-flex rounded-xl border border-[#d9e2f3] bg-[#f8faff] px-4 py-2 text-sm font-semibold text-[#4e5e7a]">
-            To do: {todoCount}
+            {isZh ? `待办：${todoCount}` : `To do: ${todoCount}`}
           </span>
           <span className="inline-flex rounded-xl border border-[#d9e2f3] bg-[#f8faff] px-4 py-2 text-sm font-semibold text-[#4e5e7a]">
-            In progress: {inProgressCount}
+            {isZh ? `进行中：${inProgressCount}` : `In progress: ${inProgressCount}`}
           </span>
           <span className="inline-flex rounded-xl border border-[#d9e2f3] bg-[#f8faff] px-4 py-2 text-sm font-semibold text-[#4e5e7a]">
-            Done: {doneCount}
+            {isZh ? `已完成：${doneCount}` : `Done: ${doneCount}`}
           </span>
           <Link
             href="/apps/bamboo/tasks"
             className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
           >
-            Open task board
+            {isZh ? "打开任务看板" : "Open task board"}
           </Link>
         </div>
       </section>
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-lg font-semibold tracking-tight text-[#162947]">
-          Phase guide
+          {isZh ? "阶段说明" : "Phase guide"}
         </h2>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {BAMBOO_TASK_PHASE_OPTIONS.map((phase) => (
@@ -110,11 +106,9 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
               key={phase}
               className={`rounded-xl border p-4 ${BAMBOO_TASK_PHASE_STYLES[phase]}`}
             >
-              <p className="text-sm font-semibold">
-                {BAMBOO_TASK_PHASE_LABELS[phase]}
-              </p>
+              <p className="text-sm font-semibold">{taskPhaseLabels[phase]}</p>
               <p className="mt-1 text-sm opacity-85">
-                {BAMBOO_TASK_PHASE_DESCRIPTIONS[phase]}
+                {taskPhaseDescriptions[phase]}
               </p>
             </article>
           ))}
@@ -131,14 +125,16 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
                   <h2
                     className={`inline-flex rounded-lg border px-3 py-1 text-2xl font-semibold tracking-tight ${BAMBOO_TASK_PHASE_STYLES[phase]}`}
                   >
-                    {BAMBOO_TASK_PHASE_LABELS[phase]}
+                    {taskPhaseLabels[phase]}
                   </h2>
                   <p className="mt-1 text-sm text-(--text-muted)">
-                    {BAMBOO_TASK_PHASE_DESCRIPTIONS[phase]}
+                    {taskPhaseDescriptions[phase]}
                   </p>
                 </div>
                 <span className="rounded-lg border border-[#d9e2f3] bg-[#f8faff] px-3 py-1 text-xs font-semibold text-[#4e5e7a]">
-                  {phaseTasks.length} task{phaseTasks.length === 1 ? "" : "s"}
+                  {locale === "zh"
+                    ? `${phaseTasks.length} 个任务`
+                    : `${phaseTasks.length} task${phaseTasks.length === 1 ? "" : "s"}`}
                 </span>
               </div>
 
@@ -159,10 +155,10 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
                           <div>
                             <p className="text-sm font-semibold text-[#1a2b49]">{task.title}</p>
                             <p className="mt-1 text-xs text-[#5b6c8d]">
-                              {BAMBOO_TASK_CATEGORY_LABELS[task.category]}
+                              {taskCategoryLabels[task.category]}
                               {task.subCategory ? ` • ${task.subCategory}` : ""}
                               {" • "}
-                              Owner: {task.owner}
+                              {isZh ? "负责人" : "Owner"}: {task.owner}
                             </p>
                             {hasDescription ? (
                               <p className="mt-2 text-xs leading-5 text-(--text-muted)">
@@ -174,12 +170,12 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
                             <span
                               className={`inline-flex rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_PRIORITY_STYLES[task.priority]}`}
                             >
-                              {BAMBOO_TASK_PRIORITY_LABELS[task.priority]}
+                              {taskPriorityLabels[task.priority]}
                             </span>
                             <span
                               className={`inline-flex rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_STATUS_STYLES[task.status]}`}
                             >
-                              {BAMBOO_TASK_STATUS_LABELS[task.status]}
+                              {taskStatusLabels[task.status]}
                             </span>
                             {canEdit ? (
                               <form action={updateBambooTaskStatusAction}>
@@ -194,7 +190,7 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
                                   type="submit"
                                   className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-1 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                                 >
-                                  {getStatusTransitionLabel(task.status)}
+                                  {getBambooStatusTransitionLabel(task.status, locale)}
                                 </button>
                               </form>
                             ) : null}
@@ -205,7 +201,7 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
                   })
                 ) : (
                   <p className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4 text-sm text-(--text-muted)">
-                    No tasks in this phase yet.
+                    {isZh ? "该阶段还没有任务。" : "No tasks in this phase yet."}
                   </p>
                 )}
               </div>

@@ -5,6 +5,7 @@ import { TaskCategoryPanel } from "@/components/bamboo/TaskCategoryPanel";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import { bambooTaskFilterHref } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
 
@@ -29,6 +30,27 @@ const SHOP_MODULES = [
 
 export default async function BambooShopPage() {
   await requireAppRead("BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
+
+  const shopModules = isZh
+    ? SHOP_MODULES.map((module) => ({
+      ...module,
+      title:
+          module.title === "Location"
+            ? "选址"
+            : module.title === "Concept"
+              ? "概念"
+              : "预算",
+      description:
+          module.title === "Location"
+            ? "选址规划：区域、租赁点位与信息来源网站。"
+            : module.title === "Concept"
+              ? "门店概念，支持面积与租金目标编辑。"
+              : "可编辑的月度与一次性门店成本。",
+    }))
+    : SHOP_MODULES;
+
   const categoryTasks = await prisma.bambooTask.findMany({
     where: {
       category: BambooTaskCategory.SHOP,
@@ -55,17 +77,21 @@ export default async function BambooShopPage() {
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Shop" },
+            { label: isZh ? "门店" : "Shop" },
           ]}
         />
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">Shop</h1>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
+          {isZh ? "门店" : "Shop"}
+        </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Shop planning area with location, concept, and budget modules.
+          {isZh
+            ? "门店规划模块：选址、概念与预算。"
+            : "Shop planning area with location, concept, and budget modules."}
         </p>
       </section>
 
       <section className="mt-6 grid gap-4 md:grid-cols-3">
-        {SHOP_MODULES.map((module) => (
+        {shopModules.map((module) => (
           <Link
             key={module.href}
             href={module.href}
@@ -76,17 +102,17 @@ export default async function BambooShopPage() {
               {module.description}
             </p>
             <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
-              Open module
+              {isZh ? "打开模块" : "Open module"}
             </p>
           </Link>
         ))}
       </section>
 
       <TaskCategoryPanel
-        title="Shop tasks"
+        title={isZh ? "门店任务" : "Shop tasks"}
         tasks={categoryTasks}
         href={bambooTaskFilterHref({ category: BambooTaskCategory.SHOP })}
-        emptyLabel="No open shop tasks right now."
+        emptyLabel={isZh ? "当前没有待办的门店任务。" : "No open shop tasks right now."}
       />
     </main>
   );

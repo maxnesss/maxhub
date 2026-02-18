@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import type { BambooSectionProgress as BambooSectionProgressItem } from "@/lib/bamboo-journey";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 
 type BambooSectionProgressProps = {
   title: string;
@@ -8,11 +9,13 @@ type BambooSectionProgressProps = {
   sections: BambooSectionProgressItem[];
 };
 
-export function BambooSectionProgress({
+export async function BambooSectionProgress({
   title,
   description,
   sections,
 }: BambooSectionProgressProps) {
+  const locale = await getBambooLocale();
+
   return (
     <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
       <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">{title}</h2>
@@ -37,8 +40,12 @@ export function BambooSectionProgress({
             </div>
             <p className="mt-2 text-xs text-(--text-muted)">
               {section.total > 0
-                ? `${section.done}/${section.total} tasks done`
-                : "No tasks yet"}
+                ? locale === "zh"
+                  ? `${section.done}/${section.total} 个任务已完成`
+                  : `${section.done}/${section.total} tasks done`
+                : locale === "zh"
+                  ? "还没有任务"
+                  : "No tasks yet"}
             </p>
           </Link>
         ))}

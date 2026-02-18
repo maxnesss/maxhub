@@ -2,6 +2,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { canEditApp, requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import { getSignedDocumentUrl } from "@/lib/r2-documents";
 import { prisma } from "@/prisma";
 
@@ -39,6 +40,8 @@ export default async function BambooDocumentsPage({
 }: BambooDocumentsPageProps) {
   const user = await requireAppRead("BAMBOO");
   const canEdit = canEditApp(user, "BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
   const { saved, error } = await searchParams;
 
   const documents = await prisma.bambooDocument.findMany({
@@ -58,28 +61,36 @@ export default async function BambooDocumentsPage({
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
-      {saved === "uploaded" ? <Toast message="Document uploaded." /> : null}
-      {saved === "deleted" ? <Toast message="Document removed." /> : null}
+      {saved === "uploaded" ? <Toast message={isZh ? "文档已上传。" : "Document uploaded."} /> : null}
+      {saved === "deleted" ? <Toast message={isZh ? "文档已移除。" : "Document removed."} /> : null}
       {error === "invalid-file" ? (
         <Toast
-          message="Invalid file. Allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, MD, CSV (max 25 MB)."
+          message={
+            isZh
+              ? "文件无效。允许：PDF、DOC、DOCX、XLS、XLSX、PPT、PPTX、TXT、MD、CSV（最大 25MB）。"
+              : "Invalid file. Allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, MD, CSV (max 25 MB)."
+          }
           tone="error"
         />
       ) : null}
       {error === "config" ? (
         <Toast
-          message="R2 is not configured. Set R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET."
+          message={
+            isZh
+              ? "R2 尚未配置。请设置 R2_ENDPOINT、R2_ACCESS_KEY_ID、R2_SECRET_ACCESS_KEY 和 R2_BUCKET。"
+              : "R2 is not configured. Set R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET."
+          }
           tone="error"
         />
       ) : null}
       {error === "upload" ? (
-        <Toast message="Document upload failed." tone="error" />
+        <Toast message={isZh ? "文档上传失败。" : "Document upload failed."} tone="error" />
       ) : null}
       {error === "invalid" ? (
-        <Toast message="Invalid request." tone="error" />
+        <Toast message={isZh ? "请求无效。" : "Invalid request."} tone="error" />
       ) : null}
       {error === "missing" ? (
-        <Toast message="Document not found." tone="error" />
+        <Toast message={isZh ? "未找到文档。" : "Document not found."} tone="error" />
       ) : null}
 
       <TopNav current="apps" />
@@ -89,26 +100,27 @@ export default async function BambooDocumentsPage({
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Documents" },
+            { label: isZh ? "文档" : "Documents" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Documents
+          {isZh ? "文档" : "Documents"}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Shared document library for Bamboo. Download files, and manage uploads
-          when you have edit permission.
+          {isZh
+            ? "Bamboo 共享文档库。可下载文件；具备编辑权限时可管理上传。"
+            : "Shared document library for Bamboo. Download files, and manage uploads when you have edit permission."}
         </p>
       </section>
 
       {canEdit ? (
         <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
-            Upload document
+            {isZh ? "上传文档" : "Upload document"}
           </h2>
           <form action={uploadBambooDocumentAction} className="mt-4 flex flex-wrap items-end gap-3">
             <label htmlFor="bamboo-document-upload" className="text-sm font-medium text-[#4e5e7a]">
-              Select file
+              {isZh ? "选择文件" : "Select file"}
             </label>
             <input
               id="bamboo-document-upload"
@@ -122,7 +134,7 @@ export default async function BambooDocumentsPage({
               type="submit"
               className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Upload
+              {isZh ? "上传" : "Upload"}
             </button>
           </form>
         </section>
@@ -139,9 +151,9 @@ export default async function BambooDocumentsPage({
                 <p className="text-sm font-semibold text-[#1a2b49] break-all">{document.fileName}</p>
                 <p className="mt-1 text-xs text-(--text-muted) break-all">{document.contentType}</p>
                 <div className="mt-2 text-sm text-[#1a2b49]">
-                  <p>Size: {formatFileSize(document.sizeBytes)}</p>
-                  <p className="text-(--text-muted)">Uploaded by: {document.uploadedBy}</p>
-                  <p className="text-(--text-muted)">Date: {formatDate(document.createdAt)}</p>
+                  <p>{isZh ? "大小" : "Size"}: {formatFileSize(document.sizeBytes)}</p>
+                  <p className="text-(--text-muted)">{isZh ? "上传者" : "Uploaded by"}: {document.uploadedBy}</p>
+                  <p className="text-(--text-muted)">{isZh ? "日期" : "Date"}: {formatDate(document.createdAt)}</p>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {document.downloadUrl ? (
@@ -151,10 +163,10 @@ export default async function BambooDocumentsPage({
                       rel="noreferrer"
                       className="inline-flex rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                     >
-                      Download
+                      {isZh ? "下载" : "Download"}
                     </a>
                   ) : (
-                    <span className="text-xs text-(--text-muted)">Unavailable</span>
+                    <span className="text-xs text-(--text-muted)">{isZh ? "不可用" : "Unavailable"}</span>
                   )}
                   {canEdit ? (
                     <form action={deleteBambooDocumentAction}>
@@ -163,7 +175,7 @@ export default async function BambooDocumentsPage({
                         type="submit"
                         className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
                       >
-                        Remove
+                        {isZh ? "移除" : "Remove"}
                       </button>
                     </form>
                   ) : null}
@@ -171,19 +183,21 @@ export default async function BambooDocumentsPage({
               </article>
             ))
           ) : (
-            <p className="text-sm text-(--text-muted)">No documents uploaded yet.</p>
+            <p className="text-sm text-(--text-muted)">
+              {isZh ? "还没有上传文档。" : "No documents uploaded yet."}
+            </p>
           )}
         </div>
 
         <div className="hidden overflow-x-auto md:block">
           <div className="min-w-[900px]">
             <div className="grid grid-cols-[1.2fr_0.7fr_0.5fr_0.7fr_0.8fr_0.7fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase">
-              <span>File</span>
-              <span>Type</span>
-              <span>Size</span>
-              <span>Uploaded by</span>
-              <span>Date</span>
-              <span>Actions</span>
+              <span>{isZh ? "文件" : "File"}</span>
+              <span>{isZh ? "类型" : "Type"}</span>
+              <span>{isZh ? "大小" : "Size"}</span>
+              <span>{isZh ? "上传者" : "Uploaded by"}</span>
+              <span>{isZh ? "日期" : "Date"}</span>
+              <span>{isZh ? "操作" : "Actions"}</span>
             </div>
 
             {documentsWithDownload.length > 0 ? (
@@ -202,22 +216,22 @@ export default async function BambooDocumentsPage({
                       <a
                         href={document.downloadUrl}
                         target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
-                      >
-                        Download
-                      </a>
-                    ) : (
-                      <span className="text-xs text-(--text-muted)">Unavailable</span>
-                    )}
+                      rel="noreferrer"
+                      className="inline-flex rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+                    >
+                      {isZh ? "下载" : "Download"}
+                    </a>
+                  ) : (
+                      <span className="text-xs text-(--text-muted)">{isZh ? "不可用" : "Unavailable"}</span>
+                  )}
                     {canEdit ? (
                       <form action={deleteBambooDocumentAction}>
                         <input type="hidden" name="id" value={document.id} />
                         <button
-                          type="submit"
-                          className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
-                        >
-                          Remove
+                        type="submit"
+                        className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
+                      >
+                          {isZh ? "移除" : "Remove"}
                         </button>
                       </form>
                     ) : null}
@@ -226,7 +240,7 @@ export default async function BambooDocumentsPage({
               ))
             ) : (
               <p className="border-t border-[#edf2fb] px-4 py-4 text-sm text-(--text-muted)">
-                No documents uploaded yet.
+                {isZh ? "还没有上传文档。" : "No documents uploaded yet."}
               </p>
             )}
           </div>

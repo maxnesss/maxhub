@@ -1,6 +1,7 @@
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 
 const LEGAL_BLOCKS = [
   {
@@ -56,6 +57,25 @@ const FIRST_90_DAYS_DEADLINES = [
 
 export default async function BambooLegalCompliancePage() {
   await requireAppRead("BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
+  const legalBlocks = isZh
+    ? LEGAL_BLOCKS.map((block) => ({
+      ...block,
+      title: block.title === "Tax registration" ? "税务登记" : "营业许可（本项目场景）",
+    }))
+    : LEGAL_BLOCKS;
+  const first90DaysDeadlines = isZh
+    ? FIRST_90_DAYS_DEADLINES.map((item) => ({
+      ...item,
+      period:
+          item.period === "First 15 days"
+            ? "前 15 天"
+            : item.period === "First 30 days"
+              ? "前 30 天"
+              : "前 90 天",
+    }))
+    : FIRST_90_DAYS_DEADLINES;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
@@ -66,19 +86,21 @@ export default async function BambooLegalCompliancePage() {
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Legal and compliance" },
+            { label: isZh ? "法律与合规" : "Legal and compliance" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Legal and compliance
+          {isZh ? "法律与合规" : "Legal and compliance"}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Focused legal checklist for your one-owner setup: tax and business license.
+          {isZh
+            ? "适用于单一所有者公司的核心法律清单：税务与营业许可。"
+            : "Focused legal checklist for your one-owner setup: tax and business license."}
         </p>
       </section>
 
       <section className="mt-6 grid gap-4 lg:grid-cols-2">
-        {LEGAL_BLOCKS.map((block) => (
+        {legalBlocks.map((block) => (
           <article key={block.title} className="rounded-2xl border border-(--line) bg-white p-6">
             <h2 className="text-xl font-semibold tracking-tight text-[#162947]">{block.title}</h2>
             <ul className="mt-4 space-y-2">
@@ -96,7 +118,7 @@ export default async function BambooLegalCompliancePage() {
       <section className="mt-6 grid gap-4 lg:grid-cols-2">
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
-            Required documents
+            {isZh ? "必备文件" : "Required documents"}
           </h2>
           <ul className="mt-4 space-y-2">
             {REQUIRED_DOCUMENTS.map((item) => (
@@ -112,10 +134,10 @@ export default async function BambooLegalCompliancePage() {
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
-            First 90 days deadlines
+            {isZh ? "前 90 天关键节点" : "First 90 days deadlines"}
           </h2>
           <div className="mt-4 space-y-3">
-            {FIRST_90_DAYS_DEADLINES.map((item) => (
+            {first90DaysDeadlines.map((item) => (
               <div key={item.period} className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] p-3">
                 <p className="text-sm font-semibold text-[#1a2b49]">{item.period}</p>
                 <ul className="mt-2 space-y-1">

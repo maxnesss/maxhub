@@ -14,6 +14,7 @@ import {
 } from "@/lib/bamboo-content";
 import { getBambooSectionProgress } from "@/lib/bamboo-journey";
 import { requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import {
   getBudgetTotals,
   getEstimatedSetupCostLabel,
@@ -21,9 +22,9 @@ import {
   getRecommendedCapitalLabel,
 } from "@/lib/bamboo-budget";
 import {
-  BAMBOO_TASK_CATEGORY_LABELS,
-  BAMBOO_TASK_PHASE_LABELS,
-  BAMBOO_TASK_STATUS_LABELS,
+  getBambooTaskCategoryLabels,
+  getBambooTaskPhaseLabels,
+  getBambooTaskStatusLabels,
   BAMBOO_TASK_STATUS_STYLES,
 } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
@@ -36,6 +37,11 @@ const OVERVIEW_STAT_LINKS: Record<string, string> = {
 
 export default async function BambooOverviewPage() {
   await requireAppRead("BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
+  const taskCategoryLabels = getBambooTaskCategoryLabels(locale);
+  const taskPhaseLabels = getBambooTaskPhaseLabels(locale);
+  const taskStatusLabels = getBambooTaskStatusLabels(locale);
 
   const [
     nextTasks,
@@ -130,7 +136,7 @@ export default async function BambooOverviewPage() {
   const totalTaskCount = todoCount + inProgressCount + doneCount;
   const completionPercent =
     totalTaskCount > 0 ? Math.round((doneCount / totalTaskCount) * 100) : 0;
-  const sectionProgress = getBambooSectionProgress(taskCategoryStatusRows);
+  const sectionProgress = getBambooSectionProgress(taskCategoryStatusRows, locale);
 
   const budgetTotals = getBudgetTotals(budgetItems);
   const inventoryBudgetTotals = getInventoryBudgetBreakdown(inventoryBudget);
@@ -165,14 +171,16 @@ export default async function BambooOverviewPage() {
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Overview" },
+            { label: isZh ? "概览" : "Overview" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Bamboo overview
+          {isZh ? "Bamboo 概览" : "Bamboo overview"}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Quick summary of project status, priorities, and next actions.
+          {isZh
+            ? "项目状态、优先级与下一步行动的快速摘要。"
+            : "Quick summary of project status, priorities, and next actions."}
         </p>
       </section>
 
@@ -191,7 +199,7 @@ export default async function BambooOverviewPage() {
                 {stat.value}
               </p>
               <p className="mt-3 text-xs font-semibold tracking-[0.12em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
-                Open details
+                {isZh ? "打开详情" : "Open details"}
               </p>
             </Link>
           ) : (
@@ -208,14 +216,20 @@ export default async function BambooOverviewPage() {
       </section>
 
       <BambooSectionProgress
-        title="Journey progress"
-        description="Task completion across Name brainstorm, Setup, Inventory, Shop, and Launch."
+        title={locale === "zh" ? "旅程进度" : "Journey progress"}
+        description={
+          locale === "zh"
+            ? "按阶段查看任务完成度：命名、设立、货品、门店和启动。"
+            : "Task completion across Name brainstorm, Setup, Inventory, Shop, and Launch."
+        }
         sections={sectionProgress}
       />
 
       <section className="mt-6 grid gap-4 lg:grid-cols-2">
         <article className="rounded-2xl border border-(--line) bg-white p-6">
-          <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">Next actions</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
+            {isZh ? "下一步行动" : "Next actions"}
+          </h2>
           <div className="mt-3 flex flex-wrap gap-2">
             {[BambooTaskStatus.TODO, BambooTaskStatus.IN_PROGRESS, BambooTaskStatus.DONE].map(
               (status) => (
@@ -223,7 +237,7 @@ export default async function BambooOverviewPage() {
                   key={status}
                   className={`inline-flex rounded-full border px-2 py-1 text-xs font-semibold ${BAMBOO_TASK_STATUS_STYLES[status]}`}
                 >
-                  {BAMBOO_TASK_STATUS_LABELS[status]}: {statusCountMap.get(status) ?? 0}
+                  {taskStatusLabels[status]}: {statusCountMap.get(status) ?? 0}
                 </span>
               ),
             )}
@@ -234,22 +248,26 @@ export default async function BambooOverviewPage() {
                 <li key={task.id} className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
                   <p className="text-sm font-semibold text-[#1a2b49]">{task.title}</p>
                   <p className="mt-1 text-xs text-(--text-muted)">
-                    {BAMBOO_TASK_PHASE_LABELS[task.phase]} • {BAMBOO_TASK_CATEGORY_LABELS[task.category]} • Owner: {task.owner}
+                    {taskPhaseLabels[task.phase]} • {taskCategoryLabels[task.category]} • Owner: {task.owner}
                   </p>
                 </li>
               ))
             ) : (
               <li className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4 text-sm text-(--text-muted)">
-                No open tasks yet.
+                {isZh ? "还没有开放任务。" : "No open tasks yet."}
               </li>
             )}
           </ul>
         </article>
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
-          <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">Name shortlist</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
+            {isZh ? "名称候选" : "Name shortlist"}
+          </h2>
           <p className="mt-2 text-sm text-(--text-muted)">
-            Shortlist pulled from the Name brainstorm page.
+            {isZh
+              ? "候选列表来自 Name brainstorm 页面。"
+              : "Shortlist pulled from the Name brainstorm page."}
           </p>
           <ul className="mt-4 space-y-2">
             {shortlist.length > 0 ? (
@@ -264,7 +282,7 @@ export default async function BambooOverviewPage() {
               ))
             ) : (
               <li className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-(--text-muted)">
-                No shortlisted names yet.
+                {isZh ? "还没有候选名称。" : "No shortlisted names yet."}
               </li>
             )}
           </ul>
@@ -273,10 +291,10 @@ export default async function BambooOverviewPage() {
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Dynamic module snapshot
+          {isZh ? "动态模块快照" : "Dynamic module snapshot"}
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Live counters from key Bamboo modules.
+          {isZh ? "来自 Bamboo 关键模块的实时计数。" : "Live counters from key Bamboo modules."}
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Link
@@ -284,7 +302,7 @@ export default async function BambooOverviewPage() {
             className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4 hover:bg-white"
           >
             <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-              Inventory ideas
+              {isZh ? "货品想法" : "Inventory ideas"}
             </p>
             <p className="mt-1 text-2xl font-semibold tracking-tight text-[#162947]">
               {inventoryIdeaCount}
@@ -295,7 +313,7 @@ export default async function BambooOverviewPage() {
             className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4 hover:bg-white"
           >
             <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-              Producers
+              {isZh ? "供应商" : "Producers"}
             </p>
             <p className="mt-1 text-2xl font-semibold tracking-tight text-[#162947]">
               {producerCount}
@@ -306,7 +324,7 @@ export default async function BambooOverviewPage() {
             className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4 hover:bg-white"
           >
             <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-              Gallery images
+              {isZh ? "图库图片" : "Gallery images"}
             </p>
             <p className="mt-1 text-2xl font-semibold tracking-tight text-[#162947]">
               {inventoryImageCount}
@@ -317,7 +335,7 @@ export default async function BambooOverviewPage() {
             className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4 hover:bg-white"
           >
             <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-              General locations
+              {isZh ? "区域位置" : "General locations"}
             </p>
             <p className="mt-1 text-2xl font-semibold tracking-tight text-[#162947]">
               {locationCount}
@@ -328,7 +346,7 @@ export default async function BambooOverviewPage() {
             className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4 hover:bg-white"
           >
             <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-              Rental places
+              {isZh ? "租赁点位" : "Rental places"}
             </p>
             <p className="mt-1 text-2xl font-semibold tracking-tight text-[#162947]">
               {rentalPlaceCount}
@@ -339,7 +357,7 @@ export default async function BambooOverviewPage() {
             className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4 hover:bg-white"
           >
             <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-              Location websites
+              {isZh ? "选址网站" : "Location websites"}
             </p>
             <p className="mt-1 text-2xl font-semibold tracking-tight text-[#162947]">
               {websiteCount}
@@ -350,15 +368,15 @@ export default async function BambooOverviewPage() {
             className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4 hover:bg-white"
           >
             <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-              Project charter
+              {isZh ? "项目章程" : "Project charter"}
             </p>
             <p className="mt-1 text-2xl font-semibold tracking-tight text-[#162947]">
-              {charterExists ? "Ready" : "Missing"}
+              {charterExists ? (isZh ? "已就绪" : "Ready") : (isZh ? "缺失" : "Missing")}
             </p>
             {charterExists ? (
-              <p className="mt-1 text-xs text-(--text-muted)">Maintained</p>
+              <p className="mt-1 text-xs text-(--text-muted)">{isZh ? "已维护" : "Maintained"}</p>
             ) : (
-              <p className="mt-1 text-xs text-(--text-muted)">Needs setup</p>
+              <p className="mt-1 text-xs text-(--text-muted)">{isZh ? "待建立" : "Needs setup"}</p>
             )}
           </Link>
         </div>
@@ -369,56 +387,56 @@ export default async function BambooOverviewPage() {
           href="/apps/bamboo/start-here"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          Open start here
+          {isZh ? "打开开始页面" : "Open start here"}
         </Link>
         <Link
           href="/apps/bamboo/tasks"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          Open tasks
+          {isZh ? "打开任务" : "Open tasks"}
         </Link>
         <Link
           href="/apps/bamboo/project-charter"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          Open project charter
+          {isZh ? "打开项目章程" : "Open project charter"}
         </Link>
         <Link
           href="/apps/bamboo/timeline"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          Open phase overview
+          {isZh ? "打开阶段概览" : "Open phase overview"}
         </Link>
         <Link
           href="/apps/bamboo/company-setup"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          Open company setup
+          {isZh ? "打开公司设立" : "Open company setup"}
         </Link>
         <Link
           href="/apps/bamboo/inventory"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          Open inventory
+          {isZh ? "打开货品" : "Open inventory"}
         </Link>
         <Link
           href="/apps/bamboo/shop"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          Open shop
+          {isZh ? "打开门店" : "Open shop"}
         </Link>
         <Link
           href="/apps/bamboo/eshop"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          Open eshop
+          {isZh ? "打开网店" : "Open eshop"}
         </Link>
       </section>
 
       <section className="mt-6 grid gap-4 lg:grid-cols-4">
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-            General categories
+            {isZh ? "通用分类" : "General categories"}
           </h2>
           <ul className="mt-4 space-y-2">
             {BAMBOO_GENERAL_TILES.map((tile) => (
@@ -434,7 +452,7 @@ export default async function BambooOverviewPage() {
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-            Inventory
+            {isZh ? "货品" : "Inventory"}
           </h2>
           <ul className="mt-4 space-y-2">
             {BAMBOO_INVENTORY_TILES.map((tile) => (
@@ -450,7 +468,7 @@ export default async function BambooOverviewPage() {
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-            Setup company
+            {isZh ? "公司设立" : "Setup company"}
           </h2>
           <ul className="mt-4 space-y-2">
             {BAMBOO_SETUP_COMPANY_TILES.map((tile) => (
@@ -466,7 +484,7 @@ export default async function BambooOverviewPage() {
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-            Shop
+            {isZh ? "门店" : "Shop"}
           </h2>
           <ul className="mt-4 space-y-2">
             {BAMBOO_SHOP_TILES.map((tile) => (
@@ -484,7 +502,7 @@ export default async function BambooOverviewPage() {
       <section className="mt-6 grid gap-4 lg:grid-cols-1">
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-            Eshop
+            {isZh ? "网店" : "Eshop"}
           </h2>
           <ul className="mt-4 space-y-2">
             {BAMBOO_ESHOP_TILES.map((tile) => (
@@ -500,7 +518,7 @@ export default async function BambooOverviewPage() {
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-            Documents
+            {isZh ? "文档" : "Documents"}
           </h2>
           <ul className="mt-4 space-y-2">
             {BAMBOO_DOCUMENT_TILES.map((tile) => (
@@ -520,13 +538,13 @@ export default async function BambooOverviewPage() {
           href="/apps/bamboo/finance"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          Open finance setup
+          {isZh ? "打开财务设置" : "Open finance setup"}
         </Link>
         <Link
           href="/apps/bamboo/company-setup/finance-requirements"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          Open company setup finance requirements
+          {isZh ? "打开公司设立财务要求" : "Open company setup finance requirements"}
         </Link>
       </section>
     </main>

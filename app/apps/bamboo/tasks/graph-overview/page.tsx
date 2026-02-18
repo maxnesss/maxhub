@@ -5,10 +5,11 @@ import { BambooTaskStatus } from "@prisma/client";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import {
-  BAMBOO_TASK_PHASE_LABELS,
   BAMBOO_TASK_PHASE_OPTIONS,
-  BAMBOO_TASK_STATUS_LABELS,
+  getBambooTaskPhaseLabels,
+  getBambooTaskStatusLabels,
 } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
 
@@ -55,6 +56,10 @@ function createPieStyle(
 
 export default async function BambooTaskGraphOverviewPage() {
   await requireAppRead("BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
+  const taskPhaseLabels = getBambooTaskPhaseLabels(locale);
+  const taskStatusLabels = getBambooTaskStatusLabels(locale);
 
   const [statusRows, phaseStatusRows] = await Promise.all([
     prisma.bambooTask.groupBy({
@@ -115,7 +120,7 @@ export default async function BambooTaskGraphOverviewPage() {
 
     return {
       phase,
-      label: BAMBOO_TASK_PHASE_LABELS[phase],
+      label: taskPhaseLabels[phase],
       ...counts,
       total,
       open,
@@ -149,28 +154,28 @@ export default async function BambooTaskGraphOverviewPage() {
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Tasks", href: "/apps/bamboo/tasks" },
-            { label: "Graph overview" },
+            { label: isZh ? "任务" : "Tasks", href: "/apps/bamboo/tasks" },
+            { label: isZh ? "图表概览" : "Graph overview" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Task graph overview
+          {isZh ? "任务图表概览" : "Task graph overview"}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Visual summary of task status across all Bamboo phases.
+          {isZh ? "Bamboo 各阶段任务状态的可视化摘要。" : "Visual summary of task status across all Bamboo phases."}
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
             href="/apps/bamboo/tasks"
             className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
           >
-            Back to task board
+            {isZh ? "返回任务看板" : "Back to task board"}
           </Link>
           <Link
             href="/apps/bamboo/timeline"
             className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
           >
-            Open phase overview
+            {isZh ? "打开阶段概览" : "Open phase overview"}
           </Link>
         </div>
       </section>
@@ -178,7 +183,7 @@ export default async function BambooTaskGraphOverviewPage() {
       <section className="mt-6 grid gap-4 lg:grid-cols-[1.35fr_1fr]">
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-            All tasks by status
+            {isZh ? "全部任务状态分布" : "All tasks by status"}
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-6">
             <div
@@ -188,7 +193,7 @@ export default async function BambooTaskGraphOverviewPage() {
               <div className="absolute inset-[18%] flex items-center justify-center rounded-full bg-white">
                 <div className="text-center">
                   <p className="text-xs font-semibold tracking-[0.12em] text-[#607296] uppercase">
-                    Total
+                    {isZh ? "总计" : "Total"}
                   </p>
                   <p className="mt-1 text-3xl font-semibold tracking-tight text-[#162947]">
                     {totalTasks}
@@ -213,7 +218,7 @@ export default async function BambooTaskGraphOverviewPage() {
                           style={{ backgroundColor: STATUS_CHART_COLORS[status] }}
                         />
                         <span className="text-sm text-[#1a2b49]">
-                          {BAMBOO_TASK_STATUS_LABELS[status]}
+                          {taskStatusLabels[status]}
                         </span>
                       </div>
                       <span className="text-sm font-semibold text-[#2f456b]">
@@ -229,26 +234,28 @@ export default async function BambooTaskGraphOverviewPage() {
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-            Quick metrics
+            {isZh ? "关键指标" : "Quick metrics"}
           </p>
           <div className="mt-4 grid gap-3">
             <div className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
               <p className="text-xs tracking-[0.12em] text-[#647494] uppercase">
-                Completion rate
+                {isZh ? "完成率" : "Completion rate"}
               </p>
               <p className="mt-1 text-2xl font-semibold tracking-tight text-[#162947]">
                 {completionRate}%
               </p>
             </div>
             <div className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
-              <p className="text-xs tracking-[0.12em] text-[#647494] uppercase">Active tasks</p>
+              <p className="text-xs tracking-[0.12em] text-[#647494] uppercase">
+                {isZh ? "进行中任务" : "Active tasks"}
+              </p>
               <p className="mt-1 text-2xl font-semibold tracking-tight text-[#162947]">
                 {totalTodo + totalInProgress}
               </p>
             </div>
             <div className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
               <p className="text-xs tracking-[0.12em] text-[#647494] uppercase">
-                Completed tasks
+                {isZh ? "已完成任务" : "Completed tasks"}
               </p>
               <p className="mt-1 text-2xl font-semibold tracking-tight text-[#162947]">
                 {totalDone}
@@ -260,10 +267,12 @@ export default async function BambooTaskGraphOverviewPage() {
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          By phase
+          {isZh ? "按阶段" : "By phase"}
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Smaller phase facets show each phase breakdown and completion pressure.
+          {isZh
+            ? "每个阶段卡片展示阶段内任务分布和完成压力。"
+            : "Smaller phase facets show each phase breakdown and completion pressure."}
         </p>
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {phaseCards.map((phase) => (
@@ -286,7 +295,7 @@ export default async function BambooTaskGraphOverviewPage() {
                     {phase.total}
                   </p>
                   <p className="text-xs text-(--text-muted)">
-                    {phase.completionRate}% done
+                    {isZh ? `${phase.completionRate}% 已完成` : `${phase.completionRate}% done`}
                   </p>
                 </div>
               </div>
@@ -297,7 +306,9 @@ export default async function BambooTaskGraphOverviewPage() {
                 />
               </div>
               <p className="mt-2 text-xs text-[#5f7194]">
-                TODO {phase.todo} • In progress {phase.inProgress} • Done {phase.done}
+                {isZh
+                  ? `待办 ${phase.todo} • 进行中 ${phase.inProgress} • 已完成 ${phase.done}`
+                  : `TODO ${phase.todo} • In progress ${phase.inProgress} • Done ${phase.done}`}
               </p>
             </article>
           ))}
@@ -306,29 +317,33 @@ export default async function BambooTaskGraphOverviewPage() {
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Signals
+          {isZh ? "信号" : "Signals"}
         </h2>
         <ul className="mt-4 space-y-2">
           <li className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]">
-            Busiest phase:{" "}
+            {isZh ? "最繁忙阶段：" : "Busiest phase: "}
             <span className="font-semibold">
               {busiestPhase ? busiestPhase.label : "n/a"}
             </span>{" "}
-            ({busiestPhase?.open ?? 0} open tasks)
+            ({isZh ? `${busiestPhase?.open ?? 0} 个开放任务` : `${busiestPhase?.open ?? 0} open tasks`})
           </li>
           <li className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]">
-            Best completion:{" "}
+            {isZh ? "完成率最高：" : "Best completion: "}
             <span className="font-semibold">
               {bestCompletionPhase ? bestCompletionPhase.label : "n/a"}
             </span>{" "}
-            ({bestCompletionPhase?.completionRate ?? 0}% done)
+            ({isZh
+              ? `${bestCompletionPhase?.completionRate ?? 0}% 已完成`
+              : `${bestCompletionPhase?.completionRate ?? 0}% done`})
           </li>
           <li className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]">
-            Phase with most TODO:{" "}
+            {isZh ? "待办最多阶段：" : "Phase with most TODO: "}
             <span className="font-semibold">
               {stalledPhase ? stalledPhase.label : "n/a"}
             </span>{" "}
-            ({stalledPhase?.todo ?? 0} tasks waiting to start)
+            ({isZh
+              ? `${stalledPhase?.todo ?? 0} 个任务待开始`
+              : `${stalledPhase?.todo ?? 0} tasks waiting to start`})
           </li>
         </ul>
       </section>

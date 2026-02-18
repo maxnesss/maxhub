@@ -5,6 +5,8 @@ import {
   BambooTaskStatus,
 } from "@prisma/client";
 
+import { BAMBOO_DEFAULT_LOCALE, type BambooLocale } from "@/lib/bamboo-i18n";
+
 export const BAMBOO_TASK_CATEGORY_OPTIONS = [
   BambooTaskCategory.GENERAL,
   BambooTaskCategory.SETUP_COMPANY,
@@ -79,6 +81,41 @@ export const BAMBOO_TASK_PRIORITY_LABELS: Record<BambooTaskPriority, string> = {
   HIGH: "High",
 };
 
+const BAMBOO_TASK_CATEGORY_LABELS_ZH: Record<BambooTaskCategory, string> = {
+  GENERAL: "通用",
+  SETUP_COMPANY: "公司设立",
+  INVENTORY: "货品",
+  SHOP: "门店",
+  FINANCE: "财务",
+  BRAND: "命名头脑风暴",
+};
+
+const BAMBOO_TASK_PHASE_LABELS_ZH: Record<BambooTaskPhase, string> = {
+  PHASE_1_PREPARATION: "阶段 1 - 准备",
+  PHASE_2_SETUP: "阶段 2 - 设立",
+  PHASE_3_HOT_PRE_START: "阶段 3 - 启动前",
+  PHASE_4_START: "阶段 4 - 启动",
+};
+
+const BAMBOO_TASK_PHASE_DESCRIPTIONS_ZH: Record<BambooTaskPhase, string> = {
+  PHASE_1_PREPARATION: "梳理想法、选址调研、货品准备与样品确认。",
+  PHASE_2_SETUP: "完成公司设立、法律事项和首批下单。",
+  PHASE_3_HOT_PRE_START: "货品入库、门店就绪、POS 系统准备完成。",
+  PHASE_4_START: "正式开业并稳定早期运营。",
+};
+
+const BAMBOO_TASK_STATUS_LABELS_ZH: Record<BambooTaskStatus, string> = {
+  TODO: "待办",
+  IN_PROGRESS: "进行中",
+  DONE: "已完成",
+};
+
+const BAMBOO_TASK_PRIORITY_LABELS_ZH: Record<BambooTaskPriority, string> = {
+  LOW: "低",
+  MEDIUM: "中",
+  HIGH: "高",
+};
+
 export const BAMBOO_TASK_STATUS_STYLES: Record<BambooTaskStatus, string> = {
   TODO: "border-[#ffe1b7] bg-[#fff6ea] text-[#8a5a16]",
   IN_PROGRESS: "border-[#cce1ff] bg-[#edf4ff] text-[#294f88]",
@@ -90,6 +127,67 @@ export const BAMBOO_TASK_PRIORITY_STYLES: Record<BambooTaskPriority, string> = {
   MEDIUM: "border-[#ffe1b7] bg-[#fff6ea] text-[#8a5a16]",
   HIGH: "border-[#f4c5ba] bg-[#fff1ed] text-[#983f2a]",
 };
+
+export function getBambooTaskCategoryLabels(
+  locale: BambooLocale = BAMBOO_DEFAULT_LOCALE,
+) {
+  return locale === "zh" ? BAMBOO_TASK_CATEGORY_LABELS_ZH : BAMBOO_TASK_CATEGORY_LABELS;
+}
+
+export function getBambooTaskPhaseLabels(
+  locale: BambooLocale = BAMBOO_DEFAULT_LOCALE,
+) {
+  return locale === "zh" ? BAMBOO_TASK_PHASE_LABELS_ZH : BAMBOO_TASK_PHASE_LABELS;
+}
+
+export function getBambooTaskPhaseDescriptions(
+  locale: BambooLocale = BAMBOO_DEFAULT_LOCALE,
+) {
+  return locale === "zh"
+    ? BAMBOO_TASK_PHASE_DESCRIPTIONS_ZH
+    : BAMBOO_TASK_PHASE_DESCRIPTIONS;
+}
+
+export function getBambooTaskStatusLabels(
+  locale: BambooLocale = BAMBOO_DEFAULT_LOCALE,
+) {
+  return locale === "zh" ? BAMBOO_TASK_STATUS_LABELS_ZH : BAMBOO_TASK_STATUS_LABELS;
+}
+
+export function getBambooTaskPriorityLabels(
+  locale: BambooLocale = BAMBOO_DEFAULT_LOCALE,
+) {
+  return locale === "zh" ? BAMBOO_TASK_PRIORITY_LABELS_ZH : BAMBOO_TASK_PRIORITY_LABELS;
+}
+
+export function getBambooStatusTransitionLabel(
+  status: BambooTaskStatus,
+  locale: BambooLocale = BAMBOO_DEFAULT_LOCALE,
+) {
+  if (locale === "zh") {
+    switch (status) {
+      case BambooTaskStatus.TODO:
+        return "开始";
+      case BambooTaskStatus.IN_PROGRESS:
+        return "标记完成";
+      case BambooTaskStatus.DONE:
+        return "重新打开";
+      default:
+        return "更新";
+    }
+  }
+
+  switch (status) {
+    case BambooTaskStatus.TODO:
+      return "Start";
+    case BambooTaskStatus.IN_PROGRESS:
+      return "Mark done";
+    case BambooTaskStatus.DONE:
+      return "Reopen";
+    default:
+      return "Update";
+  }
+}
 
 export function parseBambooTaskCategory(value: string | undefined) {
   if (!value) {

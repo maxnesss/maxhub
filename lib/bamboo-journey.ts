@@ -1,3 +1,5 @@
+import { BAMBOO_DEFAULT_LOCALE, type BambooLocale } from "@/lib/bamboo-i18n";
+
 export type BambooJourneyStageId = "SETUP" | "INVENTORY" | "BRAND" | "SHOP" | "LAUNCH";
 export const BAMBOO_JOURNEY_DOCK_STORAGE_KEY = "bamboo:journey-dock-enabled";
 export const BAMBOO_JOURNEY_DOCK_EVENT = "bamboo:journey-dock-changed";
@@ -13,6 +15,12 @@ export type BambooJourneyPage = {
   href: string;
   label: string;
   stageId: BambooJourneyStageId;
+};
+
+type BambooJourneyPageDefinition = {
+  href: string;
+  stageId: BambooJourneyStageId;
+  labels: Record<BambooLocale, string>;
 };
 
 type BambooTaskProgressRow = {
@@ -40,83 +48,171 @@ const JOURNEY_STAGE_TASK_CATEGORIES: Record<BambooJourneyStageId, string[]> = {
   LAUNCH: ["GENERAL", "FINANCE"],
 };
 
-export const BAMBOO_JOURNEY_STAGES: BambooJourneyStage[] = [
+const JOURNEY_STAGE_DEFINITIONS = [
   {
-    id: "BRAND",
-    label: "Name brainstorm",
-    description: "Choose brand direction, shortlist names, and validate fit.",
+    id: "BRAND" as const,
     href: "/apps/bamboo/name-brand",
+    labels: {
+      en: {
+        label: "Name brainstorm",
+        description: "Choose brand direction, shortlist names, and validate fit.",
+      },
+      zh: {
+        label: "命名头脑风暴",
+        description: "确认品牌方向，筛选名称，并进行适配验证。",
+      },
+    },
   },
   {
-    id: "SETUP",
-    label: "Setup",
-    description: "Legal form, company registration, and finance basics.",
+    id: "SETUP" as const,
     href: "/apps/bamboo/company-setup",
+    labels: {
+      en: {
+        label: "Setup",
+        description: "Legal form, company registration, and finance basics.",
+      },
+      zh: {
+        label: "公司设立",
+        description: "完成法律形式、公司注册和基础财务设置。",
+      },
+    },
   },
   {
-    id: "INVENTORY",
-    label: "Inventory",
-    description: "Select products, suppliers, and import path.",
+    id: "INVENTORY" as const,
     href: "/apps/bamboo/inventory",
+    labels: {
+      en: {
+        label: "Inventory",
+        description: "Select products, suppliers, and import path.",
+      },
+      zh: {
+        label: "货品",
+        description: "确定产品、供应商和进口路径。",
+      },
+    },
   },
   {
-    id: "SHOP",
-    label: "Shop",
-    description: "Define concept, location, channels, and operating model.",
+    id: "SHOP" as const,
     href: "/apps/bamboo/shop",
+    labels: {
+      en: {
+        label: "Shop",
+        description: "Define concept, location, channels, and operating model.",
+      },
+      zh: {
+        label: "门店",
+        description: "确定门店定位、选址、渠道和运营模型。",
+      },
+    },
   },
   {
-    id: "LAUNCH",
-    label: "Launch",
-    description: "Finalize plan, tasks, timeline, and execution.",
+    id: "LAUNCH" as const,
     href: "/apps/bamboo/tasks",
+    labels: {
+      en: {
+        label: "Launch",
+        description: "Finalize plan, tasks, timeline, and execution.",
+      },
+      zh: {
+        label: "启动",
+        description: "完成计划、任务、时间线并推进执行。",
+      },
+    },
   },
 ];
 
-export const BAMBOO_JOURNEY_PAGES: BambooJourneyPage[] = [
-  { href: "/apps/bamboo", label: "Workspace", stageId: "SETUP" },
-  { href: "/apps/bamboo/start-here", label: "Start here", stageId: "SETUP" },
-  { href: "/apps/bamboo/name-brand", label: "Name brainstorm", stageId: "BRAND" },
-  { href: "/apps/bamboo/project-charter", label: "Project charter", stageId: "SETUP" },
-  { href: "/apps/bamboo/overview", label: "Overview", stageId: "SETUP" },
-  { href: "/apps/bamboo/company-setup", label: "Company setup", stageId: "SETUP" },
+const JOURNEY_PAGE_DEFINITIONS: BambooJourneyPageDefinition[] = [
+  { href: "/apps/bamboo", stageId: "SETUP", labels: { en: "Workspace", zh: "工作台" } },
+  { href: "/apps/bamboo/start-here", stageId: "SETUP", labels: { en: "Start here", zh: "开始页面" } },
+  { href: "/apps/bamboo/name-brand", stageId: "BRAND", labels: { en: "Name brainstorm", zh: "命名头脑风暴" } },
+  { href: "/apps/bamboo/project-charter", stageId: "SETUP", labels: { en: "Project charter", zh: "项目章程" } },
+  { href: "/apps/bamboo/overview", stageId: "SETUP", labels: { en: "Overview", zh: "概览" } },
+  { href: "/apps/bamboo/company-setup", stageId: "SETUP", labels: { en: "Company setup", zh: "公司设立" } },
   {
     href: "/apps/bamboo/target-legal-form",
-    label: "Target legal form and structure",
     stageId: "SETUP",
+    labels: { en: "Target legal form and structure", zh: "目标法律形式与结构" },
   },
   {
     href: "/apps/bamboo/company-setup/finance-requirements",
-    label: "Company setup finance requirements",
     stageId: "SETUP",
+    labels: { en: "Company setup finance requirements", zh: "公司设立财务要求" },
   },
-  { href: "/apps/bamboo/legal-compliance", label: "Legal and compliance", stageId: "SETUP" },
-  { href: "/apps/bamboo/inventory", label: "Inventory", stageId: "INVENTORY" },
-  { href: "/apps/bamboo/inventory/brainstorm", label: "Inventory brainstorm", stageId: "INVENTORY" },
+  {
+    href: "/apps/bamboo/legal-compliance",
+    stageId: "SETUP",
+    labels: { en: "Legal and compliance", zh: "法律与合规" },
+  },
+  { href: "/apps/bamboo/inventory", stageId: "INVENTORY", labels: { en: "Inventory", zh: "货品" } },
+  {
+    href: "/apps/bamboo/inventory/brainstorm",
+    stageId: "INVENTORY",
+    labels: { en: "Inventory brainstorm", zh: "货品头脑风暴" },
+  },
   {
     href: "/apps/bamboo/inventory/producers-contact",
-    label: "Producers contact",
     stageId: "INVENTORY",
+    labels: { en: "Producers contact", zh: "供应商联系" },
   },
   {
     href: "/apps/bamboo/inventory/import-to-czech",
-    label: "Import of products",
     stageId: "INVENTORY",
+    labels: { en: "Import of products", zh: "产品进口" },
   },
-  { href: "/apps/bamboo/inventory/budget", label: "Inventory budget", stageId: "INVENTORY" },
-  { href: "/apps/bamboo/shop", label: "Shop overview", stageId: "SHOP" },
-  { href: "/apps/bamboo/shop/concept", label: "Shop concept", stageId: "SHOP" },
-  { href: "/apps/bamboo/shop/location", label: "Shop location", stageId: "SHOP" },
-  { href: "/apps/bamboo/shop/budget", label: "Shop budget", stageId: "SHOP" },
-  { href: "/apps/bamboo/estimated-setup-cost", label: "Estimated setup cost", stageId: "SHOP" },
-  { href: "/apps/bamboo/eshop", label: "Eshop + webpage", stageId: "SHOP" },
-  { href: "/apps/bamboo/tasks", label: "Tasks", stageId: "LAUNCH" },
-  { href: "/apps/bamboo/tasks/graph-overview", label: "Task graph overview", stageId: "LAUNCH" },
-  { href: "/apps/bamboo/timeline", label: "Phase overview", stageId: "LAUNCH" },
-  { href: "/apps/bamboo/finance", label: "Finance setup", stageId: "LAUNCH" },
-  { href: "/apps/bamboo/documents", label: "Documents", stageId: "LAUNCH" },
-  { href: "/apps/bamboo/recommended-capital", label: "Recommended capital", stageId: "LAUNCH" },
+  {
+    href: "/apps/bamboo/inventory/budget",
+    stageId: "INVENTORY",
+    labels: { en: "Inventory budget", zh: "货品预算" },
+  },
+  { href: "/apps/bamboo/shop", stageId: "SHOP", labels: { en: "Shop overview", zh: "门店概览" } },
+  { href: "/apps/bamboo/shop/concept", stageId: "SHOP", labels: { en: "Shop concept", zh: "门店概念" } },
+  { href: "/apps/bamboo/shop/location", stageId: "SHOP", labels: { en: "Shop location", zh: "门店选址" } },
+  { href: "/apps/bamboo/shop/budget", stageId: "SHOP", labels: { en: "Shop budget", zh: "门店预算" } },
+  {
+    href: "/apps/bamboo/estimated-setup-cost",
+    stageId: "SHOP",
+    labels: { en: "Estimated setup cost", zh: "预计设立成本" },
+  },
+  { href: "/apps/bamboo/eshop", stageId: "SHOP", labels: { en: "Eshop + webpage", zh: "网店 + 网站" } },
+  { href: "/apps/bamboo/tasks", stageId: "LAUNCH", labels: { en: "Tasks", zh: "任务" } },
+  {
+    href: "/apps/bamboo/tasks/graph-overview",
+    stageId: "LAUNCH",
+    labels: { en: "Task graph overview", zh: "任务图概览" },
+  },
+  { href: "/apps/bamboo/timeline", stageId: "LAUNCH", labels: { en: "Phase overview", zh: "阶段概览" } },
+  { href: "/apps/bamboo/finance", stageId: "LAUNCH", labels: { en: "Finance setup", zh: "财务设置" } },
+  { href: "/apps/bamboo/documents", stageId: "LAUNCH", labels: { en: "Documents", zh: "文档" } },
+  {
+    href: "/apps/bamboo/recommended-capital",
+    stageId: "LAUNCH",
+    labels: { en: "Recommended capital", zh: "建议启动资金" },
+  },
 ];
+
+export function getBambooJourneyStages(
+  locale: BambooLocale = BAMBOO_DEFAULT_LOCALE,
+): BambooJourneyStage[] {
+  return JOURNEY_STAGE_DEFINITIONS.map((stage) => ({
+    id: stage.id,
+    href: stage.href,
+    label: stage.labels[locale].label,
+    description: stage.labels[locale].description,
+  }));
+}
+
+export function getBambooJourneyPages(
+  locale: BambooLocale = BAMBOO_DEFAULT_LOCALE,
+): BambooJourneyPage[] {
+  return JOURNEY_PAGE_DEFINITIONS.map((page) => ({
+    href: page.href,
+    stageId: page.stageId,
+    label: page.labels[locale],
+  }));
+}
+
+export const BAMBOO_JOURNEY_STAGES = getBambooJourneyStages();
+export const BAMBOO_JOURNEY_PAGES = getBambooJourneyPages();
 
 function normalizePathname(pathname: string) {
   if (!pathname) {
@@ -133,9 +229,9 @@ function normalizePathname(pathname: string) {
   return withoutHash;
 }
 
-function resolveJourneyPage(pathname: string) {
+function resolveJourneyPage(pathname: string, pages: BambooJourneyPage[]) {
   const normalizedPath = normalizePathname(pathname);
-  const exact = BAMBOO_JOURNEY_PAGES.find((page) => page.href === normalizedPath);
+  const exact = pages.find((page) => page.href === normalizedPath);
 
   if (exact) {
     return exact;
@@ -143,7 +239,7 @@ function resolveJourneyPage(pathname: string) {
 
   let match: BambooJourneyPage | undefined;
 
-  for (const page of BAMBOO_JOURNEY_PAGES) {
+  for (const page of pages) {
     if (!normalizedPath.startsWith(`${page.href}/`)) {
       continue;
     }
@@ -153,47 +249,56 @@ function resolveJourneyPage(pathname: string) {
     }
   }
 
-  return match ?? BAMBOO_JOURNEY_PAGES[0];
+  return match ?? pages[0];
 }
 
-export function getBambooJourneyContext(pathname: string) {
+export function getBambooJourneyContext(
+  pathname: string,
+  locale: BambooLocale = BAMBOO_DEFAULT_LOCALE,
+) {
   const normalizedPath = normalizePathname(pathname);
+  const journeyPages = getBambooJourneyPages(locale);
+  const journeyStages = getBambooJourneyStages(locale);
 
   if (!normalizedPath.startsWith("/apps/bamboo")) {
     return null;
   }
 
-  const current = resolveJourneyPage(normalizedPath);
-  const currentIndex = BAMBOO_JOURNEY_PAGES.findIndex((page) => page.href === current.href);
-  const previous = currentIndex > 0 ? BAMBOO_JOURNEY_PAGES[currentIndex - 1] : null;
+  const current = resolveJourneyPage(normalizedPath, journeyPages);
+  const currentIndex = journeyPages.findIndex((page) => page.href === current.href);
+  const previous = currentIndex > 0 ? journeyPages[currentIndex - 1] : null;
   const next =
-    currentIndex < BAMBOO_JOURNEY_PAGES.length - 1
-      ? BAMBOO_JOURNEY_PAGES[currentIndex + 1]
+    currentIndex < journeyPages.length - 1
+      ? journeyPages[currentIndex + 1]
       : null;
-  const currentStage = BAMBOO_JOURNEY_STAGES.find((stage) => stage.id === current.stageId)
-    ?? BAMBOO_JOURNEY_STAGES[0];
+  const currentStage = journeyStages.find((stage) => stage.id === current.stageId)
+    ?? journeyStages[0];
 
   return {
     current,
     previous,
     next,
     currentIndex: currentIndex + 1,
-    totalPages: BAMBOO_JOURNEY_PAGES.length,
+    totalPages: journeyPages.length,
     currentStage,
   };
 }
 
-export function getBambooSectionProgress(rows: BambooTaskProgressRow[]): BambooSectionProgress[] {
+export function getBambooSectionProgress(
+  rows: BambooTaskProgressRow[],
+  locale: BambooLocale = BAMBOO_DEFAULT_LOCALE,
+): BambooSectionProgress[] {
+  const journeyStages = getBambooJourneyStages(locale);
   const categoryToStage = new Map<string, BambooJourneyStageId>();
 
-  for (const stage of BAMBOO_JOURNEY_STAGES) {
+  for (const stage of journeyStages) {
     for (const category of JOURNEY_STAGE_TASK_CATEGORIES[stage.id]) {
       categoryToStage.set(category, stage.id);
     }
   }
 
   const counters = new Map<BambooJourneyStageId, { done: number; total: number }>();
-  for (const stage of BAMBOO_JOURNEY_STAGES) {
+  for (const stage of journeyStages) {
     counters.set(stage.id, { done: 0, total: 0 });
   }
 
@@ -215,7 +320,7 @@ export function getBambooSectionProgress(rows: BambooTaskProgressRow[]): BambooS
     }
   }
 
-  return BAMBOO_JOURNEY_STAGES.map((stage) => {
+  return journeyStages.map((stage) => {
     const counter = counters.get(stage.id) ?? { done: 0, total: 0 };
     const percent = counter.total > 0 ? Math.round((counter.done / counter.total) * 100) : 0;
 

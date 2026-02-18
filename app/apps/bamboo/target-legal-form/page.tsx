@@ -1,6 +1,7 @@
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 
 const ADVANTAGES = [
   "Your personal risk is lower than with sole trade (you separate private and company business).",
@@ -97,6 +98,8 @@ const TAX_REFERENCE_POINTS = [
 
 export default async function BambooTargetLegalFormPage() {
   await requireAppRead("BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
@@ -107,21 +110,24 @@ export default async function BambooTargetLegalFormPage() {
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Company setup", href: "/apps/bamboo/company-setup" },
-            { label: "Target legal form and structure" },
+            { label: isZh ? "公司设立" : "Company setup", href: "/apps/bamboo/company-setup" },
+            { label: isZh ? "目标法律形式与结构" : "Target legal form and structure" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Target legal form and structure
+          {isZh ? "目标法律形式与结构" : "Target legal form and structure"}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Simple practical guide for a small single-owner company: what s.r.o. means,
-          when it helps, and which decisions matter most at the start.
+          {isZh
+            ? "面向单一所有者小公司的实用指南：什么是 s.r.o.、何时适合、初期最重要的决策。"
+            : "Simple practical guide for a small single-owner company: what s.r.o. means, when it helps, and which decisions matter most at the start."}
         </p>
       </section>
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">What is s.r.o.?</h2>
+        <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
+          {isZh ? "什么是 s.r.o.？" : "What is s.r.o.?"}
+        </h2>
         <p className="mt-3 text-sm leading-6 text-[#314567]">
           s.r.o. is a Czech limited company. The company is a separate legal entity,
           so business contracts, invoices, and operations are done by the company, not
@@ -131,7 +137,9 @@ export default async function BambooTargetLegalFormPage() {
 
       <section className="mt-6 grid gap-4 lg:grid-cols-2">
         <article className="rounded-2xl border border-(--line) bg-white p-6">
-          <h2 className="text-xl font-semibold tracking-tight text-[#162947]">Advantages</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
+            {isZh ? "优点" : "Advantages"}
+          </h2>
           <ul className="mt-4 space-y-2">
             {ADVANTAGES.map((item) => (
               <li key={item} className="flex items-start gap-2 text-sm text-[#314567]">
@@ -143,7 +151,9 @@ export default async function BambooTargetLegalFormPage() {
         </article>
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
-          <h2 className="text-xl font-semibold tracking-tight text-[#162947]">Disadvantages</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
+            {isZh ? "缺点" : "Disadvantages"}
+          </h2>
           <ul className="mt-4 space-y-2">
             {DISADVANTAGES.map((item) => (
               <li key={item} className="flex items-start gap-2 text-sm text-[#314567]">
@@ -156,9 +166,11 @@ export default async function BambooTargetLegalFormPage() {
       </section>
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">Company structure</h2>
+        <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
+          {isZh ? "公司结构" : "Company structure"}
+        </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Keep this lightweight for a one-owner setup.
+          {isZh ? "单一所有者结构应保持轻量化。" : "Keep this lightweight for a one-owner setup."}
         </p>
 
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
@@ -180,10 +192,10 @@ export default async function BambooTargetLegalFormPage() {
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Most important startup decisions
+          {isZh ? "最重要的初创决策" : "Most important startup decisions"}
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          If you set these clearly, operations become much easier.
+          {isZh ? "这些事项越清晰，后续运营越顺畅。" : "If you set these clearly, operations become much easier."}
         </p>
         <ul className="mt-4 space-y-2">
           {DECISIONS.map((item) => (
@@ -196,10 +208,10 @@ export default async function BambooTargetLegalFormPage() {
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Company money vs private money
+          {isZh ? "公司资金与私人资金" : "Company money vs private money"}
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          For a one-owner s.r.o., this is one of the most important habits.
+          {isZh ? "对单一所有者 s.r.o. 来说，这是最重要的习惯之一。" : "For a one-owner s.r.o., this is one of the most important habits."}
         </p>
 
         <ul className="mt-4 space-y-2">
@@ -211,7 +223,7 @@ export default async function BambooTargetLegalFormPage() {
         </ul>
 
         <h3 className="mt-6 text-xl font-semibold tracking-tight text-[#162947]">
-          How to get money from company to owner
+          {isZh ? "如何把公司资金转给所有者" : "How to get money from company to owner"}
         </h3>
         <div className="mt-3 grid gap-3 lg:grid-cols-2">
           {OWNER_PAYOUT_OPTIONS.map((item) => (
@@ -223,17 +235,18 @@ export default async function BambooTargetLegalFormPage() {
         </div>
 
         <p className="mt-4 rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-sm text-[#9a4934]">
-          Practical rule: never transfer money to yourself without a clear accounting reason.
-          Confirm your payout method with your accountant before first transfer.
+          {isZh
+            ? "实务规则：没有清晰会计依据时，不要向自己转账。首次转账前请与会计确认领取方式。"
+            : "Practical rule: never transfer money to yourself without a clear accounting reason. Confirm your payout method with your accountant before first transfer."}
         </p>
       </section>
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Practical tax-wise strategy (single owner)
+          {isZh ? "税务友好的实务策略（单一所有者）" : "Practical tax-wise strategy (single owner)"}
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Simple default setup many small s.r.o. founders use.
+          {isZh ? "许多小型 s.r.o. 创始人常用的简化默认方案。" : "Simple default setup many small s.r.o. founders use."}
         </p>
 
         <ul className="mt-4 space-y-2">
@@ -245,7 +258,7 @@ export default async function BambooTargetLegalFormPage() {
         </ul>
 
         <h3 className="mt-6 text-xl font-semibold tracking-tight text-[#162947]">
-          Reference rates (check each year)
+          {isZh ? "参考税率（每年核对）" : "Reference rates (check each year)"}
         </h3>
         <ul className="mt-3 space-y-2">
           {TAX_REFERENCE_POINTS.map((item) => (
@@ -256,8 +269,9 @@ export default async function BambooTargetLegalFormPage() {
         </ul>
 
         <p className="mt-4 rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-sm text-[#9a4934]">
-          Always confirm the final payout mix and current tax rates with your accountant
-          before executing owner payouts.
+          {isZh
+            ? "在执行所有者分配前，请务必与会计确认最终分配组合和当期税率。"
+            : "Always confirm the final payout mix and current tax rates with your accountant before executing owner payouts."}
         </p>
       </section>
     </main>

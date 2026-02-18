@@ -5,6 +5,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import {
   BAMBOO_BRAND_SETUP_GROUPS,
   BAMBOO_NAME_GROUPS,
@@ -40,6 +41,8 @@ export default async function BambooNameBrandPage({
   searchParams,
 }: BambooNameBrandPageProps) {
   await requireAppRead("BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
   const { saved, error } = await searchParams;
 
   const [persisted, categoryTasks] = await Promise.all([
@@ -93,18 +96,18 @@ export default async function BambooNameBrandPage({
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
       {saved === "shortlist" ? (
-        <Toast message="Shared shortlist updated." />
+        <Toast message={isZh ? "共享候选列表已更新。" : "Shared shortlist updated."} />
       ) : null}
-      {saved === "custom" ? <Toast message="Custom name added." /> : null}
+      {saved === "custom" ? <Toast message={isZh ? "已添加自定义名称。" : "Custom name added."} /> : null}
       {saved === "custom-removed" ? (
-        <Toast message="Custom name removed." />
+        <Toast message={isZh ? "已移除自定义名称。" : "Custom name removed."} />
       ) : null}
       {error === "invalid" ? (
-        <Toast message="Invalid input." tone="error" />
+        <Toast message={isZh ? "输入无效。" : "Invalid input."} tone="error" />
       ) : null}
       {error === "duplicate" ? (
         <Toast
-          message="This name already exists in another category."
+          message={isZh ? "该名称已存在于其他分类中。" : "This name already exists in another category."}
           tone="error"
         />
       ) : null}
@@ -116,14 +119,16 @@ export default async function BambooNameBrandPage({
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Name brainstorm" },
+            { label: isZh ? "命名头脑风暴" : "Name brainstorm" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Name brainstorm
+          {isZh ? "命名头脑风暴" : "Name brainstorm"}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Shared naming workspace with one shortlist for the whole team.
+          {isZh
+            ? "团队共享命名工作区，统一维护一个候选列表。"
+            : "Shared naming workspace with one shortlist for the whole team."}
         </p>
       </section>
 
@@ -153,7 +158,9 @@ export default async function BambooNameBrandPage({
                       type="submit"
                       className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-1 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                     >
-                      {item.shortlisted ? "Remove" : "Shortlist"}
+                      {item.shortlisted
+                        ? (isZh ? "移除" : "Remove")
+                        : (isZh ? "加入候选" : "Shortlist")}
                     </button>
                   </form>
                 </li>
@@ -163,9 +170,11 @@ export default async function BambooNameBrandPage({
         ))}
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
-          <h2 className="text-xl font-semibold text-[#162947]">{CUSTOM_CATEGORY}</h2>
+          <h2 className="text-xl font-semibold text-[#162947]">
+            {isZh ? "自定义分类" : CUSTOM_CATEGORY}
+          </h2>
           <p className="mt-2 text-sm text-(--text-muted)">
-            Add your own name ideas and shortlist them.
+            {isZh ? "添加你自己的名称想法并加入候选列表。" : "Add your own name ideas and shortlist them."}
           </p>
 
           <form action={addCustomNameAction} className="mt-4 flex gap-2">
@@ -174,14 +183,14 @@ export default async function BambooNameBrandPage({
               name="name"
               required
               maxLength={120}
-              placeholder="Add custom name"
+              placeholder={isZh ? "添加自定义名称" : "Add custom name"}
               className="w-full rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <button
               type="submit"
               className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Add
+              {isZh ? "添加" : "Add"}
             </button>
           </form>
 
@@ -206,7 +215,9 @@ export default async function BambooNameBrandPage({
                         type="submit"
                         className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-1 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                       >
-                        {item.shortlisted ? "Remove" : "Shortlist"}
+                        {item.shortlisted
+                          ? (isZh ? "移除" : "Remove")
+                          : (isZh ? "加入候选" : "Shortlist")}
                       </button>
                     </form>
                     <form action={removeCustomNameAction}>
@@ -215,7 +226,7 @@ export default async function BambooNameBrandPage({
                         type="submit"
                         className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-1 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
                       >
-                        Delete
+                        {isZh ? "删除" : "Delete"}
                       </button>
                     </form>
                   </div>
@@ -223,7 +234,7 @@ export default async function BambooNameBrandPage({
               ))
             ) : (
               <li className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-(--text-muted)">
-                No custom names added yet.
+                {isZh ? "还没有添加自定义名称。" : "No custom names added yet."}
               </li>
             )}
           </ul>
@@ -232,10 +243,12 @@ export default async function BambooNameBrandPage({
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Shared shortlist
+          {isZh ? "共享候选列表" : "Shared shortlist"}
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Visible to all users. Any user can add or remove names.
+          {isZh
+            ? "对所有用户可见。任何用户都可以添加或移除名称。"
+            : "Visible to all users. Any user can add or remove names."}
         </p>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {shortlist.length > 0 ? (
@@ -249,25 +262,25 @@ export default async function BambooNameBrandPage({
             ))
           ) : (
             <li className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-(--text-muted)">
-              No shortlist yet. Use the shortlist buttons above.
+              {isZh ? "还没有候选名称。请使用上方候选按钮。" : "No shortlist yet. Use the shortlist buttons above."}
             </li>
           )}
         </ul>
       </section>
 
       <TaskCategoryPanel
-        title="Name brainstorm tasks"
+        title={isZh ? "命名头脑风暴任务" : "Name brainstorm tasks"}
         tasks={categoryTasks}
         href={bambooTaskFilterHref({ category: BambooTaskCategory.BRAND })}
-        emptyLabel="No open name-brainstorm tasks right now."
+        emptyLabel={isZh ? "当前没有待办的命名任务。" : "No open name-brainstorm tasks right now."}
       />
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Brand setup
+          {isZh ? "品牌建立" : "Brand setup"}
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Core steps to build brand identity after name selection.
+          {isZh ? "确定名称后建立品牌识别的核心步骤。" : "Core steps to build brand identity after name selection."}
         </p>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">

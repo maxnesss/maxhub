@@ -3,18 +3,22 @@ import Link from "next/link";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
-import { BAMBOO_JOURNEY_STAGES } from "@/lib/bamboo-journey";
-
-const FIRST_30_MINUTES = [
-  "Open Name brainstorm and shortlist 3-5 options.",
-  "Review Company setup and confirm legal form plus key registration steps.",
-  "Open Inventory brainstorm and write your first shortlist of products.",
-  "Open Shop budget and add your first cost assumptions.",
-  "Open Tasks and add 3 must-do items with owners and deadlines.",
-];
+import { getBambooJourneyStages } from "@/lib/bamboo-journey";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
+import { getBambooCopy } from "@/lib/bamboo-i18n";
 
 export default async function BambooStartHerePage() {
   await requireAppRead("BAMBOO");
+  const locale = await getBambooLocale();
+  const copy = getBambooCopy(locale);
+  const journeyStages = getBambooJourneyStages(locale);
+  const first30Minutes = [
+    copy.startHereStep1,
+    copy.startHereStep2,
+    copy.startHereStep3,
+    copy.startHereStep4,
+    copy.startHereStep5,
+  ];
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
@@ -25,38 +29,37 @@ export default async function BambooStartHerePage() {
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Start here" },
+            { label: copy.startHereTitle },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Start here
+          {copy.startHereTitle}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          One-page quick start for the Bamboo app. Follow the journey in this order:
-          Name brainstorm, Setup, Inventory, Shop, then Launch.
+          {copy.startHereDescription}
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link
             href="/apps/bamboo/name-brand"
             className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
           >
-            Open name brainstorm
+            {copy.openNameBrainstorm}
           </Link>
           <Link
             href="/apps/bamboo/company-setup"
             className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
           >
-            Open company setup
+            {copy.openCompanySetup}
           </Link>
         </div>
       </section>
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Suggested first 30 minutes
+          {copy.suggestedFirst30Minutes}
         </h2>
         <ul className="mt-4 space-y-2">
-          {FIRST_30_MINUTES.map((item, index) => (
+          {first30Minutes.map((item, index) => (
             <li
               key={item}
               className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"
@@ -68,7 +71,7 @@ export default async function BambooStartHerePage() {
       </section>
 
       <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {BAMBOO_JOURNEY_STAGES.map((stage) => (
+        {journeyStages.map((stage) => (
           <Link
             key={stage.id}
             href={stage.href}
@@ -79,7 +82,7 @@ export default async function BambooStartHerePage() {
             </p>
             <p className="mt-2 text-sm leading-6 text-[#314567]">{stage.description}</p>
             <p className="mt-4 text-xs font-semibold tracking-[0.12em] text-[#5a6b8f] uppercase">
-              Open stage
+              {copy.openStage}
             </p>
           </Link>
         ))}

@@ -5,6 +5,7 @@ import { TaskCategoryPanel } from "@/components/bamboo/TaskCategoryPanel";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import { prisma } from "@/prisma";
 
 const ESHOP_PILLARS = [
@@ -73,6 +74,8 @@ const ESHOP_TASK_KEYWORDS = [
 
 export default async function BambooEshopPage() {
   await requireAppRead("BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
 
   const eshopTaskFilters = ESHOP_TASK_KEYWORDS.flatMap((keyword) => [
     { title: { contains: keyword, mode: "insensitive" as const } },
@@ -105,14 +108,16 @@ export default async function BambooEshopPage() {
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Eshop + webpage" },
+            { label: isZh ? "网店 + 网站" : "Eshop + webpage" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Eshop + webpage
+          {isZh ? "网店 + 网站" : "Eshop + webpage"}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Planning area for online store strategy, website structure, and conversion.
+          {isZh
+            ? "用于线上商店策略、网站结构和转化优化的规划区。"
+            : "Planning area for online store strategy, website structure, and conversion."}
         </p>
       </section>
 
@@ -136,7 +141,7 @@ export default async function BambooEshopPage() {
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Related modules
+          {isZh ? "相关模块" : "Related modules"}
         </h2>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           {ESHOP_NEXT_MODULES.map((module) => (
@@ -155,10 +160,10 @@ export default async function BambooEshopPage() {
       </section>
 
       <TaskCategoryPanel
-        title="Eshop and webpage tasks"
+        title={isZh ? "网店与网站任务" : "Eshop and webpage tasks"}
         tasks={categoryTasks}
         href="/apps/bamboo/tasks"
-        emptyLabel="No open eshop or webpage tasks right now."
+        emptyLabel={isZh ? "当前没有待办的网店或网站任务。" : "No open eshop or webpage tasks right now."}
       />
     </main>
   );

@@ -4,6 +4,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { canEditApp, requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import { prisma } from "@/prisma";
 
 import { saveBambooProjectCharterAction } from "./actions";
@@ -79,6 +80,8 @@ export default async function BambooProjectCharterPage({
 }: BambooProjectCharterPageProps) {
   const user = await requireAppRead("BAMBOO");
   const canEdit = canEditApp(user, "BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
   const { saved, error, edit } = await searchParams;
   const isEditMode = canEdit && edit === "1";
 
@@ -90,9 +93,9 @@ export default async function BambooProjectCharterPage({
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
-      {saved === "1" ? <Toast message="Project Charter updated." /> : null}
+      {saved === "1" ? <Toast message={isZh ? "项目章程已更新。" : "Project Charter updated."} /> : null}
       {error === "invalid" ? (
-        <Toast message="Invalid charter input." tone="error" />
+        <Toast message={isZh ? "项目章程输入无效。" : "Invalid charter input."} tone="error" />
       ) : null}
 
       <TopNav current="apps" />
@@ -104,15 +107,16 @@ export default async function BambooProjectCharterPage({
               items={[
                 { label: "Apps", href: "/apps" },
                 { label: "Bamboo", href: "/apps/bamboo" },
-                { label: "Project Charter" },
+                { label: isZh ? "项目章程" : "Project Charter" },
               ]}
             />
             <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-              Project Charter
+              {isZh ? "项目章程" : "Project Charter"}
             </h1>
             <p className="mt-4 max-w-3xl text-(--text-muted)">
-              One-page project summary: vision, scope, budget limits, launch
-              criteria, and key risks.
+              {isZh
+                ? "一页项目摘要：愿景、范围、预算边界、启动标准与关键风险。"
+                : "One-page project summary: vision, scope, budget limits, launch criteria, and key risks."}
             </p>
           </div>
 
@@ -122,7 +126,7 @@ export default async function BambooProjectCharterPage({
                 href="/apps/bamboo/project-charter?edit=1"
                 className="inline-flex rounded-xl border border-[#d9e2f3] bg-[#f8faff] px-4 py-2 text-sm font-semibold text-[#34548d] hover:bg-[#edf3ff]"
               >
-                Edit
+                {isZh ? "编辑" : "Edit"}
               </Link>
             ) : null}
             {isEditMode ? (
@@ -130,14 +134,14 @@ export default async function BambooProjectCharterPage({
                 href="/apps/bamboo/project-charter"
                 className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
               >
-                Cancel
+                {isZh ? "取消" : "Cancel"}
               </Link>
             ) : null}
             <Link
               href="/apps/bamboo"
               className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Back to Bamboo
+              {isZh ? "返回 Bamboo" : "Back to Bamboo"}
             </Link>
           </div>
         </div>
@@ -145,7 +149,9 @@ export default async function BambooProjectCharterPage({
 
       {isEditMode ? (
         <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
-          <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">Edit charter</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
+            {isZh ? "编辑章程" : "Edit charter"}
+          </h2>
           <form action={saveBambooProjectCharterAction} className="mt-4 grid gap-3">
             <textarea
               name="vision"
@@ -207,7 +213,7 @@ export default async function BambooProjectCharterPage({
               type="submit"
               className="w-fit cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Save charter
+              {isZh ? "保存章程" : "Save charter"}
             </button>
           </form>
         </section>
@@ -216,42 +222,42 @@ export default async function BambooProjectCharterPage({
       <section className="mt-6 grid gap-4 md:grid-cols-2">
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-            Vision
+            {isZh ? "愿景" : "Vision"}
           </p>
           <p className="mt-2 text-sm leading-6 text-[#314567]">{values.vision}</p>
         </article>
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-            Target customer
+            {isZh ? "目标客户" : "Target customer"}
           </p>
           <p className="mt-2 text-sm leading-6 text-[#314567]">{values.targetCustomer}</p>
         </article>
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-            Scope in
+            {isZh ? "范围内" : "Scope in"}
           </p>
           <p className="mt-2 text-sm leading-6 text-[#314567]">{values.scopeIn}</p>
         </article>
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-            Scope out
+            {isZh ? "范围外" : "Scope out"}
           </p>
           <p className="mt-2 text-sm leading-6 text-[#314567]">{values.scopeOut}</p>
         </article>
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-            Budget guardrail
+            {isZh ? "预算边界" : "Budget guardrail"}
           </p>
           <p className="mt-2 text-sm leading-6 text-[#314567]">{values.budgetGuardrail}</p>
         </article>
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-            Launch criteria
+            {isZh ? "启动标准" : "Launch criteria"}
           </p>
           <p className="mt-2 text-sm leading-6 text-[#314567]">{values.launchCriteria}</p>
         </article>
@@ -259,7 +265,7 @@ export default async function BambooProjectCharterPage({
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-          Key risks
+          {isZh ? "关键风险" : "Key risks"}
         </p>
         <ul className="mt-2 space-y-2">
           {keyRiskItems.map((risk) => (

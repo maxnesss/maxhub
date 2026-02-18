@@ -4,6 +4,7 @@ import { TaskCategoryPanel } from "@/components/bamboo/TaskCategoryPanel";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import { bambooTaskFilterHref } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
 
@@ -44,6 +45,23 @@ const FINANCE_PILLARS = [
 
 export default async function BambooFinancePage() {
   await requireAppRead("BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
+
+  const financePillars = isZh
+    ? FINANCE_PILLARS.map((pillar) => ({
+      ...pillar,
+      title:
+          pillar.title === "Revenue model"
+            ? "收入模型"
+            : pillar.title === "Operating budget"
+              ? "运营预算"
+              : pillar.title === "Cash and runway"
+                ? "现金与可持续周期"
+                : "报告节奏",
+    }))
+    : FINANCE_PILLARS;
+
   const categoryTasks = await prisma.bambooTask.findMany({
     where: {
       category: BambooTaskCategory.FINANCE,
@@ -70,19 +88,21 @@ export default async function BambooFinancePage() {
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Finance setup" },
+            { label: isZh ? "财务设置" : "Finance setup" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Finance setup
+          {isZh ? "财务设置" : "Finance setup"}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Simple finance plan for running the business after setup.
+          {isZh
+            ? "用于公司设立后运营管理的简化财务计划。"
+            : "Simple finance plan for running the business after setup."}
         </p>
       </section>
 
       <section className="mt-6 grid gap-4 lg:grid-cols-2">
-        {FINANCE_PILLARS.map((pillar) => (
+        {financePillars.map((pillar) => (
           <article key={pillar.title} className="rounded-2xl border border-(--line) bg-white p-6">
             <h2 className="text-xl font-semibold tracking-tight text-[#162947]">{pillar.title}</h2>
             <ul className="mt-4 space-y-2">
@@ -98,10 +118,10 @@ export default async function BambooFinancePage() {
       </section>
 
       <TaskCategoryPanel
-        title="Finance tasks"
+        title={isZh ? "财务任务" : "Finance tasks"}
         tasks={categoryTasks}
         href={bambooTaskFilterHref({ category: BambooTaskCategory.FINANCE })}
-        emptyLabel="No open finance tasks right now."
+        emptyLabel={isZh ? "当前没有待办的财务任务。" : "No open finance tasks right now."}
       />
     </main>
   );

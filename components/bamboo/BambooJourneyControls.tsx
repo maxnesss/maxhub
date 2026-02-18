@@ -5,9 +5,15 @@ import {
   setBambooJourneyDockEnabled,
   useBambooJourneyDockEnabled,
 } from "@/components/bamboo/useBambooJourneyDockPreference";
+import { getBambooCopy, type BambooLocale } from "@/lib/bamboo-i18n";
 
-export function BambooJourneyControls() {
+type BambooJourneyControlsProps = {
+  locale: BambooLocale;
+};
+
+export function BambooJourneyControls({ locale }: BambooJourneyControlsProps) {
   const dockEnabled = useBambooJourneyDockEnabled();
+  const copy = getBambooCopy(locale);
 
   const toggleDock = () => {
     const nextState = !dockEnabled;
@@ -20,10 +26,11 @@ export function BambooJourneyControls() {
 
   return (
     <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
-      <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">Journey controls</h2>
+      <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
+        {copy.journeyControlsTitle}
+      </h2>
       <p className="mt-2 text-sm text-(--text-muted)">
-        Start the journey from the first step, and turn the bottom journey navigation
-        on or off.
+        {copy.journeyControlsDescription}
       </p>
       <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
         <Link
@@ -31,14 +38,14 @@ export function BambooJourneyControls() {
           onClick={handleStartJourney}
           className="inline-flex rounded-xl border border-[#21417a] bg-[#2f5aa8] px-6 py-3 text-base font-semibold text-white shadow-[0_10px_24px_-16px_rgba(33,65,122,0.55)] hover:bg-[#25498a]"
         >
-          Start journey
+          {copy.startJourney}
         </Link>
         <button
           type="button"
           onClick={toggleDock}
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          {dockEnabled ? "Turn journey off" : "Turn journey on"}
+          {dockEnabled ? copy.turnJourneyOff : copy.turnJourneyOn}
         </button>
       </div>
     </section>

@@ -21,11 +21,13 @@ import {
   BAMBOO_SETUP_COMPANY_TILES,
 } from "@/lib/bamboo-content";
 import {
-  BAMBOO_TASK_CATEGORY_LABELS,
   BAMBOO_TASK_CATEGORY_OPTIONS,
-  BAMBOO_TASK_PHASE_LABELS,
   bambooTaskFilterHref,
+  getBambooTaskCategoryLabels,
+  getBambooTaskPhaseLabels,
 } from "@/lib/bamboo-tasks";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
+import { getBambooCopy } from "@/lib/bamboo-i18n";
 import { prisma } from "@/prisma";
 
 const OVERVIEW_STAT_LINKS: Record<string, string> = {
@@ -36,6 +38,10 @@ const OVERVIEW_STAT_LINKS: Record<string, string> = {
 
 export default async function BambooPage() {
   await requireAppRead("BAMBOO");
+  const locale = await getBambooLocale();
+  const copy = getBambooCopy(locale);
+  const taskCategoryLabels = getBambooTaskCategoryLabels(locale);
+  const taskPhaseLabels = getBambooTaskPhaseLabels(locale);
 
   const [budgetItems, inventoryBudget, nextTasks, taskCategoryStatusRows, capitalScenario] =
     await Promise.all([
@@ -127,18 +133,17 @@ export default async function BambooPage() {
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Bamboo workspace
+          {copy.workspaceTitle}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Main workspace for your Bamboo project. Open sections by category and
-          track setup, tasks, inventory, shop, and finance in one place.
+          {copy.workspaceDescription}
         </p>
         <div className="mt-5">
           <Link
             href="/apps/bamboo/start-here"
             className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
           >
-            Open start here
+            {copy.openStartHere}
           </Link>
         </div>
       </section>
@@ -157,8 +162,8 @@ export default async function BambooPage() {
               <p className="mt-2 text-xl font-semibold tracking-tight text-[#162947]">
                 {stat.value}
               </p>
-              <p className="mt-3 text-xs font-semibold tracking-[0.12em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
-                Open details
+            <p className="mt-3 text-xs font-semibold tracking-[0.12em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
+                {locale === "zh" ? "打开详情" : "Open details"}
               </p>
             </Link>
           ) : (
@@ -174,25 +179,25 @@ export default async function BambooPage() {
         ))}
       </section>
 
-      <BambooJourneyControls />
+      <BambooJourneyControls locale={locale} />
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-            Tasks and phases
+            {locale === "zh" ? "任务与阶段" : "Tasks and phases"}
           </h2>
           <div className="flex flex-wrap gap-2">
             <Link
               href="/apps/bamboo/tasks"
               className="inline-flex rounded-lg border border-[#d9e2f3] px-3 py-2 text-xs font-semibold tracking-[0.1em] text-[#4e5e7a] uppercase hover:bg-[#f8faff]"
             >
-              Open board
+              {locale === "zh" ? "打开看板" : "Open board"}
             </Link>
             <Link
               href="/apps/bamboo/timeline"
               className="inline-flex rounded-lg border border-[#d9e2f3] px-3 py-2 text-xs font-semibold tracking-[0.1em] text-[#4e5e7a] uppercase hover:bg-[#f8faff]"
             >
-              Open phase overview
+              {locale === "zh" ? "打开阶段概览" : "Open phase overview"}
             </Link>
           </div>
         </div>
@@ -205,12 +210,14 @@ export default async function BambooPage() {
               className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-3"
             >
               <p className="text-xs font-semibold tracking-[0.1em] text-[#5b6c8d] uppercase">
-                {BAMBOO_TASK_CATEGORY_LABELS[category]}
+                {taskCategoryLabels[category]}
               </p>
               <p className="mt-1 text-xl font-semibold text-[#1a2b49]">
                 {openCountByCategory.get(category) ?? 0}
               </p>
-              <p className="mt-1 text-xs text-(--text-muted)">open tasks</p>
+              <p className="mt-1 text-xs text-(--text-muted)">
+                {locale === "zh" ? "开放任务" : "open tasks"}
+              </p>
             </Link>
           ))}
         </div>
@@ -222,18 +229,20 @@ export default async function BambooPage() {
                 key={task.id}
                 className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"
               >
-                {BAMBOO_TASK_PHASE_LABELS[task.phase]} • {task.title} ({BAMBOO_TASK_CATEGORY_LABELS[task.category]})
+                {taskPhaseLabels[task.phase]} • {task.title} ({taskCategoryLabels[task.category]})
               </div>
             ))
           ) : (
-            <p className="text-sm text-(--text-muted)">No open tasks yet.</p>
+            <p className="text-sm text-(--text-muted)">
+              {locale === "zh" ? "还没有开放任务。" : "No open tasks yet."}
+            </p>
           )}
         </div>
       </section>
 
       <section className="mt-6">
         <p className="text-xs font-semibold tracking-[0.14em] text-[#647494] uppercase">
-          General categories
+          {locale === "zh" ? "通用分类" : "General categories"}
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {BAMBOO_GENERAL_TILES.map((tile) => (
@@ -250,7 +259,7 @@ export default async function BambooPage() {
               </div>
               <p className="mt-2 text-sm leading-6 text-(--text-muted)">{tile.description}</p>
               <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
-                Open section
+                {locale === "zh" ? "打开模块" : "Open section"}
               </p>
             </Link>
           ))}
@@ -259,7 +268,7 @@ export default async function BambooPage() {
 
       <section className="mt-6">
         <p className="text-xs font-semibold tracking-[0.14em] text-[#647494] uppercase">
-          Inventory
+          {locale === "zh" ? "货品" : "Inventory"}
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {BAMBOO_INVENTORY_TILES.map((tile) => (
@@ -276,7 +285,7 @@ export default async function BambooPage() {
               </div>
               <p className="mt-2 text-sm leading-6 text-(--text-muted)">{tile.description}</p>
               <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
-                Open section
+                {locale === "zh" ? "打开模块" : "Open section"}
               </p>
             </Link>
           ))}
@@ -285,7 +294,7 @@ export default async function BambooPage() {
 
       <section className="mt-6">
         <p className="text-xs font-semibold tracking-[0.14em] text-[#647494] uppercase">
-          Setup company
+          {locale === "zh" ? "公司设立" : "Setup company"}
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {BAMBOO_SETUP_COMPANY_TILES.map((tile) => (
@@ -302,7 +311,7 @@ export default async function BambooPage() {
               </div>
               <p className="mt-2 text-sm leading-6 text-(--text-muted)">{tile.description}</p>
               <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
-                Open section
+                {locale === "zh" ? "打开模块" : "Open section"}
               </p>
             </Link>
           ))}
@@ -311,7 +320,7 @@ export default async function BambooPage() {
 
       <section className="mt-6">
         <p className="text-xs font-semibold tracking-[0.14em] text-[#647494] uppercase">
-          Shop
+          {locale === "zh" ? "门店" : "Shop"}
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {BAMBOO_SHOP_TILES.map((tile) => (
@@ -328,7 +337,7 @@ export default async function BambooPage() {
               </div>
               <p className="mt-2 text-sm leading-6 text-(--text-muted)">{tile.description}</p>
               <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
-                Open section
+                {locale === "zh" ? "打开模块" : "Open section"}
               </p>
             </Link>
           ))}
@@ -337,7 +346,7 @@ export default async function BambooPage() {
 
       <section className="mt-6">
         <p className="text-xs font-semibold tracking-[0.14em] text-[#647494] uppercase">
-          Eshop
+          {locale === "zh" ? "网店" : "Eshop"}
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {BAMBOO_ESHOP_TILES.map((tile) => (
@@ -354,7 +363,7 @@ export default async function BambooPage() {
               </div>
               <p className="mt-2 text-sm leading-6 text-(--text-muted)">{tile.description}</p>
               <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
-                Open section
+                {locale === "zh" ? "打开模块" : "Open section"}
               </p>
             </Link>
           ))}
@@ -363,7 +372,7 @@ export default async function BambooPage() {
 
       <section className="mt-6">
         <p className="text-xs font-semibold tracking-[0.14em] text-[#647494] uppercase">
-          Documents
+          {locale === "zh" ? "文档" : "Documents"}
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {BAMBOO_DOCUMENT_TILES.map((tile) => (
@@ -380,7 +389,7 @@ export default async function BambooPage() {
               </div>
               <p className="mt-2 text-sm leading-6 text-(--text-muted)">{tile.description}</p>
               <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-[#5a6b8f] uppercase group-hover:text-[#384f83]">
-                Open section
+                {locale === "zh" ? "打开模块" : "Open section"}
               </p>
             </Link>
           ))}

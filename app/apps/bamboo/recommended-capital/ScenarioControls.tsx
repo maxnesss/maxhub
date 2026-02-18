@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import type { BambooLocale } from "@/lib/bamboo-i18n";
 
 type ScenarioControlsProps = {
   action: (formData: FormData) => void | Promise<void>;
@@ -8,6 +9,7 @@ type ScenarioControlsProps = {
   reservePercent: number;
   operatingExpensesLabel: string;
   reserveLabel: string;
+  locale: BambooLocale;
 };
 
 type FocusTarget = "months" | "reserve";
@@ -18,6 +20,7 @@ export function ScenarioControls({
   reservePercent,
   operatingExpensesLabel,
   reserveLabel,
+  locale,
 }: ScenarioControlsProps) {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const monthsSliderRef = useRef<HTMLInputElement | null>(null);
@@ -25,6 +28,7 @@ export function ScenarioControls({
 
   const [draftMonths, setDraftMonths] = useState(operatingMonths);
   const [draftReservePercent, setDraftReservePercent] = useState(reservePercent);
+  const isZh = locale === "zh";
 
   function openModal(focus: FocusTarget) {
     setDraftMonths(operatingMonths);
@@ -52,12 +56,14 @@ export function ScenarioControls({
         className="cursor-pointer rounded-2xl border border-(--line) bg-white p-5 text-left hover:bg-[#f8fbff]"
       >
         <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-          {operatingMonths} months expenses
+          {isZh ? `${operatingMonths} 个月支出` : `${operatingMonths} months expenses`}
         </p>
         <p className="mt-2 text-lg font-semibold tracking-tight text-[#162947]">
           +{operatingExpensesLabel}
         </p>
-        <p className="mt-1 text-xs text-[#5f7093]">Click to adjust months</p>
+        <p className="mt-1 text-xs text-[#5f7093]">
+          {isZh ? "点击调整月份" : "Click to adjust months"}
+        </p>
       </button>
 
       <button
@@ -66,12 +72,14 @@ export function ScenarioControls({
         className="cursor-pointer rounded-2xl border border-(--line) bg-white p-5 text-left hover:bg-[#f8fbff]"
       >
         <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-          {reservePercent}% reserve
+          {isZh ? `${reservePercent}% 预留` : `${reservePercent}% reserve`}
         </p>
         <p className="mt-2 text-lg font-semibold tracking-tight text-[#162947]">
           +{reserveLabel}
         </p>
-        <p className="mt-1 text-xs text-[#5f7093]">Click to adjust reserve</p>
+        <p className="mt-1 text-xs text-[#5f7093]">
+          {isZh ? "点击调整预留比例" : "Click to adjust reserve"}
+        </p>
       </button>
 
       <dialog
@@ -80,12 +88,12 @@ export function ScenarioControls({
       >
         <form action={action} className="space-y-5 p-6">
           <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
-            Recommended capital scenario
+            {isZh ? "建议启动资金情景" : "Recommended capital scenario"}
           </h2>
 
           <label className="block space-y-2">
             <span className="text-sm font-semibold text-[#1a2b49]">
-              Operating months: {draftMonths}
+              {isZh ? `运营月份：${draftMonths}` : `Operating months: ${draftMonths}`}
             </span>
             <input
               ref={monthsSliderRef}
@@ -98,12 +106,14 @@ export function ScenarioControls({
               onChange={(event) => setDraftMonths(Number(event.target.value))}
               className="w-full"
             />
-            <p className="text-xs text-(--text-muted)">Range: 1 to 24 months</p>
+            <p className="text-xs text-(--text-muted)">
+              {isZh ? "范围：1 到 24 个月" : "Range: 1 to 24 months"}
+            </p>
           </label>
 
           <label className="block space-y-2">
             <span className="text-sm font-semibold text-[#1a2b49]">
-              Reserve: {draftReservePercent}%
+              {isZh ? `预留比例：${draftReservePercent}%` : `Reserve: ${draftReservePercent}%`}
             </span>
             <input
               ref={reserveSliderRef}
@@ -116,7 +126,9 @@ export function ScenarioControls({
               onChange={(event) => setDraftReservePercent(Number(event.target.value))}
               className="w-full"
             />
-            <p className="text-xs text-(--text-muted)">Range: 0% to 60%</p>
+            <p className="text-xs text-(--text-muted)">
+              {isZh ? "范围：0% 到 60%" : "Range: 0% to 60%"}
+            </p>
           </label>
 
           <div className="flex justify-end gap-2">
@@ -125,13 +137,13 @@ export function ScenarioControls({
               onClick={closeModal}
               className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Cancel
+              {isZh ? "取消" : "Cancel"}
             </button>
             <button
               type="submit"
               className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Apply
+              {isZh ? "应用" : "Apply"}
             </button>
           </div>
         </form>
