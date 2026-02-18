@@ -209,7 +209,7 @@ export default async function BambooOverviewPage() {
 
       <BambooSectionProgress
         title="Journey progress"
-        description="Task completion across Setup, Inventory, Name brainstorm, Shop, and Launch."
+        description="Task completion across Name brainstorm, Setup, Inventory, Shop, and Launch."
         sections={sectionProgress}
       />
 
@@ -526,7 +526,7 @@ export default async function BambooOverviewPage() {
           href="/apps/bamboo/company-setup/finance-requirements"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          Open finance requirements
+          Open company setup finance requirements
         </Link>
       </section>
     </main>

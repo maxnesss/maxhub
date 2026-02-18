@@ -32,7 +32,7 @@ export default async function BambooStartHerePage() {
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
           One-page quick start for the Bamboo app. Follow the journey in this order:
-          Setup, Inventory, Name brainstorm, Shop, then Launch.
+          Name brainstorm, Setup, Inventory, Shop, then Launch.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link

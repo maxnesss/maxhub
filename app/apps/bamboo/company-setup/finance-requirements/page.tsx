@@ -36,11 +36,11 @@ export default async function BambooFinanceRequirementsPage() {
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
             { label: "Company setup", href: "/apps/bamboo/company-setup" },
-            { label: "Finance requirements" },
+            { label: "Company setup finance requirements" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Finance requirements
+          Company setup finance requirements
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
           Key money checkpoints needed during company setup.

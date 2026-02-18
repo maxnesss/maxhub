@@ -40,6 +40,12 @@ const JOURNEY_STAGE_TASK_CATEGORIES: Record<BambooJourneyStageId, string[]> = {
 
 export const BAMBOO_JOURNEY_STAGES: BambooJourneyStage[] = [
   {
+    id: "BRAND",
+    label: "Name brainstorm",
+    description: "Choose brand direction, shortlist names, and validate fit.",
+    href: "/apps/bamboo/name-brand",
+  },
+  {
     id: "SETUP",
     label: "Setup",
     description: "Legal form, company registration, and finance basics.",
@@ -50,12 +56,6 @@ export const BAMBOO_JOURNEY_STAGES: BambooJourneyStage[] = [
     label: "Inventory",
     description: "Select products, suppliers, and import path.",
     href: "/apps/bamboo/inventory",
-  },
-  {
-    id: "BRAND",
-    label: "Name brainstorm",
-    description: "Choose brand direction, shortlist names, and validate fit.",
-    href: "/apps/bamboo/name-brand",
   },
   {
     id: "SHOP",
@@ -74,6 +74,8 @@ export const BAMBOO_JOURNEY_STAGES: BambooJourneyStage[] = [
 export const BAMBOO_JOURNEY_PAGES: BambooJourneyPage[] = [
   { href: "/apps/bamboo", label: "Workspace", stageId: "SETUP" },
   { href: "/apps/bamboo/start-here", label: "Start here", stageId: "SETUP" },
+  { href: "/apps/bamboo/name-brand", label: "Name brainstorm", stageId: "BRAND" },
+  { href: "/apps/bamboo/project-charter", label: "Project charter", stageId: "SETUP" },
   { href: "/apps/bamboo/overview", label: "Overview", stageId: "SETUP" },
   { href: "/apps/bamboo/company-setup", label: "Company setup", stageId: "SETUP" },
   {
@@ -83,12 +85,10 @@ export const BAMBOO_JOURNEY_PAGES: BambooJourneyPage[] = [
   },
   {
     href: "/apps/bamboo/company-setup/finance-requirements",
-    label: "Finance requirements",
+    label: "Company setup finance requirements",
     stageId: "SETUP",
   },
   { href: "/apps/bamboo/legal-compliance", label: "Legal and compliance", stageId: "SETUP" },
-  { href: "/apps/bamboo/estimated-setup-cost", label: "Estimated setup cost", stageId: "SETUP" },
-  { href: "/apps/bamboo/recommended-capital", label: "Recommended capital", stageId: "SETUP" },
   { href: "/apps/bamboo/inventory", label: "Inventory", stageId: "INVENTORY" },
   { href: "/apps/bamboo/inventory/brainstorm", label: "Inventory brainstorm", stageId: "INVENTORY" },
   {
@@ -102,18 +102,18 @@ export const BAMBOO_JOURNEY_PAGES: BambooJourneyPage[] = [
     stageId: "INVENTORY",
   },
   { href: "/apps/bamboo/inventory/budget", label: "Inventory budget", stageId: "INVENTORY" },
-  { href: "/apps/bamboo/name-brand", label: "Name brainstorm", stageId: "BRAND" },
   { href: "/apps/bamboo/shop", label: "Shop overview", stageId: "SHOP" },
   { href: "/apps/bamboo/shop/concept", label: "Shop concept", stageId: "SHOP" },
   { href: "/apps/bamboo/shop/location", label: "Shop location", stageId: "SHOP" },
   { href: "/apps/bamboo/shop/budget", label: "Shop budget", stageId: "SHOP" },
+  { href: "/apps/bamboo/estimated-setup-cost", label: "Estimated setup cost", stageId: "SHOP" },
   { href: "/apps/bamboo/eshop", label: "Eshop + webpage", stageId: "SHOP" },
-  { href: "/apps/bamboo/project-charter", label: "Project charter", stageId: "LAUNCH" },
   { href: "/apps/bamboo/tasks", label: "Tasks", stageId: "LAUNCH" },
   { href: "/apps/bamboo/tasks/graph-overview", label: "Task graph overview", stageId: "LAUNCH" },
   { href: "/apps/bamboo/timeline", label: "Phase overview", stageId: "LAUNCH" },
   { href: "/apps/bamboo/finance", label: "Finance setup", stageId: "LAUNCH" },
   { href: "/apps/bamboo/documents", label: "Documents", stageId: "LAUNCH" },
+  { href: "/apps/bamboo/recommended-capital", label: "Recommended capital", stageId: "LAUNCH" },
 ];
 
 function normalizePathname(pathname: string) {

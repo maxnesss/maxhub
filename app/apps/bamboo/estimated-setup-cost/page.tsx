@@ -166,7 +166,7 @@ export default async function BambooEstimatedSetupCostPage() {
           href="/apps/bamboo/company-setup/finance-requirements"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
-          Open finance requirements
+          Open company setup finance requirements
         </Link>
       </section>
     </main>

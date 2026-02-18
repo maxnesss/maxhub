@@ -8,29 +8,48 @@ const LEGAL_BLOCKS = [
     points: [
       "Register income tax within 15 days.",
       "Register VAT when threshold/EU rules require it.",
-      "Add payroll and other taxes only when relevant.",
+      "Keep tax deadlines in one monthly checklist with your accountant.",
     ],
   },
   {
-    title: "Business license",
+    title: "Business license (our use case)",
     points: [
-      "Apply for a free trade license at the Trade Licensing Office.",
-      "Use the correct category for your activity.",
+      "Use the free trade license category for bamboo product sales (retail + wholesale).",
+      "Scope for this project: import and sell bamboo home products in Czechia.",
+      "Apply at Trade Licensing Office, fee is 1,000 CZK.",
       "Typical lead time is around 5 business days.",
     ],
   },
+];
+
+const REQUIRED_DOCUMENTS = [
+  "Trade license confirmation",
+  "Commercial Register extract",
+  "Bank account + capital deposit confirmation",
+  "Tax registration confirmation",
+  "Core contracts (supplier, lease/office consent)",
+];
+
+const FIRST_90_DAYS_DEADLINES = [
   {
-    title: "Employer duties",
-    points: [
-      "When hiring, register with CSSZ and health insurer.",
-      "Complete registration within 8 days of employee start.",
+    period: "First 15 days",
+    tasks: [
+      "Register corporate income tax.",
+      "Save all setup confirmations into Documents.",
     ],
   },
   {
-    title: "E-commerce and GDPR",
-    points: [
-      "Prepare terms, privacy notice, and cookie policy.",
-      "For EU online sales, check OSS and EU VAT setup.",
+    period: "First 30 days",
+    tasks: [
+      "Start monthly accounting routine with your accountant.",
+      "Confirm invoice flow and archive process.",
+    ],
+  },
+  {
+    period: "First 90 days",
+    tasks: [
+      "Review turnover and VAT trigger risk.",
+      "Check license scope still matches real activity.",
     ],
   },
 ];
@@ -54,7 +73,7 @@ export default async function BambooLegalCompliancePage() {
           Legal and compliance
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Simple legal checklist for tax, licensing, and key obligations.
+          Focused legal checklist for your one-owner setup: tax and business license.
         </p>
       </section>
 
@@ -72,6 +91,44 @@ export default async function BambooLegalCompliancePage() {
             </ul>
           </article>
         ))}
+      </section>
+
+      <section className="mt-6 grid gap-4 lg:grid-cols-2">
+        <article className="rounded-2xl border border-(--line) bg-white p-6">
+          <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
+            Required documents
+          </h2>
+          <ul className="mt-4 space-y-2">
+            {REQUIRED_DOCUMENTS.map((item) => (
+              <li
+                key={item}
+                className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        </article>
+
+        <article className="rounded-2xl border border-(--line) bg-white p-6">
+          <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
+            First 90 days deadlines
+          </h2>
+          <div className="mt-4 space-y-3">
+            {FIRST_90_DAYS_DEADLINES.map((item) => (
+              <div key={item.period} className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] p-3">
+                <p className="text-sm font-semibold text-[#1a2b49]">{item.period}</p>
+                <ul className="mt-2 space-y-1">
+                  {item.tasks.map((task) => (
+                    <li key={task} className="text-sm text-[#314567]">
+                      • {task}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </article>
       </section>
     </main>
   );

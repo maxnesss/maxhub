@@ -178,7 +178,7 @@ export default async function BambooPage() {
 
       <BambooSectionProgress
         title="Journey progress"
-        description="Task completion across Setup, Inventory, Name brainstorm, Shop, and Launch."
+        description="Task completion across Name brainstorm, Setup, Inventory, Shop, and Launch."
         sections={sectionProgress}
       />
 

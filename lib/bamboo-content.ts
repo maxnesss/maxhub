@@ -158,7 +158,7 @@ export const BAMBOO_SETUP_COMPANY_TILES: BambooTile[] = [
     badge: "Legal",
   },
   {
-    title: "Finance requirements",
+    title: "Company setup finance requirements",
     href: "/apps/bamboo/company-setup/finance-requirements",
     description: "Setup costs, capital, and finance checkpoints.",
     badge: "Setup",

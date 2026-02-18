@@ -86,7 +86,7 @@ export default async function BambooCompanySetupPage() {
               href="/apps/bamboo/company-setup/finance-requirements"
               className="inline-flex rounded-lg border border-[#d9e2f3] px-3 py-2 text-xs font-semibold tracking-[0.1em] text-[#4e5e7a] uppercase hover:bg-[#f8faff]"
             >
-              Finance requirements
+              Company setup finance requirements
             </Link>
           </div>
         </div>
