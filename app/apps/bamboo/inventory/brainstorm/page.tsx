@@ -4,6 +4,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { canEditApp, requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import { getSignedImageUrl } from "@/lib/r2-images";
 import { prisma } from "@/prisma";
 
@@ -27,6 +28,8 @@ export default async function BambooInventoryBrainstormPage({
 }: BambooInventoryBrainstormPageProps) {
   const user = await requireAppRead("BAMBOO");
   const canEdit = canEditApp(user, "BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
   const { saved, error, edit } = await searchParams;
 
   const ideas = await prisma.bambooInventoryIdea.findMany({
@@ -48,31 +51,39 @@ export default async function BambooInventoryBrainstormPage({
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
-      {saved === "added" ? <Toast message="Inventory idea added." /> : null}
-      {saved === "updated" ? <Toast message="Inventory idea updated." /> : null}
-      {saved === "deleted" ? <Toast message="Inventory idea removed." /> : null}
-      {saved === "image-added" ? <Toast message="Image uploaded." /> : null}
-      {saved === "image-deleted" ? <Toast message="Image removed." /> : null}
+      {saved === "added" ? <Toast message={isZh ? "已添加货品想法。" : "Inventory idea added."} /> : null}
+      {saved === "updated" ? <Toast message={isZh ? "已更新货品想法。" : "Inventory idea updated."} /> : null}
+      {saved === "deleted" ? <Toast message={isZh ? "已删除货品想法。" : "Inventory idea removed."} /> : null}
+      {saved === "image-added" ? <Toast message={isZh ? "图片已上传。" : "Image uploaded."} /> : null}
+      {saved === "image-deleted" ? <Toast message={isZh ? "图片已删除。" : "Image removed."} /> : null}
       {error === "invalid" ? (
-        <Toast message="Invalid input." tone="error" />
+        <Toast message={isZh ? "输入无效。" : "Invalid input."} tone="error" />
       ) : null}
       {error === "duplicate" ? (
-        <Toast message="Idea name already exists." tone="error" />
+        <Toast message={isZh ? "该想法名称已存在。" : "Idea name already exists."} tone="error" />
       ) : null}
       {error === "image-invalid" ? (
         <Toast
-          message="Invalid image. Use JPG, PNG, WEBP, GIF, or AVIF up to 5 MB."
+          message={
+            isZh
+              ? "图片无效。请使用 JPG、PNG、WEBP、GIF 或 AVIF，且不超过 5 MB。"
+              : "Invalid image. Use JPG, PNG, WEBP, GIF, or AVIF up to 5 MB."
+          }
           tone="error"
         />
       ) : null}
       {error === "image-config" ? (
         <Toast
-          message="R2 image storage is not configured. Set R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET."
+          message={
+            isZh
+              ? "R2 图片存储未配置。请设置 R2_ENDPOINT、R2_ACCESS_KEY_ID、R2_SECRET_ACCESS_KEY 和 R2_BUCKET。"
+              : "R2 image storage is not configured. Set R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET."
+          }
           tone="error"
         />
       ) : null}
       {error === "image-upload" ? (
-        <Toast message="Image upload failed." tone="error" />
+        <Toast message={isZh ? "图片上传失败。" : "Image upload failed."} tone="error" />
       ) : null}
 
       <TopNav current="apps" />
@@ -82,32 +93,33 @@ export default async function BambooInventoryBrainstormPage({
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Inventory", href: "/apps/bamboo/inventory" },
-            { label: "Brainstorm" },
+            { label: isZh ? "货品" : "Inventory", href: "/apps/bamboo/inventory" },
+            { label: isZh ? "头脑风暴" : "Brainstorm" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Inventory brainstorm
+          {isZh ? "货品头脑风暴" : "Inventory brainstorm"}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Shared inventory ideas. You can add, edit, and remove ideas when you
-          have edit permission.
+          {isZh
+            ? "共享货品想法清单。拥有编辑权限时可以新增、修改和删除。"
+            : "Shared inventory ideas. You can add, edit, and remove ideas when you have edit permission."}
         </p>
       </section>
 
       <section className="mt-6 overflow-hidden rounded-2xl border border-(--line) bg-white">
         <div className="flex items-center justify-between gap-3 border-b border-[#edf2fb] px-4 py-3">
           <h2 className="text-lg font-semibold tracking-tight text-[#162947]">
-            Inventory ideas
+            {isZh ? "货品想法" : "Inventory ideas"}
           </h2>
-          {canEdit ? <AddInventoryIdeaModal action={addInventoryIdeaAction} /> : null}
+          {canEdit ? <AddInventoryIdeaModal action={addInventoryIdeaAction} locale={locale} /> : null}
         </div>
 
         <div className="hidden grid-cols-[0.8fr_1.6fr_0.6fr_0.6fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase md:grid">
-          <span>Name</span>
-          <span>Notes</span>
-          <span>Target price</span>
-          <span>Actions</span>
+          <span>{isZh ? "名称" : "Name"}</span>
+          <span>{isZh ? "备注" : "Notes"}</span>
+          <span>{isZh ? "目标价格" : "Target price"}</span>
+          <span>{isZh ? "操作" : "Actions"}</span>
         </div>
 
         {ideas.length > 0 ? (
@@ -127,7 +139,7 @@ export default async function BambooInventoryBrainstormPage({
                     <input type="hidden" name="id" value={idea.id} />
                     <label className="space-y-1">
                       <span className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Name
+                        {isZh ? "名称" : "Name"}
                       </span>
                       <input
                         type="text"
@@ -140,7 +152,7 @@ export default async function BambooInventoryBrainstormPage({
                     </label>
                     <label className="space-y-1">
                       <span className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Notes
+                        {isZh ? "备注" : "Notes"}
                       </span>
                       <textarea
                         name="notes"
@@ -153,7 +165,7 @@ export default async function BambooInventoryBrainstormPage({
                     </label>
                     <label className="space-y-1">
                       <span className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Target price
+                        {isZh ? "目标价格" : "Target price"}
                       </span>
                       <input
                         type="text"
@@ -169,13 +181,13 @@ export default async function BambooInventoryBrainstormPage({
                         type="submit"
                         className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                       >
-                        Save
+                        {isZh ? "保存" : "Save"}
                       </button>
                       <Link
                         href="/apps/bamboo/inventory/brainstorm"
                         className="inline-flex justify-center rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                       >
-                        Cancel
+                        {isZh ? "取消" : "Cancel"}
                       </Link>
                     </div>
                   </form>
@@ -183,25 +195,25 @@ export default async function BambooInventoryBrainstormPage({
                   <div className="grid gap-2 md:grid-cols-[0.8fr_1.6fr_0.6fr_0.6fr] md:items-start">
                     <div>
                       <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Name
+                        {isZh ? "名称" : "Name"}
                       </p>
                       <p className="text-sm font-semibold text-[#1a2b49]">{idea.name}</p>
                     </div>
                     <div>
                       <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Notes
+                        {isZh ? "备注" : "Notes"}
                       </p>
                       <p className="text-sm text-(--text-muted)">{idea.notes}</p>
                     </div>
                     <div>
                       <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Target price
+                        {isZh ? "目标价格" : "Target price"}
                       </p>
                       <p className="text-sm font-medium text-[#1a2b49]">{idea.targetPriceBand}</p>
                     </div>
                     <div>
                       <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Actions
+                        {isZh ? "操作" : "Actions"}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {canEdit ? (
@@ -210,7 +222,7 @@ export default async function BambooInventoryBrainstormPage({
                               href={`/apps/bamboo/inventory/brainstorm?edit=${idea.id}`}
                               className="inline-flex rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                             >
-                              Edit
+                              {isZh ? "编辑" : "Edit"}
                             </Link>
                             <form action={deleteInventoryIdeaAction}>
                               <input type="hidden" name="id" value={idea.id} />
@@ -218,12 +230,14 @@ export default async function BambooInventoryBrainstormPage({
                                 type="submit"
                                 className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
                               >
-                                Remove
+                                {isZh ? "删除" : "Remove"}
                               </button>
                             </form>
                           </>
                         ) : (
-                          <span className="text-xs text-(--text-muted)">Read only</span>
+                          <span className="text-xs text-(--text-muted)">
+                            {isZh ? "只读" : "Read only"}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -232,17 +246,19 @@ export default async function BambooInventoryBrainstormPage({
               </div>
             );
           })
-        ) : <div className="px-4 py-4 text-sm text-(--text-muted)">No ideas yet.</div>}
+        ) : <div className="px-4 py-4 text-sm text-(--text-muted)">{isZh ? "还没有想法。" : "No ideas yet."}</div>}
       </section>
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-              Image gallery
+              {isZh ? "图片图库" : "Image gallery"}
             </h2>
             <p className="mt-2 text-sm text-(--text-muted)">
-              Upload inspiration images for products and packaging ideas.
+              {isZh
+                ? "上传产品与包装灵感图片。"
+                : "Upload inspiration images for products and packaging ideas."}
             </p>
           </div>
 
@@ -252,7 +268,7 @@ export default async function BambooInventoryBrainstormPage({
                 htmlFor="brainstorm-image-upload"
                 className="text-sm font-medium text-[#4e5e7a]"
               >
-                Upload image
+                {isZh ? "上传图片" : "Upload image"}
               </label>
               <input
                 id="brainstorm-image-upload"
@@ -266,7 +282,7 @@ export default async function BambooInventoryBrainstormPage({
                 type="submit"
                 className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
               >
-                Upload
+                {isZh ? "上传" : "Upload"}
               </button>
             </form>
           ) : null}
@@ -287,7 +303,7 @@ export default async function BambooInventoryBrainstormPage({
                   />
                 ) : (
                   <div className="flex h-48 w-full items-center justify-center bg-[#f3f7ff] text-sm text-[#61708e]">
-                    Unable to load preview
+                    {isZh ? "无法加载预览" : "Unable to load preview"}
                   </div>
                 )}
                 <div className="space-y-2 p-3">
@@ -304,7 +320,7 @@ export default async function BambooInventoryBrainstormPage({
                         type="submit"
                         className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
                       >
-                        Remove
+                        {isZh ? "删除" : "Remove"}
                       </button>
                     </form>
                   ) : null}
@@ -313,7 +329,9 @@ export default async function BambooInventoryBrainstormPage({
             ))}
           </div>
         ) : (
-          <p className="mt-4 text-sm text-(--text-muted)">No images uploaded yet.</p>
+          <p className="mt-4 text-sm text-(--text-muted)">
+            {isZh ? "还没有上传图片。" : "No images uploaded yet."}
+          </p>
         )}
       </section>
 

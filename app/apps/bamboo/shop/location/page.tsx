@@ -4,6 +4,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { canEditApp, requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import { prisma } from "@/prisma";
 
 import {
@@ -31,6 +32,8 @@ export default async function BambooShopLocationPage({
 }: ShopLocationPageProps) {
   const user = await requireAppRead("BAMBOO");
   const canEdit = canEditApp(user, "BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
   const { saved, error, editLocation } = await searchParams;
 
   const [locations, rentalPlaces, websites] = await Promise.all([
@@ -41,8 +44,8 @@ export default async function BambooShopLocationPage({
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
-      {saved ? <Toast message="Shop location data updated." /> : null}
-      {error ? <Toast message="Unable to save changes." tone="error" /> : null}
+      {saved ? <Toast message={isZh ? "门店选址数据已更新。" : "Shop location data updated."} /> : null}
+      {error ? <Toast message={isZh ? "无法保存更改。" : "Unable to save changes."} tone="error" /> : null}
 
       <TopNav current="apps" />
 
@@ -53,16 +56,17 @@ export default async function BambooShopLocationPage({
               items={[
                 { label: "Apps", href: "/apps" },
                 { label: "Bamboo", href: "/apps/bamboo" },
-                { label: "Shop", href: "/apps/bamboo/shop" },
-                { label: "Location" },
+                { label: isZh ? "门店" : "Shop", href: "/apps/bamboo/shop" },
+                { label: isZh ? "选址" : "Location" },
               ]}
             />
             <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-              Location
+              {isZh ? "选址" : "Location"}
             </h1>
             <p className="mt-4 max-w-3xl text-(--text-muted)">
-              Long-form location planning with editable general areas, concrete
-              rental places, and sourcing websites.
+              {isZh
+                ? "完整选址规划：可编辑区域候选、具体房源与信息网站。"
+                : "Long-form location planning with editable general areas, concrete rental places, and sourcing websites."}
             </p>
           </div>
 
@@ -70,17 +74,17 @@ export default async function BambooShopLocationPage({
             href="/apps/bamboo/shop"
             className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
           >
-            Back to shop
+            {isZh ? "返回门店模块" : "Back to shop"}
           </Link>
         </div>
       </section>
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          General locations
+          {isZh ? "区域候选" : "General locations"}
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Broad location candidates with notes.
+          {isZh ? "记录大范围选址候选与备注。" : "Broad location candidates with notes."}
         </p>
 
         <div className="mt-4 space-y-2">
@@ -112,13 +116,13 @@ export default async function BambooShopLocationPage({
                         type="submit"
                         className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                       >
-                        Save
+                        {isZh ? "保存" : "Save"}
                       </button>
                       <Link
                         href="/apps/bamboo/shop/location"
                         className="inline-flex justify-center rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                       >
-                        Cancel
+                        {isZh ? "取消" : "Cancel"}
                       </Link>
                     </div>
                   </form>
@@ -133,7 +137,7 @@ export default async function BambooShopLocationPage({
                             href={`/apps/bamboo/shop/location?editLocation=${item.id}`}
                             className="inline-flex rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                           >
-                            Edit
+                            {isZh ? "编辑" : "Edit"}
                           </Link>
                           <form action={deleteShopLocationAction}>
                             <input type="hidden" name="id" value={item.id} />
@@ -141,12 +145,14 @@ export default async function BambooShopLocationPage({
                               type="submit"
                               className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
                             >
-                              Remove
+                              {isZh ? "删除" : "Remove"}
                             </button>
                           </form>
                         </>
                       ) : (
-                        <span className="text-xs text-(--text-muted)">Read only</span>
+                        <span className="text-xs text-(--text-muted)">
+                          {isZh ? "只读" : "Read only"}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -163,21 +169,21 @@ export default async function BambooShopLocationPage({
               name="name"
               required
               maxLength={120}
-              placeholder="New general location"
+              placeholder={isZh ? "新增区域候选" : "New general location"}
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <textarea
               name="notes"
               rows={2}
               maxLength={1200}
-              placeholder="Notes"
+              placeholder={isZh ? "备注" : "Notes"}
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <button
               type="submit"
               className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Add
+              {isZh ? "添加" : "Add"}
             </button>
           </form>
         ) : null}
@@ -185,10 +191,12 @@ export default async function BambooShopLocationPage({
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Concrete places to rent
+          {isZh ? "具体租赁房源" : "Concrete places to rent"}
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Track real listings with link, date, price, and notes.
+          {isZh
+            ? "记录真实房源链接、日期、价格和备注。"
+            : "Track real listings with link, date, price, and notes."}
         </p>
 
         <div className="mt-4 space-y-2">
@@ -239,14 +247,14 @@ export default async function BambooShopLocationPage({
                     type="submit"
                     className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                   >
-                    Save
+                    {isZh ? "保存" : "Save"}
                   </button>
                   <button
                     type="submit"
                     formAction={deleteShopRentalPlaceAction}
                     className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
                   >
-                    Remove
+                    {isZh ? "删除" : "Remove"}
                   </button>
                 </form>
               ) : (
@@ -278,7 +286,7 @@ export default async function BambooShopLocationPage({
               name="price"
               required
               maxLength={120}
-              placeholder="Price"
+              placeholder={isZh ? "价格" : "Price"}
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <input
@@ -286,7 +294,7 @@ export default async function BambooShopLocationPage({
               name="location"
               required
               maxLength={160}
-              placeholder="Location"
+              placeholder={isZh ? "地点" : "Location"}
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <input
@@ -294,21 +302,21 @@ export default async function BambooShopLocationPage({
               name="link"
               required
               maxLength={400}
-              placeholder="Listing URL"
+              placeholder={isZh ? "房源链接" : "Listing URL"}
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <textarea
               name="notes"
               rows={2}
               maxLength={1200}
-              placeholder="Notes"
+              placeholder={isZh ? "备注" : "Notes"}
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <button
               type="submit"
               className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Add
+              {isZh ? "添加" : "Add"}
             </button>
           </form>
         ) : null}
@@ -316,10 +324,12 @@ export default async function BambooShopLocationPage({
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Websites (CRUD)
+          {isZh ? "网站来源（增删改查）" : "Websites (CRUD)"}
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Sources to find new listings and monitor new opportunities.
+          {isZh
+            ? "用于发现新房源并持续跟踪机会的网站来源。"
+            : "Sources to find new listings and monitor new opportunities."}
         </p>
 
         <div className="mt-4 space-y-2">
@@ -355,14 +365,14 @@ export default async function BambooShopLocationPage({
                     type="submit"
                     className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                   >
-                    Save
+                    {isZh ? "保存" : "Save"}
                   </button>
                   <button
                     type="submit"
                     formAction={deleteShopWebsiteAction}
                     className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
                   >
-                    Remove
+                    {isZh ? "删除" : "Remove"}
                   </button>
                 </form>
               ) : (
@@ -385,7 +395,7 @@ export default async function BambooShopLocationPage({
               name="name"
               required
               maxLength={120}
-              placeholder="Website name"
+              placeholder={isZh ? "网站名称" : "Website name"}
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <input
@@ -400,14 +410,14 @@ export default async function BambooShopLocationPage({
               name="notes"
               rows={2}
               maxLength={1200}
-              placeholder="Notes"
+              placeholder={isZh ? "备注" : "Notes"}
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <button
               type="submit"
               className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Add
+              {isZh ? "添加" : "Add"}
             </button>
           </form>
         ) : null}

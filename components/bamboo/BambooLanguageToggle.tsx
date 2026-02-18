@@ -51,9 +51,12 @@ export function BambooLanguageToggle({ locale }: BambooLanguageToggleProps) {
         onClick={() => {
           setLocale("en");
         }}
-        className={`rounded-lg border px-3 py-1 text-xs font-semibold transition ${getButtonClass(locale === "en")}`}
+        className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1 text-xs font-semibold transition ${getButtonClass(locale === "en")}`}
       >
-        {copy.english}
+        <span aria-hidden className="text-sm leading-none">
+          🇬🇧
+        </span>
+        <span>{copy.english}</span>
       </button>
       <button
         type="button"
@@ -61,9 +64,12 @@ export function BambooLanguageToggle({ locale }: BambooLanguageToggleProps) {
         onClick={() => {
           setLocale("zh");
         }}
-        className={`rounded-lg border px-3 py-1 text-xs font-semibold transition ${getButtonClass(locale === "zh")}`}
+        className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1 text-xs font-semibold transition ${getButtonClass(locale === "zh")}`}
       >
-        {copy.mandarin}
+        <span aria-hidden className="text-sm leading-none">
+          🇨🇳
+        </span>
+        <span>{copy.mandarin}</span>
       </button>
     </div>
   );

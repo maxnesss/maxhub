@@ -4,6 +4,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { canEditApp, requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import {
   BAMBOO_PRODUCER_CONTACT_FIELDS,
   BAMBOO_SOURCING_CHANNELS,
@@ -26,6 +27,38 @@ const QUALIFICATION_CHECKLIST = [
   "Compliance and material certificates reviewed",
   "References or trade history validated",
 ];
+
+const QUALIFICATION_CHECKLIST_ZH = [
+  "已核验供应商主体身份与注册信息",
+  "产能可满足预计订单量",
+  "样品质量已确认通过",
+  "交期现实且有书面说明",
+  "贸易术语与付款条件明确",
+  "已核查合规与材料证书",
+  "已验证参考客户或贸易记录",
+];
+
+const SOURCING_CHANNEL_TRANSLATIONS: Record<string, string> = {
+  "Alibaba verified suppliers": "阿里巴巴认证供应商",
+  "Global Sources": "环球资源",
+  "Made-in-China": "中国制造网",
+  "Trade fairs (Canton Fair, Ambiente sourcing contacts)": "展会渠道（广交会、Ambiente 采购联系人）",
+  "Sourcing agents in China": "中国本地采购代理",
+};
+
+const PRODUCER_FIELD_TRANSLATIONS: Record<string, string> = {
+  "Company name": "公司名称",
+  "Contact person": "联系人",
+  "Email / WeChat / Alibaba profile": "邮箱 / 微信 / 阿里账号",
+  "City / Province in China": "中国城市 / 省份",
+  "Product specialization": "产品专长",
+  "MOQ (minimum order quantity)": "MOQ（最小起订量）",
+  "Sample lead time": "样品交期",
+  "Production lead time": "生产交期",
+  "Certifications (FSC, BSCI, ISO)": "认证（FSC、BSCI、ISO）",
+  "Incoterm offered (EXW, FOB, CIF, DDP)": "可提供贸易条款（EXW、FOB、CIF、DDP）",
+  "Notes and risk flags": "备注与风险标记",
+};
 
 const ENGLISH_PRODUCER_TEMPLATE = `Hello [Supplier Name],
 
@@ -119,22 +152,31 @@ export default async function BambooProducersContactPage({
 }: BambooProducersContactPageProps) {
   const user = await requireAppRead("BAMBOO");
   const canEdit = canEditApp(user, "BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
   const { saved, error, edit } = await searchParams;
 
   const producers = await prisma.bambooProducerContact.findMany({
     orderBy: [{ createdAt: "asc" }, { name: "asc" }],
   });
+  const sourcingChannels = isZh
+    ? BAMBOO_SOURCING_CHANNELS.map((item) => SOURCING_CHANNEL_TRANSLATIONS[item] ?? item)
+    : BAMBOO_SOURCING_CHANNELS;
+  const producerContactFields = isZh
+    ? BAMBOO_PRODUCER_CONTACT_FIELDS.map((item) => PRODUCER_FIELD_TRANSLATIONS[item] ?? item)
+    : BAMBOO_PRODUCER_CONTACT_FIELDS;
+  const qualificationChecklist = isZh ? QUALIFICATION_CHECKLIST_ZH : QUALIFICATION_CHECKLIST;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
-      {saved === "added" ? <Toast message="Producer added." /> : null}
-      {saved === "updated" ? <Toast message="Producer updated." /> : null}
-      {saved === "deleted" ? <Toast message="Producer removed." /> : null}
+      {saved === "added" ? <Toast message={isZh ? "已添加供应商。" : "Producer added."} /> : null}
+      {saved === "updated" ? <Toast message={isZh ? "已更新供应商。" : "Producer updated."} /> : null}
+      {saved === "deleted" ? <Toast message={isZh ? "已删除供应商。" : "Producer removed."} /> : null}
       {error === "invalid" ? (
-        <Toast message="Invalid producer input." tone="error" />
+        <Toast message={isZh ? "供应商输入无效。" : "Invalid producer input."} tone="error" />
       ) : null}
       {error === "duplicate" ? (
-        <Toast message="Producer name already exists." tone="error" />
+        <Toast message={isZh ? "该供应商名称已存在。" : "Producer name already exists."} tone="error" />
       ) : null}
 
       <TopNav current="apps" />
@@ -144,23 +186,27 @@ export default async function BambooProducersContactPage({
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Inventory", href: "/apps/bamboo/inventory" },
-            { label: "Producers contact" },
+            { label: isZh ? "货品" : "Inventory", href: "/apps/bamboo/inventory" },
+            { label: isZh ? "供应商联系" : "Producers contact" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Producers contact
+          {isZh ? "供应商联系" : "Producers contact"}
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Supplier sourcing and contact tracking for China imports.
+          {isZh
+            ? "面向中国采购的供应商搜寻与联系跟踪。"
+            : "Supplier sourcing and contact tracking for China imports."}
         </p>
       </section>
 
       <section className="mt-6 grid gap-4 lg:grid-cols-2">
         <article className="rounded-2xl border border-(--line) bg-white p-6">
-          <h2 className="text-xl font-semibold tracking-tight text-[#162947]">Sourcing channels</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
+            {isZh ? "采购渠道" : "Sourcing channels"}
+          </h2>
           <ul className="mt-4 space-y-2">
-            {BAMBOO_SOURCING_CHANNELS.map((channel) => (
+            {sourcingChannels.map((channel) => (
               <li key={channel} className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]">
                 {channel}
               </li>
@@ -170,10 +216,10 @@ export default async function BambooProducersContactPage({
 
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
-            Supplier qualification checklist
+            {isZh ? "供应商筛选清单" : "Supplier qualification checklist"}
           </h2>
           <ul className="mt-4 space-y-2">
-            {QUALIFICATION_CHECKLIST.map((item) => (
+            {qualificationChecklist.map((item) => (
               <li key={item} className="flex items-start gap-2 text-sm text-[#314567]">
                 <span className="mt-1 h-2 w-2 rounded-full bg-[#8fb6ff]" />
                 <span>{item}</span>
@@ -185,14 +231,14 @@ export default async function BambooProducersContactPage({
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Contact tracker fields
+          {isZh ? "联系跟踪字段" : "Contact tracker fields"}
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Use these fields in your supplier tracker.
+          {isZh ? "在供应商跟踪表中使用这些字段。" : "Use these fields in your supplier tracker."}
         </p>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {BAMBOO_PRODUCER_CONTACT_FIELDS.map((field) => (
+          {producerContactFields.map((field) => (
             <p
               key={field}
               className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"
@@ -209,18 +255,18 @@ export default async function BambooProducersContactPage({
         {canEdit ? (
           <div className="flex items-center justify-between gap-3 border-b border-[#edf2fb] px-4 py-3">
             <h2 className="text-lg font-semibold tracking-tight text-[#162947]">
-              Producer list
+              {isZh ? "供应商列表" : "Producer list"}
             </h2>
-            <AddProducerModal action={addProducerContactAction} />
+            <AddProducerModal action={addProducerContactAction} locale={locale} />
           </div>
         ) : null}
 
         <div className="hidden grid-cols-[0.7fr_0.9fr_0.8fr_1.2fr_0.7fr] bg-[#f8faff] px-4 py-3 text-xs font-semibold tracking-[0.12em] text-[#617294] uppercase md:grid">
-          <span>Name</span>
-          <span>Contact</span>
-          <span>Sortiment</span>
-          <span>Notes</span>
-          <span>Actions</span>
+          <span>{isZh ? "名称" : "Name"}</span>
+          <span>{isZh ? "联系方式" : "Contact"}</span>
+          <span>{isZh ? "产品范围" : "Sortiment"}</span>
+          <span>{isZh ? "备注" : "Notes"}</span>
+          <span>{isZh ? "操作" : "Actions"}</span>
         </div>
 
         {producers.length > 0 ? (
@@ -237,7 +283,7 @@ export default async function BambooProducersContactPage({
                     <input type="hidden" name="id" value={producer.id} />
                     <label className="space-y-1">
                       <span className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Name
+                        {isZh ? "名称" : "Name"}
                       </span>
                       <input
                         type="text"
@@ -250,7 +296,7 @@ export default async function BambooProducersContactPage({
                     </label>
                     <label className="space-y-1">
                       <span className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Contact
+                        {isZh ? "联系方式" : "Contact"}
                       </span>
                       <input
                         type="text"
@@ -263,7 +309,7 @@ export default async function BambooProducersContactPage({
                     </label>
                     <label className="space-y-1">
                       <span className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Sortiment
+                        {isZh ? "产品范围" : "Sortiment"}
                       </span>
                       <input
                         type="text"
@@ -276,7 +322,7 @@ export default async function BambooProducersContactPage({
                     </label>
                     <label className="space-y-1">
                       <span className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Notes
+                        {isZh ? "备注" : "Notes"}
                       </span>
                       <textarea
                         name="notes"
@@ -291,13 +337,13 @@ export default async function BambooProducersContactPage({
                         type="submit"
                         className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                       >
-                        Save
+                        {isZh ? "保存" : "Save"}
                       </button>
                       <Link
                         href="/apps/bamboo/inventory/producers-contact"
                         className="inline-flex justify-center rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                       >
-                        Cancel
+                        {isZh ? "取消" : "Cancel"}
                       </Link>
                     </div>
                   </form>
@@ -305,31 +351,31 @@ export default async function BambooProducersContactPage({
                   <div className="grid gap-2 md:grid-cols-[0.7fr_0.9fr_0.8fr_1.2fr_0.7fr] md:items-start">
                     <div>
                       <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Name
+                        {isZh ? "名称" : "Name"}
                       </p>
                       <p className="text-sm font-semibold text-[#1a2b49]">{producer.name}</p>
                     </div>
                     <div>
                       <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Contact
+                        {isZh ? "联系方式" : "Contact"}
                       </p>
                       <p className="text-sm text-[#1a2b49]">{producer.contact}</p>
                     </div>
                     <div>
                       <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Sortiment
+                        {isZh ? "产品范围" : "Sortiment"}
                       </p>
                       <p className="text-sm text-[#1a2b49]">{producer.sortiment}</p>
                     </div>
                     <div>
                       <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Notes
+                        {isZh ? "备注" : "Notes"}
                       </p>
                       <p className="text-sm text-(--text-muted)">{producer.notes}</p>
                     </div>
                     <div>
                       <p className="text-[11px] font-semibold tracking-[0.08em] text-[#617294] uppercase md:hidden">
-                        Actions
+                        {isZh ? "操作" : "Actions"}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {canEdit ? (
@@ -338,7 +384,7 @@ export default async function BambooProducersContactPage({
                               href={`/apps/bamboo/inventory/producers-contact?edit=${producer.id}`}
                               className="inline-flex rounded-lg border border-[#d9e2f3] bg-white px-3 py-2 text-xs font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
                             >
-                              Edit
+                              {isZh ? "编辑" : "Edit"}
                             </Link>
                             <form action={deleteProducerContactAction}>
                               <input type="hidden" name="id" value={producer.id} />
@@ -346,12 +392,14 @@ export default async function BambooProducersContactPage({
                                 type="submit"
                                 className="cursor-pointer rounded-lg border border-[#f0cbc1] bg-[#fff4f1] px-3 py-2 text-xs font-semibold text-[#9a4934] hover:bg-[#ffece7]"
                               >
-                                Remove
+                                {isZh ? "删除" : "Remove"}
                               </button>
                             </form>
                           </>
                         ) : (
-                          <span className="text-xs text-(--text-muted)">Read only</span>
+                          <span className="text-xs text-(--text-muted)">
+                            {isZh ? "只读" : "Read only"}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -362,23 +410,24 @@ export default async function BambooProducersContactPage({
           })
         ) : (
           <div className="px-4 py-4 text-sm text-(--text-muted)">
-            No producers yet.
+            {isZh ? "还没有供应商记录。" : "No producers yet."}
           </div>
         )}
       </section>
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-          Producer outreach template
+          {isZh ? "供应商联系模板" : "Producer outreach template"}
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Ready-to-use supplier inquiry message with all required qualification
-          questions. First in English, then in Mandarin.
+          {isZh
+            ? "可直接使用的供应商询盘模板，包含关键筛选问题。先英文，再中文。"
+            : "Ready-to-use supplier inquiry message with all required qualification questions. First in English, then in Mandarin."}
         </p>
 
         <div className="mt-4 grid gap-4 xl:grid-cols-2">
           <article className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
             <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-              English
+              {isZh ? "英文" : "English"}
             </p>
             <pre className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#314567]">
               {ENGLISH_PRODUCER_TEMPLATE}
@@ -387,7 +436,7 @@ export default async function BambooProducersContactPage({
 
           <article className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
             <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-              Mandarin
+              {isZh ? "中文" : "Mandarin"}
             </p>
             <pre className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#314567]">
               {MANDARIN_PRODUCER_TEMPLATE}

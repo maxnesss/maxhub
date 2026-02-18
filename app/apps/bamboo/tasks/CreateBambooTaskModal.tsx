@@ -2,6 +2,8 @@
 
 import { useRef } from "react";
 
+import type { BambooLocale } from "@/lib/bamboo-i18n";
+
 type TaskOption = {
   value: string;
   label: string;
@@ -14,6 +16,7 @@ type CreateBambooTaskModalProps = {
   priorityOptions: TaskOption[];
   defaultCategory: string;
   defaultPhase: string;
+  locale: BambooLocale;
 };
 
 export function CreateBambooTaskModal({
@@ -23,8 +26,10 @@ export function CreateBambooTaskModal({
   priorityOptions,
   defaultCategory,
   defaultPhase,
+  locale,
 }: CreateBambooTaskModalProps) {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const isZh = locale === "zh";
 
   function openModal() {
     dialogRef.current?.showModal();
@@ -41,7 +46,7 @@ export function CreateBambooTaskModal({
         onClick={openModal}
         className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
       >
-        Create task
+        {isZh ? "创建任务" : "Create task"}
       </button>
 
       <dialog
@@ -50,7 +55,7 @@ export function CreateBambooTaskModal({
       >
         <form action={action} className="space-y-4 p-6">
           <h2 className="text-xl font-semibold tracking-tight text-[#162947]">
-            Create task
+            {isZh ? "创建任务" : "Create task"}
           </h2>
 
           <div className="grid gap-3 md:grid-cols-2">
@@ -59,7 +64,7 @@ export function CreateBambooTaskModal({
               name="title"
               required
               maxLength={180}
-              placeholder="Task title"
+              placeholder={isZh ? "任务标题" : "Task title"}
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <input
@@ -67,7 +72,7 @@ export function CreateBambooTaskModal({
               name="owner"
               required
               maxLength={80}
-              placeholder="Owner (e.g. Founder)"
+              placeholder={isZh ? "负责人（例如 创始人）" : "Owner (e.g. Founder)"}
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <select
@@ -110,14 +115,14 @@ export function CreateBambooTaskModal({
               type="text"
               name="subCategory"
               maxLength={120}
-              placeholder="Subcategory (optional)"
+              placeholder={isZh ? "子分类（可选）" : "Subcategory (optional)"}
               className="rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
             <textarea
               name="description"
               rows={3}
               maxLength={2000}
-              placeholder="Description (optional)"
+              placeholder={isZh ? "描述（可选）" : "Description (optional)"}
               className="md:col-span-2 rounded-lg border border-[#d8e2f4] bg-white px-3 py-2 text-sm"
             />
           </div>
@@ -128,13 +133,13 @@ export function CreateBambooTaskModal({
               onClick={closeModal}
               className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Cancel
+              {isZh ? "取消" : "Cancel"}
             </button>
             <button
               type="submit"
               className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Add task
+              {isZh ? "添加任务" : "Add task"}
             </button>
           </div>
         </form>

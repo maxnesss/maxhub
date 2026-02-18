@@ -5,6 +5,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { canEditApp, requireAppRead } from "@/lib/authz";
 import { formatCzkAmount, getInventoryBudgetBreakdown } from "@/lib/bamboo-budget";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import { prisma } from "@/prisma";
 
 import { saveInventoryBudgetAction } from "./actions";
@@ -42,11 +43,21 @@ const PERIODICAL_FIELDS = [
   { name: "periodicalLabelling", label: "Labelling" },
 ] as const;
 
+const INVENTORY_FIELD_LABEL_TRANSLATIONS: Record<string, string> = {
+  "Inventory buy": "货品采购",
+  Transportation: "运输",
+  "Taxes + import fees": "税费 + 进口费用",
+  "Transportation to shop": "运输到门店",
+  Labelling: "贴标",
+};
+
 export default async function BambooInventoryBudgetPage({
   searchParams,
 }: BambooInventoryBudgetPageProps) {
   const user = await requireAppRead("BAMBOO");
   const canEdit = canEditApp(user, "BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
   const { saved, error } = await searchParams;
 
   const budget = await prisma.bambooInventoryBudget.findUnique({
@@ -61,11 +72,15 @@ export default async function BambooInventoryBudgetPage({
   const breakdown = getInventoryBudgetBreakdown(values);
   const nonZeroInitialLines = breakdown.initialLines.filter((line) => line.amount > 0);
   const nonZeroPeriodicalLines = breakdown.periodicalLines.filter((line) => line.amount > 0);
+  const translateFieldLabel = (label: string) =>
+    isZh ? INVENTORY_FIELD_LABEL_TRANSLATIONS[label] ?? label : label;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
-      {saved === "1" ? <Toast message="Inventory budget updated." /> : null}
-      {error === "invalid" ? <Toast message="Invalid inventory budget values." tone="error" /> : null}
+      {saved === "1" ? <Toast message={isZh ? "货品预算已更新。" : "Inventory budget updated."} /> : null}
+      {error === "invalid" ? (
+        <Toast message={isZh ? "货品预算输入无效。" : "Invalid inventory budget values."} tone="error" />
+      ) : null}
 
       <TopNav current="apps" />
 
@@ -76,15 +91,17 @@ export default async function BambooInventoryBudgetPage({
               items={[
                 { label: "Apps", href: "/apps" },
                 { label: "Bamboo", href: "/apps/bamboo" },
-                { label: "Inventory", href: "/apps/bamboo/inventory" },
-                { label: "Budget" },
+                { label: isZh ? "货品" : "Inventory", href: "/apps/bamboo/inventory" },
+                { label: isZh ? "预算" : "Budget" },
               ]}
             />
             <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-              Inventory budget
+              {isZh ? "货品预算" : "Inventory budget"}
             </h1>
             <p className="mt-4 max-w-3xl text-(--text-muted)">
-              Track inventory budget for startup stock and recurring 3-month cycles.
+              {isZh
+                ? "跟踪启动备货与每 3 个月周期的货品预算。"
+                : "Track inventory budget for startup stock and recurring 3-month cycles."}
             </p>
           </div>
 
@@ -92,7 +109,7 @@ export default async function BambooInventoryBudgetPage({
             href="/apps/bamboo/inventory"
             className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
           >
-            Back to inventory
+            {isZh ? "返回货品模块" : "Back to inventory"}
           </Link>
         </div>
       </section>
@@ -100,7 +117,7 @@ export default async function BambooInventoryBudgetPage({
       <section className="mt-6 grid gap-4 md:grid-cols-2">
         <article className="rounded-2xl border border-(--line) bg-white p-5">
           <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-            Initial inventory total
+            {isZh ? "初始货品总计" : "Initial inventory total"}
           </p>
           <p className="mt-2 text-2xl font-semibold tracking-tight text-[#162947]">
             {formatCzkAmount(breakdown.initialTotal)}
@@ -109,7 +126,7 @@ export default async function BambooInventoryBudgetPage({
 
         <article className="rounded-2xl border border-(--line) bg-[#f8fbff] p-5">
           <p className="text-xs font-semibold tracking-[0.12em] text-[#5f7093] uppercase">
-            Periodical inventory total (3 months)
+            {isZh ? "周期货品总计（3 个月）" : "Periodical inventory total (3 months)"}
           </p>
           <p className="mt-2 text-2xl font-semibold tracking-tight text-[#162947]">
             {formatCzkAmount(breakdown.periodicalTotal)}
@@ -120,16 +137,18 @@ export default async function BambooInventoryBudgetPage({
       {canEdit ? (
         <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-            Editable estimates
+            {isZh ? "可编辑估算" : "Editable estimates"}
           </h2>
           <form action={saveInventoryBudgetAction} className="mt-4 space-y-6">
             <article>
-              <h3 className="text-lg font-semibold text-[#1a2b49]">Initial inventory</h3>
+              <h3 className="text-lg font-semibold text-[#1a2b49]">
+                {isZh ? "初始货品" : "Initial inventory"}
+              </h3>
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 {INITIAL_FIELDS.map((field) => (
                   <label key={field.name} className="grid gap-1">
                     <span className="text-xs font-semibold tracking-[0.1em] text-[#61708e] uppercase">
-                      {field.label}
+                      {translateFieldLabel(field.label)}
                     </span>
                     <input
                       type="number"
@@ -147,13 +166,13 @@ export default async function BambooInventoryBudgetPage({
 
             <article>
               <h3 className="text-lg font-semibold text-[#1a2b49]">
-                Periodical inventory (once every 3 months)
+                {isZh ? "周期货品（每 3 个月一次）" : "Periodical inventory (once every 3 months)"}
               </h3>
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 {PERIODICAL_FIELDS.map((field) => (
                   <label key={field.name} className="grid gap-1">
                     <span className="text-xs font-semibold tracking-[0.1em] text-[#61708e] uppercase">
-                      {field.label}
+                      {translateFieldLabel(field.label)}
                     </span>
                     <input
                       type="number"
@@ -173,18 +192,20 @@ export default async function BambooInventoryBudgetPage({
               type="submit"
               className="cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Save inventory budget
+              {isZh ? "保存货品预算" : "Save inventory budget"}
             </button>
           </form>
         </section>
       ) : (
         <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-            Current estimates
+            {isZh ? "当前估算" : "Current estimates"}
           </h2>
           <div className="mt-4 grid gap-6 md:grid-cols-2">
             <article>
-              <h3 className="text-lg font-semibold text-[#1a2b49]">Initial inventory</h3>
+              <h3 className="text-lg font-semibold text-[#1a2b49]">
+                {isZh ? "初始货品" : "Initial inventory"}
+              </h3>
               <ul className="mt-2 space-y-2">
                 {nonZeroInitialLines.length > 0 ? (
                   nonZeroInitialLines.map((line) => (
@@ -192,19 +213,21 @@ export default async function BambooInventoryBudgetPage({
                       key={line.key}
                       className="flex items-center justify-between rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm"
                     >
-                      <span>{line.label}</span>
+                      <span>{translateFieldLabel(line.label)}</span>
                       <span className="font-semibold text-[#1a2b49]">{formatCzkAmount(line.amount)}</span>
                     </li>
                   ))
                 ) : (
-                  <li className="text-sm text-(--text-muted)">No non-zero lines yet.</li>
+                  <li className="text-sm text-(--text-muted)">
+                    {isZh ? "暂无非零项目。" : "No non-zero lines yet."}
+                  </li>
                 )}
               </ul>
             </article>
 
             <article>
               <h3 className="text-lg font-semibold text-[#1a2b49]">
-                Periodical inventory (3 months)
+                {isZh ? "周期货品（3 个月）" : "Periodical inventory (3 months)"}
               </h3>
               <ul className="mt-2 space-y-2">
                 {nonZeroPeriodicalLines.length > 0 ? (
@@ -213,12 +236,14 @@ export default async function BambooInventoryBudgetPage({
                       key={line.key}
                       className="flex items-center justify-between rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm"
                     >
-                      <span>{line.label}</span>
+                      <span>{translateFieldLabel(line.label)}</span>
                       <span className="font-semibold text-[#1a2b49]">{formatCzkAmount(line.amount)}</span>
                     </li>
                   ))
                 ) : (
-                  <li className="text-sm text-(--text-muted)">No non-zero lines yet.</li>
+                  <li className="text-sm text-(--text-muted)">
+                    {isZh ? "暂无非零项目。" : "No non-zero lines yet."}
+                  </li>
                 )}
               </ul>
             </article>

@@ -4,6 +4,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { canEditApp, requireAppRead } from "@/lib/authz";
+import { getBambooLocale } from "@/lib/bamboo-i18n-server";
 import { prisma } from "@/prisma";
 
 import { saveShopConceptAction } from "./actions";
@@ -24,6 +25,8 @@ export default async function BambooShopConceptPage({
 }: ShopConceptPageProps) {
   const user = await requireAppRead("BAMBOO");
   const canEdit = canEditApp(user, "BAMBOO");
+  const locale = await getBambooLocale();
+  const isZh = locale === "zh";
   const { saved, error, edit } = await searchParams;
   const isEditMode = canEdit && edit === "1";
 
@@ -35,9 +38,9 @@ export default async function BambooShopConceptPage({
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
-      {saved === "1" ? <Toast message="Concept updated." /> : null}
+      {saved === "1" ? <Toast message={isZh ? "概念已更新。" : "Concept updated."} /> : null}
       {error === "invalid" ? (
-        <Toast message="Invalid concept input." tone="error" />
+        <Toast message={isZh ? "概念输入无效。" : "Invalid concept input."} tone="error" />
       ) : null}
 
       <TopNav current="apps" />
@@ -49,15 +52,17 @@ export default async function BambooShopConceptPage({
               items={[
                 { label: "Apps", href: "/apps" },
                 { label: "Bamboo", href: "/apps/bamboo" },
-                { label: "Shop", href: "/apps/bamboo/shop" },
-                { label: "Concept" },
+                { label: isZh ? "门店" : "Shop", href: "/apps/bamboo/shop" },
+                { label: isZh ? "概念" : "Concept" },
               ]}
             />
             <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-              Concept
+              {isZh ? "概念" : "Concept"}
             </h1>
             <p className="mt-4 max-w-3xl text-(--text-muted)">
-              Define your shop concept and keep size/rent targets editable.
+              {isZh
+                ? "定义门店概念，并保持面积与租金目标可编辑。"
+                : "Define your shop concept and keep size/rent targets editable."}
             </p>
           </div>
 
@@ -67,7 +72,7 @@ export default async function BambooShopConceptPage({
                 href="/apps/bamboo/shop/concept?edit=1"
                 className="inline-flex rounded-xl border border-[#d9e2f3] bg-[#f8faff] px-4 py-2 text-sm font-semibold text-[#34548d] hover:bg-[#edf3ff]"
               >
-                Edit
+                {isZh ? "编辑" : "Edit"}
               </Link>
             ) : null}
             {isEditMode ? (
@@ -75,14 +80,14 @@ export default async function BambooShopConceptPage({
                 href="/apps/bamboo/shop/concept"
                 className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
               >
-                Cancel
+                {isZh ? "取消" : "Cancel"}
               </Link>
             ) : null}
             <Link
               href="/apps/bamboo/shop"
               className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Back to shop
+              {isZh ? "返回门店模块" : "Back to shop"}
             </Link>
           </div>
         </div>
@@ -91,7 +96,7 @@ export default async function BambooShopConceptPage({
       {isEditMode ? (
         <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
-            Editable concept settings
+            {isZh ? "可编辑概念设置" : "Editable concept settings"}
           </h2>
           <form action={saveShopConceptAction} className="mt-4 grid gap-3">
             <textarea
@@ -124,26 +129,28 @@ export default async function BambooShopConceptPage({
               type="submit"
               className="w-fit cursor-pointer rounded-lg border border-[#d9e2f3] bg-white px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
             >
-              Save concept
+              {isZh ? "保存概念" : "Save concept"}
             </button>
           </form>
         </section>
       ) : null}
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">Current concept</h2>
+        <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">
+          {isZh ? "当前概念" : "Current concept"}
+        </h2>
         <p className="mt-3 text-sm leading-6 text-[#314567]">{values.concept}</p>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <article className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
             <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-              Target size
+              {isZh ? "目标面积" : "Target size"}
             </p>
             <p className="mt-2 text-sm text-[#1a2b49]">{values.targetSize}</p>
           </article>
           <article className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
             <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
-              Target price range
+              {isZh ? "目标租金区间" : "Target price range"}
             </p>
             <p className="mt-2 text-sm text-[#1a2b49]">{values.targetPriceRange}</p>
           </article>

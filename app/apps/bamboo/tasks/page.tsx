@@ -150,6 +150,7 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
               priorityOptions={createTaskPriorityOptions}
               defaultCategory={createTaskDefaultCategory}
               defaultPhase={createTaskDefaultPhase}
+              locale={locale}
             />
           ) : null}
           <span className="inline-flex rounded-xl border border-[#d9e2f3] bg-[#f8faff] px-4 py-2 text-sm font-semibold text-[#4e5e7a]">
