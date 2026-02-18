@@ -21,6 +21,11 @@ import {
   BAMBOO_SETUP_COMPANY_TILES,
 } from "@/lib/bamboo-content";
 import {
+  localizeBambooOverviewStatLabel,
+  localizeBambooOverviewStatValue,
+  localizeBambooTile,
+} from "@/lib/bamboo-content-i18n";
+import {
   BAMBOO_TASK_CATEGORY_OPTIONS,
   bambooTaskFilterHref,
   getBambooTaskCategoryLabels,
@@ -102,13 +107,26 @@ export default async function BambooPage() {
     capitalScenario?.operatingMonths ?? 3,
     (capitalScenario?.reservePercent ?? 25) / 100,
   );
-  const overviewStats = BAMBOO_OVERVIEW_STATS.map((stat) =>
-    stat.label === "Estimated setup cost"
-      ? { ...stat, value: estimatedSetupCostLabel }
-      : stat.label === "Recommended capital"
-        ? { ...stat, value: recommendedCapitalLabel }
-        : stat,
-  );
+  const overviewStats = BAMBOO_OVERVIEW_STATS.map((stat) => {
+    const value =
+      stat.label === "Estimated setup cost"
+        ? estimatedSetupCostLabel
+        : stat.label === "Recommended capital"
+          ? recommendedCapitalLabel
+          : stat.value;
+
+    return {
+      sourceLabel: stat.label,
+      label: localizeBambooOverviewStatLabel(stat.label, locale),
+      value: localizeBambooOverviewStatValue(value, locale),
+    };
+  });
+  const generalTiles = BAMBOO_GENERAL_TILES.map((tile) => localizeBambooTile(tile, locale));
+  const inventoryTiles = BAMBOO_INVENTORY_TILES.map((tile) => localizeBambooTile(tile, locale));
+  const setupCompanyTiles = BAMBOO_SETUP_COMPANY_TILES.map((tile) => localizeBambooTile(tile, locale));
+  const shopTiles = BAMBOO_SHOP_TILES.map((tile) => localizeBambooTile(tile, locale));
+  const eshopTiles = BAMBOO_ESHOP_TILES.map((tile) => localizeBambooTile(tile, locale));
+  const documentTiles = BAMBOO_DOCUMENT_TILES.map((tile) => localizeBambooTile(tile, locale));
   const openCountByCategory = new Map<string, number>();
   for (const row of taskCategoryStatusRows) {
     if (row.status === BambooTaskStatus.DONE) {
@@ -150,10 +168,10 @@ export default async function BambooPage() {
 
       <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {overviewStats.map((stat) => (
-          OVERVIEW_STAT_LINKS[stat.label.toLocaleLowerCase()] ? (
+          OVERVIEW_STAT_LINKS[stat.sourceLabel.toLocaleLowerCase()] ? (
             <Link
-              key={stat.label}
-              href={OVERVIEW_STAT_LINKS[stat.label.toLocaleLowerCase()]}
+              key={stat.sourceLabel}
+              href={OVERVIEW_STAT_LINKS[stat.sourceLabel.toLocaleLowerCase()]}
               className="group block rounded-2xl border border-(--line) bg-white p-5 transition hover:-translate-y-0.5 hover:border-[#cfdbf2] hover:bg-[#fcfdff]"
             >
               <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
@@ -167,7 +185,7 @@ export default async function BambooPage() {
               </p>
             </Link>
           ) : (
-            <article key={stat.label} className="rounded-2xl border border-(--line) bg-white p-5">
+            <article key={stat.sourceLabel} className="rounded-2xl border border-(--line) bg-white p-5">
               <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
                 {stat.label}
               </p>
@@ -245,7 +263,7 @@ export default async function BambooPage() {
           {locale === "zh" ? "通用分类" : "General categories"}
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {BAMBOO_GENERAL_TILES.map((tile) => (
+          {generalTiles.map((tile) => (
             <Link
               key={tile.href}
               href={tile.href}
@@ -271,7 +289,7 @@ export default async function BambooPage() {
           {locale === "zh" ? "货品" : "Inventory"}
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {BAMBOO_INVENTORY_TILES.map((tile) => (
+          {inventoryTiles.map((tile) => (
             <Link
               key={tile.href}
               href={tile.href}
@@ -297,7 +315,7 @@ export default async function BambooPage() {
           {locale === "zh" ? "公司设立" : "Setup company"}
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {BAMBOO_SETUP_COMPANY_TILES.map((tile) => (
+          {setupCompanyTiles.map((tile) => (
             <Link
               key={tile.href}
               href={tile.href}
@@ -323,7 +341,7 @@ export default async function BambooPage() {
           {locale === "zh" ? "门店" : "Shop"}
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {BAMBOO_SHOP_TILES.map((tile) => (
+          {shopTiles.map((tile) => (
             <Link
               key={tile.href}
               href={tile.href}
@@ -349,7 +367,7 @@ export default async function BambooPage() {
           {locale === "zh" ? "网店" : "Eshop"}
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {BAMBOO_ESHOP_TILES.map((tile) => (
+          {eshopTiles.map((tile) => (
             <Link
               key={tile.href}
               href={tile.href}
@@ -375,7 +393,7 @@ export default async function BambooPage() {
           {locale === "zh" ? "文档" : "Documents"}
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {BAMBOO_DOCUMENT_TILES.map((tile) => (
+          {documentTiles.map((tile) => (
             <Link
               key={tile.href}
               href={tile.href}

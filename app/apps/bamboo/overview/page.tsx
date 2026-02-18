@@ -12,6 +12,11 @@ import {
   BAMBOO_SHOP_TILES,
   BAMBOO_SETUP_COMPANY_TILES,
 } from "@/lib/bamboo-content";
+import {
+  localizeBambooOverviewStatLabel,
+  localizeBambooOverviewStatValue,
+  localizeBambooTile,
+} from "@/lib/bamboo-content-i18n";
 import { getBambooSectionProgress } from "@/lib/bamboo-journey";
 import { requireAppRead } from "@/lib/authz";
 import { getBambooLocale } from "@/lib/bamboo-i18n-server";
@@ -150,7 +155,6 @@ export default async function BambooOverviewPage() {
     capitalScenario?.operatingMonths ?? 3,
     (capitalScenario?.reservePercent ?? 25) / 100,
   );
-
   const dynamicOverviewStats = [
     { label: "Target legal form", value: "s.r.o. (Czech Republic)" },
     { label: "Estimated setup time", value: "6-10 weeks" },
@@ -160,7 +164,17 @@ export default async function BambooOverviewPage() {
       label: "Task completion",
       value: `${completionPercent}% (${doneCount}/${totalTaskCount})`,
     },
-  ];
+  ].map((stat) => ({
+    sourceLabel: stat.label,
+    label: localizeBambooOverviewStatLabel(stat.label, locale),
+    value: localizeBambooOverviewStatValue(stat.value, locale),
+  }));
+  const generalTiles = BAMBOO_GENERAL_TILES.map((tile) => localizeBambooTile(tile, locale));
+  const inventoryTiles = BAMBOO_INVENTORY_TILES.map((tile) => localizeBambooTile(tile, locale));
+  const setupCompanyTiles = BAMBOO_SETUP_COMPANY_TILES.map((tile) => localizeBambooTile(tile, locale));
+  const shopTiles = BAMBOO_SHOP_TILES.map((tile) => localizeBambooTile(tile, locale));
+  const eshopTiles = BAMBOO_ESHOP_TILES.map((tile) => localizeBambooTile(tile, locale));
+  const documentTiles = BAMBOO_DOCUMENT_TILES.map((tile) => localizeBambooTile(tile, locale));
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
@@ -186,10 +200,10 @@ export default async function BambooOverviewPage() {
 
       <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {dynamicOverviewStats.map((stat) => (
-          OVERVIEW_STAT_LINKS[stat.label.toLocaleLowerCase()] ? (
+          OVERVIEW_STAT_LINKS[stat.sourceLabel.toLocaleLowerCase()] ? (
             <Link
-              key={stat.label}
-              href={OVERVIEW_STAT_LINKS[stat.label.toLocaleLowerCase()]}
+              key={stat.sourceLabel}
+              href={OVERVIEW_STAT_LINKS[stat.sourceLabel.toLocaleLowerCase()]}
               className="group block rounded-2xl border border-(--line) bg-white p-5 transition hover:-translate-y-0.5 hover:border-[#cfdbf2] hover:bg-[#fcfdff]"
             >
               <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
@@ -203,7 +217,7 @@ export default async function BambooOverviewPage() {
               </p>
             </Link>
           ) : (
-            <article key={stat.label} className="rounded-2xl border border-(--line) bg-white p-5">
+            <article key={stat.sourceLabel} className="rounded-2xl border border-(--line) bg-white p-5">
               <p className="text-xs font-semibold tracking-[0.12em] text-[#647494] uppercase">
                 {stat.label}
               </p>
@@ -248,7 +262,7 @@ export default async function BambooOverviewPage() {
                 <li key={task.id} className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4">
                   <p className="text-sm font-semibold text-[#1a2b49]">{task.title}</p>
                   <p className="mt-1 text-xs text-(--text-muted)">
-                    {taskPhaseLabels[task.phase]} • {taskCategoryLabels[task.category]} • Owner: {task.owner}
+                    {taskPhaseLabels[task.phase]} • {taskCategoryLabels[task.category]} • {isZh ? "负责人" : "Owner"}: {task.owner}
                   </p>
                 </li>
               ))
@@ -439,7 +453,7 @@ export default async function BambooOverviewPage() {
             {isZh ? "通用分类" : "General categories"}
           </h2>
           <ul className="mt-4 space-y-2">
-            {BAMBOO_GENERAL_TILES.map((tile) => (
+            {generalTiles.map((tile) => (
               <li
                 key={tile.href}
                 className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"
@@ -455,7 +469,7 @@ export default async function BambooOverviewPage() {
             {isZh ? "货品" : "Inventory"}
           </h2>
           <ul className="mt-4 space-y-2">
-            {BAMBOO_INVENTORY_TILES.map((tile) => (
+            {inventoryTiles.map((tile) => (
               <li
                 key={tile.href}
                 className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"
@@ -471,7 +485,7 @@ export default async function BambooOverviewPage() {
             {isZh ? "公司设立" : "Setup company"}
           </h2>
           <ul className="mt-4 space-y-2">
-            {BAMBOO_SETUP_COMPANY_TILES.map((tile) => (
+            {setupCompanyTiles.map((tile) => (
               <li
                 key={tile.href}
                 className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"
@@ -487,7 +501,7 @@ export default async function BambooOverviewPage() {
             {isZh ? "门店" : "Shop"}
           </h2>
           <ul className="mt-4 space-y-2">
-            {BAMBOO_SHOP_TILES.map((tile) => (
+            {shopTiles.map((tile) => (
               <li
                 key={tile.href}
                 className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"
@@ -505,7 +519,7 @@ export default async function BambooOverviewPage() {
             {isZh ? "网店" : "Eshop"}
           </h2>
           <ul className="mt-4 space-y-2">
-            {BAMBOO_ESHOP_TILES.map((tile) => (
+            {eshopTiles.map((tile) => (
               <li
                 key={tile.href}
                 className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"
@@ -521,7 +535,7 @@ export default async function BambooOverviewPage() {
             {isZh ? "文档" : "Documents"}
           </h2>
           <ul className="mt-4 space-y-2">
-            {BAMBOO_DOCUMENT_TILES.map((tile) => (
+            {documentTiles.map((tile) => (
               <li
                 key={tile.href}
                 className="rounded-lg border border-[#e3eaf7] bg-[#fbfdff] px-3 py-2 text-sm text-[#1a2b49]"

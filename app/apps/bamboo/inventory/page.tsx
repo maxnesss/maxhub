@@ -6,7 +6,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
 import { getBambooLocale } from "@/lib/bamboo-i18n-server";
-import { BAMBOO_INVENTORY_EXTRA_IDEAS } from "@/lib/bamboo-content";
+import { getLocalizedBambooInventoryExtraIdeas } from "@/lib/bamboo-content-i18n";
 import { bambooTaskFilterHref } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
 
@@ -59,6 +59,7 @@ export default async function BambooInventoryPage() {
                 : "简化的中国 -> 捷克进口流程。",
     }))
     : INVENTORY_MODULES;
+  const inventoryExtraIdeas = getLocalizedBambooInventoryExtraIdeas(locale);
 
   const categoryTasks = await prisma.bambooTask.findMany({
     where: {
@@ -123,7 +124,7 @@ export default async function BambooInventoryPage() {
           {isZh ? "用于提升管控与利润空间的补充建议。" : "Extra ideas to improve control and margins."}
         </p>
         <ul className="mt-4 space-y-2">
-          {BAMBOO_INVENTORY_EXTRA_IDEAS.map((idea) => (
+          {inventoryExtraIdeas.map((idea) => (
             <li key={idea} className="flex items-start gap-2 text-sm text-[#314567]">
               <span className="mt-1 h-2 w-2 rounded-full bg-[#8fb6ff]" />
               <span>{idea}</span>

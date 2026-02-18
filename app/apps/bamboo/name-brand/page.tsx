@@ -6,10 +6,11 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Toast } from "@/components/ui/Toast";
 import { requireAppRead } from "@/lib/authz";
 import { getBambooLocale } from "@/lib/bamboo-i18n-server";
+import { BAMBOO_NAME_GROUPS } from "@/lib/bamboo-content";
 import {
-  BAMBOO_BRAND_SETUP_GROUPS,
-  BAMBOO_NAME_GROUPS,
-} from "@/lib/bamboo-content";
+  getLocalizedBambooBrandSetupGroups,
+  localizeBambooNameGroupCategory,
+} from "@/lib/bamboo-content-i18n";
 import { bambooTaskFilterHref } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
 
@@ -73,6 +74,7 @@ export default async function BambooNameBrandPage({
 
   const staticGroups = BAMBOO_NAME_GROUPS.map((group) => ({
     category: group.category,
+    displayCategory: localizeBambooNameGroupCategory(group.category, locale),
     names: group.names.map((name) => {
       const persistedEntry = persistedByName.get(normalizeName(name));
       return {
@@ -81,6 +83,7 @@ export default async function BambooNameBrandPage({
       };
     }),
   }));
+  const brandSetupGroups = getLocalizedBambooBrandSetupGroups(locale);
 
   const customNames = persisted
     .filter((item) => item.isCustom || item.category === CUSTOM_CATEGORY)
@@ -138,7 +141,7 @@ export default async function BambooNameBrandPage({
             key={group.category}
             className="rounded-2xl border border-(--line) bg-white p-6"
           >
-            <h2 className="text-xl font-semibold text-[#162947]">{group.category}</h2>
+            <h2 className="text-xl font-semibold text-[#162947]">{group.displayCategory}</h2>
             <ul className="mt-3 space-y-2">
               {group.names.map((item) => (
                 <li
@@ -284,7 +287,7 @@ export default async function BambooNameBrandPage({
         </p>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
-          {BAMBOO_BRAND_SETUP_GROUPS.map((group) => (
+          {brandSetupGroups.map((group) => (
             <article
               key={group.title}
               className="rounded-xl border border-[#e3eaf7] bg-[#fbfdff] p-4"

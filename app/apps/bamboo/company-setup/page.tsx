@@ -6,7 +6,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
 import { getBambooLocale } from "@/lib/bamboo-i18n-server";
-import { BAMBOO_COMPANY_SETUP_STEPS } from "@/lib/bamboo-content";
+import { getLocalizedBambooCompanySetupSteps } from "@/lib/bamboo-content-i18n";
 import { bambooTaskFilterHref } from "@/lib/bamboo-tasks";
 import { prisma } from "@/prisma";
 
@@ -66,6 +66,7 @@ export default async function BambooCompanySetupPage() {
       note: "适合文件补充与修订较多的情况。",
     };
   });
+  const companySetupSteps = getLocalizedBambooCompanySetupSteps(locale);
 
   const categoryTasks = await prisma.bambooTask.findMany({
     where: {
@@ -144,7 +145,7 @@ export default async function BambooCompanySetupPage() {
       </section>
 
       <section className="mt-6 space-y-3">
-        {BAMBOO_COMPANY_SETUP_STEPS.map((step) => (
+        {companySetupSteps.map((step) => (
           <article key={step.id} className="rounded-2xl border border-(--line) bg-white p-6">
             <p className="text-xs font-semibold tracking-[0.14em] text-[#6a7b9c] uppercase">
               {isZh ? `步骤 ${step.id}` : `Step ${step.id}`}
