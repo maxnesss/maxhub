@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bamboo App - A4 Guide</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+
+      :root {
+        --ink: #132441;
+        --muted: #3d4f72;
+        --line: #dbe4f3;
+        --panel: #f7faff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
+        color: var(--ink);
+        background: #eef3fb;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0 auto;
+        padding: 14mm;
+        background: #fff;
+      }
+
+      h1,
+      h2,
+      h3,
+      p,
+      ul,
+      ol {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 24px;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+      }
+
+      .subtitle {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .section {
+        margin-top: 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: #fff;
+      }
+
+      .section h2 {
+        font-size: 14px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: #223a64;
+      }
+
+      .section p {
+        margin-top: 6px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: #2d4168;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 10px;
+        padding: 8px 10px;
+      }
+
+      .card h3 {
+        font-size: 12px;
+        margin-bottom: 4px;
+        color: #1d3661;
+      }
+
+      .card p {
+        font-size: 11px;
+        line-height: 1.4;
+        color: #32486f;
+      }
+
+      ul,
+      ol {
+        margin-top: 6px;
+        padding-left: 18px;
+      }
+
+      li {
+        font-size: 11.5px;
+        line-height: 1.45;
+        color: #2f446a;
+        margin-bottom: 3px;
+      }
+
+      .tip {
+        margin-top: 10px;
+        border: 1px solid #cfdcf2;
+        border-radius: 10px;
+        padding: 8px 10px;
+        background: #f4f8ff;
+        font-size: 11px;
+        color: #2f446a;
+      }
+
+      .footer {
+        margin-top: 10px;
+        font-size: 10.5px;
+        color: #51658a;
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+
+        .page {
+          margin: 0;
+          width: auto;
+          min-height: auto;
+          padding: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <h1>Bamboo App - Quick A4 Guide</h1>
+        <p class="subtitle">Introduction, key features, and how to use Bamboo for a small 1-2 person business.</p>
+      </header>
+
+      <section class="section">
+        <h2>Introduction</h2>
+        <p>
+          Bamboo is your business planning workspace inside MaxHub. It helps you move from idea to launch with a structured
+          journey: name and brand, company setup, inventory planning, shop setup, finance, tasks, and execution tracking.
+          The app is designed for practical progress, not heavy enterprise process.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>Core Features</h2>
+        <div class="grid" style="margin-top: 8px">
+          <article class="card">
+            <h3>Journey-first navigation</h3>
+            <p>Start from “Start here” and follow staged steps in logical order.</p>
+          </article>
+          <article class="card">
+            <h3>Task board by category</h3>
+            <p>Track open tasks by phase, owner, category, and status in one place.</p>
+          </article>
+          <article class="card">
+            <h3>Company setup planning</h3>
+            <p>Target legal form, setup sequence, finance requirements, and compliance pages.</p>
+          </article>
+          <article class="card">
+            <h3>Inventory and suppliers</h3>
+            <p>Brainstorm products, manage contacts, and track import steps to Czech Republic.</p>
+          </article>
+          <article class="card">
+            <h3>Shop and budget modules</h3>
+            <p>Location, concept, and budget planning with editable assumptions and totals.</p>
+          </article>
+          <article class="card">
+            <h3>Bilingual UI</h3>
+            <p>Switch between English and Mandarin in Bamboo without changing data.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>How To Use Bamboo (Recommended Flow)</h2>
+        <ol>
+          <li>Open <strong>Start here</strong> and follow the suggested first 30 minutes checklist.</li>
+          <li>Set your language using the top language switch (English or Mandarin).</li>
+          <li>Complete <strong>Name brainstorm</strong> and create a short list of final options.</li>
+          <li>Go through <strong>Company setup</strong> and <strong>Company setup finance requirements</strong>.</li>
+          <li>Define inventory: ideas, suppliers, and import workflow.</li>
+          <li>Build your shop plan: location, concept, and budget assumptions.</li>
+          <li>Use <strong>Tasks</strong> daily to assign owners and move items to done.</li>
+          <li>Review <strong>Overview</strong> weekly to track progress and next actions.</li>
+        </ol>
+
+        <div class="tip">
+          <strong>Small-team best practice:</strong> keep one shared shortlist, one shared task board, and one weekly review rhythm
+          (30-45 minutes) to align priorities and avoid duplicate work.
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Minimum Weekly Operating Rhythm</h2>
+        <ul>
+          <li>Monday: review open tasks, priorities, and blockers.</li>
+          <li>Mid-week: update key assumptions (budget, inventory, supplier status).</li>
+          <li>Friday: close completed items and prepare next-week top 3 tasks.</li>
+        </ul>
+      </section>
+
+      <p class="footer">Document: Bamboo App Guide | Format: A4 print-ready HTML | Generated in MaxHub repository</p>
+    </main>
+  </body>
+</html>

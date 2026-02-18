@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bamboo 应用 - A4 使用指南</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+
+      :root {
+        --ink: #132441;
+        --muted: #3d4f72;
+        --line: #dbe4f3;
+        --panel: #f7faff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", "Inter", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: #eef3fb;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0 auto;
+        padding: 14mm;
+        background: #fff;
+      }
+
+      h1,
+      h2,
+      h3,
+      p,
+      ul,
+      ol {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 24px;
+        line-height: 1.2;
+        letter-spacing: -0.01em;
+      }
+
+      .subtitle {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .section {
+        margin-top: 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: #fff;
+      }
+
+      .section h2 {
+        font-size: 14px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: #223a64;
+      }
+
+      .section p {
+        margin-top: 6px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: #2d4168;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 10px;
+        padding: 8px 10px;
+      }
+
+      .card h3 {
+        font-size: 12px;
+        margin-bottom: 4px;
+        color: #1d3661;
+      }
+
+      .card p {
+        font-size: 11px;
+        line-height: 1.4;
+        color: #32486f;
+      }
+
+      ul,
+      ol {
+        margin-top: 6px;
+        padding-left: 18px;
+      }
+
+      li {
+        font-size: 11.5px;
+        line-height: 1.45;
+        color: #2f446a;
+        margin-bottom: 3px;
+      }
+
+      .tip {
+        margin-top: 10px;
+        border: 1px solid #cfdcf2;
+        border-radius: 10px;
+        padding: 8px 10px;
+        background: #f4f8ff;
+        font-size: 11px;
+        color: #2f446a;
+      }
+
+      .footer {
+        margin-top: 10px;
+        font-size: 10.5px;
+        color: #51658a;
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+
+        .page {
+          margin: 0;
+          width: auto;
+          min-height: auto;
+          padding: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <h1>Bamboo 应用 - A4 快速指南</h1>
+        <p class="subtitle">包含应用介绍、核心功能与使用方法，适合 1-2 人小团队。</p>
+      </header>
+
+      <section class="section">
+        <h2>应用介绍</h2>
+        <p>
+          Bamboo 是 MaxHub 内的业务规划工作台，帮助你从想法走到落地。
+          它将命名与品牌、公司设立、货品规划、门店规划、财务与任务管理整合在一个流程中。
+          目标是让小团队少走弯路，按阶段持续推进。
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>核心功能</h2>
+        <div class="grid" style="margin-top: 8px">
+          <article class="card">
+            <h3>旅程式导航</h3>
+            <p>从“开始页面”按顺序推进，减少流程遗漏。</p>
+          </article>
+          <article class="card">
+            <h3>任务看板</h3>
+            <p>按阶段、分类、负责人、状态统一管理执行任务。</p>
+          </article>
+          <article class="card">
+            <h3>公司设立模块</h3>
+            <p>覆盖法律形式、设立步骤、财务要求与合规要点。</p>
+          </article>
+          <article class="card">
+            <h3>货品与供应链</h3>
+            <p>支持选品头脑风暴、供应商联系和进口流程跟踪。</p>
+          </article>
+          <article class="card">
+            <h3>门店规划</h3>
+            <p>包括选址、概念、预算，便于快速做经营判断。</p>
+          </article>
+          <article class="card">
+            <h3>双语界面</h3>
+            <p>支持英文/中文切换，适合跨语言协作。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>推荐使用流程</h2>
+        <ol>
+          <li>打开<strong>开始页面</strong>，先完成“前 30 分钟”清单。</li>
+          <li>在顶部切换语言（英文或中文），统一团队工作语言。</li>
+          <li>进入<strong>命名头脑风暴</strong>，先确定 3-5 个候选名称。</li>
+          <li>完成<strong>公司设立</strong>与<strong>公司设立财务要求</strong>模块。</li>
+          <li>进入货品模块：选品想法、供应商、进口路径。</li>
+          <li>进入门店模块：选址、概念、预算假设。</li>
+          <li>每天使用<strong>任务看板</strong>推进并更新状态。</li>
+          <li>每周在<strong>概览页</strong>复盘进度并确定下一步。</li>
+        </ol>
+
+        <div class="tip">
+          <strong>小团队建议：</strong>只维护一份共享候选名单、一份共享任务看板，
+          每周固定一次 30-45 分钟对齐会，优先处理影响现金流与开业节奏的任务。
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>每周执行节奏（建议）</h2>
+        <ul>
+          <li>周一：确认本周优先级、负责人和阻塞点。</li>
+          <li>周中：更新预算、货品、供应商关键状态。</li>
+          <li>周五：关闭已完成任务，锁定下周 Top 3 任务。</li>
+        </ul>
+      </section>
+
+      <p class="footer">文档：Bamboo 应用指南（中文）| 格式：A4 可打印 HTML | 生成于 MaxHub 仓库</p>
+    </main>
+  </body>
+</html>
