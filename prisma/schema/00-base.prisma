@@ -17,6 +17,7 @@ enum AppCode {
   CALENDAR
   BAMBOO
   WORKOUT
+  SMOOTHIE
   SKATING_BIBLE
 }
 

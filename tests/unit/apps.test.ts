@@ -38,5 +38,6 @@ describe("lib/apps", () => {
     expect(APP_DEFINITIONS.CALENDAR.href).toBe("/apps/calendar");
     expect(APP_DEFINITIONS.BAMBOO.href).toBe("/apps/bamboo");
     expect(APP_DEFINITIONS.WORKOUT.href).toBe("/apps/workout");
+    expect(APP_DEFINITIONS.SMOOTHIE.href).toBe("/apps/smoothie");
   });
 });

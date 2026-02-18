@@ -4,6 +4,7 @@ export const APP_CODES = [
   "CALENDAR",
   "BAMBOO",
   "WORKOUT",
+  "SMOOTHIE",
   "SKATING_BIBLE",
 ] as const;
 
@@ -39,6 +40,11 @@ export const APP_DEFINITIONS: Record<AppCode, AppDefinition> = {
     label: "Workout",
     description: "Quick training tools with tile-based modules and timers.",
     href: "/apps/workout",
+  },
+  SMOOTHIE: {
+    label: "Smoothie",
+    description: "Simple smoothie recipes you can browse and make quickly.",
+    href: "/apps/smoothie",
   },
   SKATING_BIBLE: {
     label: "Skating bible",
