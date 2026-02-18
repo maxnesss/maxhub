@@ -71,7 +71,7 @@ export const BAMBOO_GENERAL_TILES: BambooTile[] = [
     badge: "Finance",
   },
   {
-    title: "Name and brand",
+    title: "Name brainstorm",
     href: "/apps/bamboo/name-brand",
     description: "Name ideas by style with a shortlist.",
     badge: "Brand",
@@ -276,10 +276,11 @@ export const BAMBOO_COMPANY_SETUP_STEPS: BambooChecklistStep[] = [
   },
   {
     id: 10,
-    title: "Optional e-commerce and EU trade registration",
+    title: "Set internal finance and document basics",
     details: [
-      "Prepare website legal text (GDPR, terms, cookies).",
-      "If selling in EU, check OSS and VAT registration needs.",
+      "Set a simple invoice and receipt archive process from day one.",
+      "Define who approves expenses and how payments are tracked.",
+      "Prepare core templates you will actually use (offers, contracts, invoices).",
     ],
   },
   {

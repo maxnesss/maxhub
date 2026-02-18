@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BambooTaskStatus } from "@prisma/client";
 
-import { BambooSectionProgress } from "@/components/bamboo/BambooSectionProgress";
+import { BambooJourneyControls } from "@/components/bamboo/BambooJourneyControls";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
@@ -20,7 +20,6 @@ import {
   BAMBOO_SHOP_TILES,
   BAMBOO_SETUP_COMPANY_TILES,
 } from "@/lib/bamboo-content";
-import { getBambooSectionProgress } from "@/lib/bamboo-journey";
 import {
   BAMBOO_TASK_CATEGORY_LABELS,
   BAMBOO_TASK_CATEGORY_OPTIONS,
@@ -104,7 +103,6 @@ export default async function BambooPage() {
         ? { ...stat, value: recommendedCapitalLabel }
         : stat,
   );
-  const sectionProgress = getBambooSectionProgress(taskCategoryStatusRows);
   const openCountByCategory = new Map<string, number>();
   for (const row of taskCategoryStatusRows) {
     if (row.status === BambooTaskStatus.DONE) {
@@ -118,7 +116,7 @@ export default async function BambooPage() {
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
+    <div className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
       <TopNav current="apps" />
 
       <section className="mt-10 rounded-3xl border border-(--line) bg-white p-8 shadow-[0_18px_38px_-30px_rgba(19,33,58,0.45)]">
@@ -176,11 +174,7 @@ export default async function BambooPage() {
         ))}
       </section>
 
-      <BambooSectionProgress
-        title="Journey progress"
-        description="Task completion across Name brainstorm, Setup, Inventory, Shop, and Launch."
-        sections={sectionProgress}
-      />
+      <BambooJourneyControls />
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -392,6 +386,6 @@ export default async function BambooPage() {
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

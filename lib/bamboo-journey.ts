@@ -1,4 +1,6 @@
 export type BambooJourneyStageId = "SETUP" | "INVENTORY" | "BRAND" | "SHOP" | "LAUNCH";
+export const BAMBOO_JOURNEY_DOCK_STORAGE_KEY = "bamboo:journey-dock-enabled";
+export const BAMBOO_JOURNEY_DOCK_EVENT = "bamboo:journey-dock-changed";
 
 export type BambooJourneyStage = {
   id: BambooJourneyStageId;
@@ -31,11 +33,11 @@ export type BambooSectionProgress = {
 };
 
 const JOURNEY_STAGE_TASK_CATEGORIES: Record<BambooJourneyStageId, string[]> = {
-  SETUP: ["SETUP_COMPANY", "FINANCE"],
+  SETUP: ["SETUP_COMPANY"],
   INVENTORY: ["INVENTORY"],
   BRAND: ["BRAND"],
   SHOP: ["SHOP"],
-  LAUNCH: ["GENERAL"],
+  LAUNCH: ["GENERAL", "FINANCE"],
 };
 
 export const BAMBOO_JOURNEY_STAGES: BambooJourneyStage[] = [

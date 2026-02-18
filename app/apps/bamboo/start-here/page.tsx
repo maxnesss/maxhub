@@ -6,10 +6,11 @@ import { requireAppRead } from "@/lib/authz";
 import { BAMBOO_JOURNEY_STAGES } from "@/lib/bamboo-journey";
 
 const FIRST_30_MINUTES = [
-  "Open Overview and check current priorities.",
-  "Review Company setup plan and confirm legal path.",
-  "Add 3-5 must-do tasks with owners and deadlines.",
-  "Open Inventory and write your first shortlist of products.",
+  "Open Name brainstorm and shortlist 3-5 options.",
+  "Review Company setup and confirm legal form plus key registration steps.",
+  "Open Inventory brainstorm and write your first shortlist of products.",
+  "Open Shop budget and add your first cost assumptions.",
+  "Open Tasks and add 3 must-do items with owners and deadlines.",
 ];
 
 export default async function BambooStartHerePage() {
@@ -36,10 +37,10 @@ export default async function BambooStartHerePage() {
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link
-            href="/apps/bamboo/overview"
+            href="/apps/bamboo/name-brand"
             className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
           >
-            Open overview
+            Open name brainstorm
           </Link>
           <Link
             href="/apps/bamboo/company-setup"

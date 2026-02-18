@@ -2,14 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useBambooJourneyDockEnabled } from "@/components/bamboo/useBambooJourneyDockPreference";
 
-import { BAMBOO_JOURNEY_STAGES, getBambooJourneyContext } from "@/lib/bamboo-journey";
+import {
+  BAMBOO_JOURNEY_STAGES,
+  getBambooJourneyContext,
+} from "@/lib/bamboo-journey";
 
 export function BambooJourneyDock() {
   const pathname = usePathname();
+  const dockEnabled = useBambooJourneyDockEnabled();
   const context = getBambooJourneyContext(pathname);
 
-  if (!context) {
+  if (!context || !dockEnabled) {
     return null;
   }
 

@@ -39,7 +39,7 @@ export const BAMBOO_TASK_CATEGORY_LABELS: Record<BambooTaskCategory, string> = {
   INVENTORY: "Inventory",
   SHOP: "Shop",
   FINANCE: "Finance",
-  BRAND: "Name and brand",
+  BRAND: "Name brainstorm",
 };
 
 export const BAMBOO_TASK_PHASE_LABELS: Record<BambooTaskPhase, string> = {

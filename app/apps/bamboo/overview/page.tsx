@@ -249,7 +249,7 @@ export default async function BambooOverviewPage() {
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">Name shortlist</h2>
           <p className="mt-2 text-sm text-(--text-muted)">
-            Shortlist pulled from the Name and brand page.
+            Shortlist pulled from the Name brainstorm page.
           </p>
           <ul className="mt-4 space-y-2">
             {shortlist.length > 0 ? (

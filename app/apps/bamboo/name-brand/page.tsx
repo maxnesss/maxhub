@@ -116,11 +116,11 @@ export default async function BambooNameBrandPage({
           items={[
             { label: "Apps", href: "/apps" },
             { label: "Bamboo", href: "/apps/bamboo" },
-            { label: "Name and brand" },
+            { label: "Name brainstorm" },
           ]}
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">
-          Name and brand
+          Name brainstorm
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
           Shared naming workspace with one shortlist for the whole team.
@@ -256,10 +256,10 @@ export default async function BambooNameBrandPage({
       </section>
 
       <TaskCategoryPanel
-        title="Name and brand tasks"
+        title="Name brainstorm tasks"
         tasks={categoryTasks}
         href={bambooTaskFilterHref({ category: BambooTaskCategory.BRAND })}
-        emptyLabel="No open name-and-brand tasks right now."
+        emptyLabel="No open name-brainstorm tasks right now."
       />
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
