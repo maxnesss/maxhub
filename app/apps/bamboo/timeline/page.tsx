@@ -79,7 +79,7 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
           Bamboo phase overview
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Launch execution grouped by four business phases from preparation to start.
+          Launch plan grouped into four clear phases.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <span className="inline-flex rounded-xl border border-[#d9e2f3] bg-[#f8faff] px-4 py-2 text-sm font-semibold text-[#4e5e7a]">
@@ -102,7 +102,7 @@ export default async function BambooTimelinePage({ searchParams }: BambooTimelin
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-lg font-semibold tracking-tight text-[#162947]">
-          Phase definition
+          Phase guide
         </h2>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {BAMBOO_TASK_PHASE_OPTIONS.map((phase) => (

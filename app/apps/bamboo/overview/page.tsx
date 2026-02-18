@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BambooTaskStatus } from "@prisma/client";
 
+import { BambooSectionProgress } from "@/components/bamboo/BambooSectionProgress";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import {
@@ -11,6 +12,7 @@ import {
   BAMBOO_SHOP_TILES,
   BAMBOO_SETUP_COMPANY_TILES,
 } from "@/lib/bamboo-content";
+import { getBambooSectionProgress } from "@/lib/bamboo-journey";
 import { requireAppRead } from "@/lib/authz";
 import {
   getBudgetTotals,
@@ -27,6 +29,7 @@ import {
 import { prisma } from "@/prisma";
 
 const OVERVIEW_STAT_LINKS: Record<string, string> = {
+  "target legal form": "/apps/bamboo/target-legal-form",
   "estimated setup cost": "/apps/bamboo/estimated-setup-cost",
   "recommended capital": "/apps/bamboo/recommended-capital",
 };
@@ -37,6 +40,7 @@ export default async function BambooOverviewPage() {
   const [
     nextTasks,
     taskStatusRows,
+    taskCategoryStatusRows,
     shortlist,
     inventoryIdeaCount,
     producerCount,
@@ -63,6 +67,10 @@ export default async function BambooOverviewPage() {
     }),
     prisma.bambooTask.groupBy({
       by: ["status"],
+      _count: { _all: true },
+    }),
+    prisma.bambooTask.groupBy({
+      by: ["category", "status"],
       _count: { _all: true },
     }),
     prisma.bambooNameIdea.findMany({
@@ -122,6 +130,7 @@ export default async function BambooOverviewPage() {
   const totalTaskCount = todoCount + inProgressCount + doneCount;
   const completionPercent =
     totalTaskCount > 0 ? Math.round((doneCount / totalTaskCount) * 100) : 0;
+  const sectionProgress = getBambooSectionProgress(taskCategoryStatusRows);
 
   const budgetTotals = getBudgetTotals(budgetItems);
   const inventoryBudgetTotals = getInventoryBudgetBreakdown(inventoryBudget);
@@ -137,6 +146,7 @@ export default async function BambooOverviewPage() {
   );
 
   const dynamicOverviewStats = [
+    { label: "Target legal form", value: "s.r.o. (Czech Republic)" },
     { label: "Estimated setup time", value: "6-10 weeks" },
     { label: "Estimated setup cost", value: estimatedSetupCost },
     { label: "Recommended capital", value: recommendedCapital },
@@ -162,8 +172,7 @@ export default async function BambooOverviewPage() {
           Bamboo overview
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Whole-project overview across setup company, general categories, and
-          launch priorities.
+          Quick summary of project status, priorities, and next actions.
         </p>
       </section>
 
@@ -197,6 +206,12 @@ export default async function BambooOverviewPage() {
           )
         ))}
       </section>
+
+      <BambooSectionProgress
+        title="Journey progress"
+        description="Task completion across Setup, Inventory, Name brainstorm, Shop, and Launch."
+        sections={sectionProgress}
+      />
 
       <section className="mt-6 grid gap-4 lg:grid-cols-2">
         <article className="rounded-2xl border border-(--line) bg-white p-6">
@@ -234,7 +249,7 @@ export default async function BambooOverviewPage() {
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">Name shortlist</h2>
           <p className="mt-2 text-sm text-(--text-muted)">
-            Live shortlist synced from Name and brand page.
+            Shortlist pulled from the Name and brand page.
           </p>
           <ul className="mt-4 space-y-2">
             {shortlist.length > 0 ? (
@@ -261,7 +276,7 @@ export default async function BambooOverviewPage() {
           Dynamic module snapshot
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Live counters from inventory, producers, location scouting, and media gallery.
+          Live counters from key Bamboo modules.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Link
@@ -350,6 +365,12 @@ export default async function BambooOverviewPage() {
       </section>
 
       <section className="mt-6 flex flex-wrap gap-3">
+        <Link
+          href="/apps/bamboo/start-here"
+          className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+        >
+          Open start here
+        </Link>
         <Link
           href="/apps/bamboo/tasks"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
@@ -502,7 +523,7 @@ export default async function BambooOverviewPage() {
           Open finance setup
         </Link>
         <Link
-          href="/apps/bamboo/finance-requirements"
+          href="/apps/bamboo/company-setup/finance-requirements"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
           Open finance requirements

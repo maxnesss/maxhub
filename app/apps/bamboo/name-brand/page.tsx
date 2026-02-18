@@ -123,7 +123,7 @@ export default async function BambooNameBrandPage({
           Name and brand
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Shared naming workspace with shortlist persistence across all users.
+          Shared naming workspace with one shortlist for the whole team.
         </p>
       </section>
 
@@ -165,7 +165,7 @@ export default async function BambooNameBrandPage({
         <article className="rounded-2xl border border-(--line) bg-white p-6">
           <h2 className="text-xl font-semibold text-[#162947]">{CUSTOM_CATEGORY}</h2>
           <p className="mt-2 text-sm text-(--text-muted)">
-            Add your own naming ideas and include them in the shared shortlist.
+            Add your own name ideas and shortlist them.
           </p>
 
           <form action={addCustomNameAction} className="mt-4 flex gap-2">

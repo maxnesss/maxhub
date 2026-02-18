@@ -95,8 +95,8 @@ export default async function BambooRecommendedCapitalPage({
           Recommended capital
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Formula-driven capital estimate: estimated setup cost + operating
-          expenses + reserve buffer. Months and reserve are persisted after save.
+          Capital estimate based on setup cost + operating costs + reserve.
+          Saved months and reserve settings are reused.
         </p>
       </section>
 
@@ -159,7 +159,7 @@ export default async function BambooRecommendedCapitalPage({
           Monthly expense contributors
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Monthly lines pulled from Shop Budget ({breakdown.operatingMonths} months used in
+          Monthly lines from Shop Budget ({breakdown.operatingMonths} months in
           formula). Zero-value lines are hidden.
         </p>
 

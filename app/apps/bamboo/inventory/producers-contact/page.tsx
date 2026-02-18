@@ -19,7 +19,7 @@ import { AddProducerModal } from "./AddProducerModal";
 
 const QUALIFICATION_CHECKLIST = [
   "Supplier identity and registration verified",
-  "Production capacity matches your expected order volume",
+  "Production capacity matches expected order volume",
   "Sample quality approved",
   "Lead times are realistic and documented",
   "Clear Incoterm and payment terms agreed",
@@ -152,7 +152,7 @@ export default async function BambooProducersContactPage({
           Producers contact
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Supplier sourcing and contact template for imports from China.
+          Supplier sourcing and contact tracking for China imports.
         </p>
       </section>
 
@@ -188,7 +188,7 @@ export default async function BambooProducersContactPage({
           Contact tracker fields
         </h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Use these columns in your first supplier tracking sheet.
+          Use these fields in your supplier tracker.
         </p>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">

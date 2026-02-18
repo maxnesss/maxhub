@@ -111,8 +111,8 @@ export default async function BambooProjectCharterPage({
               Project Charter
             </h1>
             <p className="mt-4 max-w-3xl text-(--text-muted)">
-              One-page alignment document for vision, scope, budget guardrails,
-              launch criteria, and key risks.
+              One-page project summary: vision, scope, budget limits, launch
+              criteria, and key risks.
             </p>
           </div>
 

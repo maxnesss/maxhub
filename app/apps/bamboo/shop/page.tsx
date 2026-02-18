@@ -13,19 +13,17 @@ const SHOP_MODULES = [
     title: "Location",
     href: "/apps/bamboo/shop/location",
     description:
-      "Long-form location planning with general areas, concrete rental places, and source websites.",
+      "Location planning with areas, rental places, and source websites.",
   },
   {
     title: "Concept",
     href: "/apps/bamboo/shop/concept",
-    description:
-      "Shop concept page with editable target size and target price range settings.",
+    description: "Shop concept with editable size and rent targets.",
   },
   {
     title: "Budget",
     href: "/apps/bamboo/shop/budget",
-    description:
-      "Budget planning page with editable monthly and one-time cost lines.",
+    description: "Editable monthly and one-time shop costs.",
   },
 ];
 
@@ -62,8 +60,7 @@ export default async function BambooShopPage() {
         />
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#132441]">Shop</h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Dedicated shop planning area. Split planning into location, concept,
-          and budget modules.
+          Shop planning area with location, concept, and budget modules.
         </p>
       </section>
 

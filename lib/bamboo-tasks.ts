@@ -45,19 +45,19 @@ export const BAMBOO_TASK_CATEGORY_LABELS: Record<BambooTaskCategory, string> = {
 export const BAMBOO_TASK_PHASE_LABELS: Record<BambooTaskPhase, string> = {
   PHASE_1_PREPARATION: "Phase 1 - Preparation",
   PHASE_2_SETUP: "Phase 2 - Setup",
-  PHASE_3_HOT_PRE_START: "Phase 3 - Hot Pre-start",
+  PHASE_3_HOT_PRE_START: "Phase 3 - Pre-launch",
   PHASE_4_START: "Phase 4 - Start",
 };
 
 export const BAMBOO_TASK_PHASE_DESCRIPTIONS: Record<BambooTaskPhase, string> = {
   PHASE_1_PREPARATION:
-    "Brainstorms, location exploration, inventory preparation, and samples.",
+    "Ideas, location research, inventory prep, and samples.",
   PHASE_2_SETUP:
-    "Company registration, legal/compliance completion, and inventory ordering.",
+    "Company setup, legal tasks, and first inventory orders.",
   PHASE_3_HOT_PRE_START:
-    "Inventory already in Czech storage, shop rent/customization, and POS readiness.",
+    "Inventory in storage, shop ready, and POS prepared.",
   PHASE_4_START:
-    "Launch execution and immediate post-start operational stabilization.",
+    "Launch and early operating stabilization.",
 };
 
 export const BAMBOO_TASK_PHASE_STYLES: Record<BambooTaskPhase, string> = {

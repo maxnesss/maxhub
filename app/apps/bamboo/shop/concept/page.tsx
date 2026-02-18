@@ -57,8 +57,7 @@ export default async function BambooShopConceptPage({
               Concept
             </h1>
             <p className="mt-4 max-w-3xl text-(--text-muted)">
-              Define the shop concept and maintain editable target size and price
-              range assumptions.
+              Define your shop concept and keep size/rent targets editable.
             </p>
           </div>
 

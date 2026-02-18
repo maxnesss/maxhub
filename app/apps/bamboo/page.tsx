@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BambooTaskStatus } from "@prisma/client";
 
+import { BambooSectionProgress } from "@/components/bamboo/BambooSectionProgress";
 import { TopNav } from "@/components/layout/TopNav";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { requireAppRead } from "@/lib/authz";
@@ -19,6 +20,7 @@ import {
   BAMBOO_SHOP_TILES,
   BAMBOO_SETUP_COMPANY_TILES,
 } from "@/lib/bamboo-content";
+import { getBambooSectionProgress } from "@/lib/bamboo-journey";
 import {
   BAMBOO_TASK_CATEGORY_LABELS,
   BAMBOO_TASK_CATEGORY_OPTIONS,
@@ -28,6 +30,7 @@ import {
 import { prisma } from "@/prisma";
 
 const OVERVIEW_STAT_LINKS: Record<string, string> = {
+  "target legal form": "/apps/bamboo/target-legal-form",
   "estimated setup cost": "/apps/bamboo/estimated-setup-cost",
   "recommended capital": "/apps/bamboo/recommended-capital",
 };
@@ -35,7 +38,7 @@ const OVERVIEW_STAT_LINKS: Record<string, string> = {
 export default async function BambooPage() {
   await requireAppRead("BAMBOO");
 
-  const [budgetItems, inventoryBudget, nextTasks, openByCategory, capitalScenario] =
+  const [budgetItems, inventoryBudget, nextTasks, taskCategoryStatusRows, capitalScenario] =
     await Promise.all([
     prisma.bambooShopBudgetItem.findMany({
       select: {
@@ -70,8 +73,7 @@ export default async function BambooPage() {
       },
     }),
     prisma.bambooTask.groupBy({
-      by: ["category"],
-      where: { status: { not: BambooTaskStatus.DONE } },
+      by: ["category", "status"],
       _count: { _all: true },
     }),
     prisma.bambooCapitalScenario.findUnique({
@@ -102,9 +104,18 @@ export default async function BambooPage() {
         ? { ...stat, value: recommendedCapitalLabel }
         : stat,
   );
-  const openCountByCategory = new Map(
-    openByCategory.map((row) => [row.category, row._count._all]),
-  );
+  const sectionProgress = getBambooSectionProgress(taskCategoryStatusRows);
+  const openCountByCategory = new Map<string, number>();
+  for (const row of taskCategoryStatusRows) {
+    if (row.status === BambooTaskStatus.DONE) {
+      continue;
+    }
+
+    openCountByCategory.set(
+      row.category,
+      (openCountByCategory.get(row.category) ?? 0) + row._count._all,
+    );
+  }
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-8">
@@ -121,9 +132,17 @@ export default async function BambooPage() {
           Bamboo workspace
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Interactive business plan seeded from your company setup and naming
-          documents. Navigate by category: general management and company setup.
+          Main workspace for your Bamboo project. Open sections by category and
+          track setup, tasks, inventory, shop, and finance in one place.
         </p>
+        <div className="mt-5">
+          <Link
+            href="/apps/bamboo/start-here"
+            className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
+          >
+            Open start here
+          </Link>
+        </div>
       </section>
 
       <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -156,6 +175,12 @@ export default async function BambooPage() {
           )
         ))}
       </section>
+
+      <BambooSectionProgress
+        title="Journey progress"
+        description="Task completion across Setup, Inventory, Name brainstorm, Shop, and Launch."
+        sections={sectionProgress}
+      />
 
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">

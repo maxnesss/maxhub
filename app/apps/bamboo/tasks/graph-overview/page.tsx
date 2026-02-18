@@ -157,7 +157,7 @@ export default async function BambooTaskGraphOverviewPage() {
           Task graph overview
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Visual summary of execution status across all Bamboo tasks and phases.
+          Visual summary of task status across all Bamboo phases.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link

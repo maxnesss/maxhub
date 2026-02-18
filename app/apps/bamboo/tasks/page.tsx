@@ -129,8 +129,8 @@ export default async function BambooTasksPage({ searchParams }: BambooTasksPageP
           Task board
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Shared execution layer across all Bamboo categories. Filter by section,
-          track status, and place work into launch phases.
+          Shared task board for all Bamboo sections. Filter by category, status,
+          and phase.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">

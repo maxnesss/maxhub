@@ -13,22 +13,22 @@ const INVENTORY_MODULES = [
   {
     title: "Budget",
     href: "/apps/bamboo/inventory/budget",
-    description: "Initial and periodical inventory estimates integrated to capital overviews.",
+    description: "Startup and recurring inventory budget.",
   },
   {
     title: "Inventory brainstorm",
     href: "/apps/bamboo/inventory/brainstorm",
-    description: "Initial product categories, price bands, and launch candidates.",
+    description: "Product ideas, price bands, and launch picks.",
   },
   {
     title: "Producers contact",
     href: "/apps/bamboo/inventory/producers-contact",
-    description: "Supplier pipeline and qualification template for China sourcing.",
+    description: "Supplier contacts and qualification checklist.",
   },
   {
     title: "Import of products",
     href: "/apps/bamboo/inventory/import-to-czech",
-    description: "Practical China -> Czech Republic import process step by step.",
+    description: "Simple China -> Czech import process.",
   },
 ];
 
@@ -67,8 +67,7 @@ export default async function BambooInventoryPage() {
           Inventory
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Inventory planning hub from early product ideas to supplier selection
-          and import execution.
+          Inventory planning from product ideas to supplier and import steps.
         </p>
       </section>
 
@@ -91,7 +90,7 @@ export default async function BambooInventoryPage() {
       <section className="mt-6 rounded-2xl border border-(--line) bg-white p-6">
         <h2 className="text-2xl font-semibold tracking-tight text-[#162947]">Other ideas</h2>
         <p className="mt-2 text-sm text-(--text-muted)">
-          Suggested expansions for stronger inventory control and better margins.
+          Extra ideas to improve control and margins.
         </p>
         <ul className="mt-4 space-y-2">
           {BAMBOO_INVENTORY_EXTRA_IDEAS.map((idea) => (

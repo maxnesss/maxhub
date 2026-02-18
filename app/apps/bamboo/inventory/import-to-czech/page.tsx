@@ -4,11 +4,11 @@ import { requireAppRead } from "@/lib/authz";
 import { BAMBOO_IMPORT_TO_CZ_STEPS } from "@/lib/bamboo-content";
 
 const IMPORT_RISKS = [
-  "HS code misclassification leading to wrong duty calculation",
-  "Quality mismatch between approved sample and mass production",
-  "Shipping delays around peak seasons and holiday closures",
-  "Hidden costs in freight, customs brokerage, and local handling",
-  "Incomplete documents causing customs clearance delays",
+  "Wrong HS code and wrong duty calculation",
+  "Sample quality differs from final production quality",
+  "Shipping delays in peak seasons or holidays",
+  "Hidden costs in freight, customs, and local handling",
+  "Missing documents that delay customs clearance",
 ];
 
 export default async function BambooImportToCzechPage() {
@@ -31,8 +31,7 @@ export default async function BambooImportToCzechPage() {
           Import products to Czech Republic
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Practical step-by-step flow from producer selection in China to stock-in
-          in Czech Republic.
+          Step-by-step flow from China supplier to stock in Czech Republic.
         </p>
       </section>
 

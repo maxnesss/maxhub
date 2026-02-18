@@ -84,8 +84,7 @@ export default async function BambooInventoryBudgetPage({
               Inventory budget
             </h1>
             <p className="mt-4 max-w-3xl text-(--text-muted)">
-              Maintain inventory budget estimates for initial stock-up and recurring
-              inventory cycle (once every 3 months).
+              Track inventory budget for startup stock and recurring 3-month cycles.
             </p>
           </div>
 

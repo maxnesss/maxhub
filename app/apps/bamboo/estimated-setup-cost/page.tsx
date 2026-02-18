@@ -65,8 +65,7 @@ export default async function BambooEstimatedSetupCostPage() {
           Estimated setup cost
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Detailed setup-cost view based on baseline setup requirements and
-          one-time lines from Shop Budget.
+          Setup cost view based on baseline costs and one-time budget lines.
         </p>
       </section>
 
@@ -79,7 +78,7 @@ export default async function BambooEstimatedSetupCostPage() {
             +{formatCzkAmount(totalOneTimeContributors)}
           </p>
           <p className="mt-1 text-xs text-[#5f7093]">
-            Shop budget one-time + initial inventory estimate.
+            Shop one-time costs + initial inventory estimate.
           </p>
         </article>
 
@@ -91,7 +90,7 @@ export default async function BambooEstimatedSetupCostPage() {
             {formatCzkAmount(currentSetupRange.min)} - {formatCzkAmount(currentSetupRange.max)}
           </p>
           <p className="mt-1 text-xs text-[#5f7093]">
-            Formula: Base setup cost + one-time budget total
+            Formula: base setup cost + one-time total
           </p>
         </article>
       </section>
@@ -164,7 +163,7 @@ export default async function BambooEstimatedSetupCostPage() {
           Open inventory budget
         </Link>
         <Link
-          href="/apps/bamboo/finance-requirements"
+          href="/apps/bamboo/company-setup/finance-requirements"
           className="inline-flex rounded-xl border border-[#d9e2f3] px-4 py-2 text-sm font-semibold text-[#4e5e7a] hover:bg-[#f8faff]"
         >
           Open finance requirements

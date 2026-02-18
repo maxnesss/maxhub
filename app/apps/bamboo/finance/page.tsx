@@ -11,32 +11,32 @@ const FINANCE_PILLARS = [
   {
     title: "Revenue model",
     points: [
-      "Start with focused product categories for bamboo home goods.",
-      "Track unit economics per category from first month.",
-      "Add subscription or repeat-order strategy once retention data exists.",
+      "Start with a small set of product categories.",
+      "Track margin per product category from month one.",
+      "Add repeat-order strategy after you have real data.",
     ],
   },
   {
     title: "Operating budget",
     points: [
-      "Separate one-time setup costs from monthly operating costs.",
+      "Separate setup costs from monthly costs.",
       "Set monthly limits for inventory, marketing, and tools.",
-      "Review variance between plan and actual every week.",
+      "Review planned vs real spending every week.",
     ],
   },
   {
     title: "Cash and runway",
     points: [
-      "Maintain visible cash buffer targets.",
-      "Estimate runway in months based on current burn.",
-      "Define trigger points for cost reductions or growth investments.",
+      "Keep a clear cash buffer target.",
+      "Estimate runway in months from your burn rate.",
+      "Define when to cut costs or invest more.",
     ],
   },
   {
     title: "Reporting cadence",
     points: [
-      "Weekly: cash in/out and urgent blockers.",
-      "Monthly: P&L overview and margin by product line.",
+      "Weekly: cash in/out and blockers.",
+      "Monthly: profit/loss and margin by product line.",
       "Quarterly: strategy review and growth priorities.",
     ],
   },
@@ -77,8 +77,7 @@ export default async function BambooFinancePage() {
           Finance setup
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          General finance category for planning how the business will run after
-          legal setup is complete.
+          Simple finance plan for running the business after setup.
         </p>
       </section>
 

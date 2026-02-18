@@ -11,33 +11,33 @@ const ESHOP_PILLARS = [
   {
     title: "Eshop model",
     points: [
-      "Define primary channel split: own eshop first, marketplaces second.",
-      "Set target average order value and repeat purchase target from month one.",
-      "Launch with a compact assortment and expand based on conversion data.",
+      "Set channel priority: own eshop first, marketplaces second.",
+      "Track average order value and repeat purchases from month one.",
+      "Launch with a small assortment and expand using real data.",
     ],
   },
   {
     title: "Webpage structure",
     points: [
-      "Homepage: clear value proposition, best sellers, and trust signals.",
-      "Category pages: bamboo by use case (kitchen, bathroom, storage, gifting).",
-      "Product page: photos, material story, dimensions, shipping and returns.",
+      "Homepage: clear value, best sellers, and trust signals.",
+      "Category pages by use case (kitchen, bathroom, storage, gifts).",
+      "Product page: photos, material story, dimensions, shipping, returns.",
     ],
   },
   {
     title: "Conversion essentials",
     points: [
-      "Fast mobile checkout and clear delivery timeline.",
-      "Bundle offers and free-shipping threshold to lift basket size.",
-      "Always-visible FAQ for durability, care, and certifications.",
+      "Fast mobile checkout and clear delivery timing.",
+      "Use bundles and free-shipping threshold to increase basket size.",
+      "Keep FAQ visible (care, durability, certifications).",
     ],
   },
   {
     title: "Content and growth",
     points: [
-      "Create recurring content plan around practical bamboo use at home.",
-      "Collect customer photos/reviews and place them on high-intent pages.",
-      "Run monthly SEO updates for top categories and search terms.",
+      "Create recurring content around daily bamboo use.",
+      "Collect customer photos/reviews and place them on key pages.",
+      "Do monthly SEO updates for top categories and keywords.",
     ],
   },
 ];
@@ -46,17 +46,17 @@ const ESHOP_NEXT_MODULES = [
   {
     title: "Shop concept",
     href: "/apps/bamboo/shop/concept",
-    description: "Align eshop positioning with your physical-store concept.",
+    description: "Keep eshop positioning aligned with shop concept.",
   },
   {
     title: "Shop budget",
     href: "/apps/bamboo/shop/budget",
-    description: "Reserve paid traffic, tooling, and content production budget.",
+    description: "Set budget for ads, tools, and content.",
   },
   {
     title: "Documents",
     href: "/apps/bamboo/documents",
-    description: "Store copy, visual guidelines, and legal webpage templates.",
+    description: "Store copy, visual rules, and legal templates.",
   },
 ];
 
@@ -112,8 +112,7 @@ export default async function BambooEshopPage() {
           Eshop + webpage
         </h1>
         <p className="mt-4 max-w-3xl text-(--text-muted)">
-          Digital-commerce planning space for online storefront strategy, website
-          structure, and conversion readiness.
+          Planning area for online store strategy, website structure, and conversion.
         </p>
       </section>
 
